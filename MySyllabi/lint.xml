@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="NewApi">
+        <ignore path="src/edu/uta/mysyllabi/CreateCourse.java" />
+        <ignore path="src/edu/uta/mysyllabi/DatabaseHelper.java" />
+        <ignore path="src/edu/uta/mysyllabi/TimePickerFragment.java" />
+    </issue>
+</lint>

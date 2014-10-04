@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- General -->
+    <string name="app_name">My Syllabi</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="action_settings">Settings</string>
+    
+    <!-- Create New Course -->
+    <string name="title_activity_create_course">Create New Course</string>
+    <string name="course_name">Course ID</string>
+    <string name="course_title">Course Name</string>
+    <string name="meeting_start">Meeting Start Time</string>
+    <string name="meeting_length">Meeting Duration</string>
+    <string name="day_mon">m</string>
+    <string name="day_tue">t</string>
+    <string name="day_wed">w</string>
+    <string name="day_thu">t</string>
+    <string name="day_fri">f</string>
+    <string name="day_sat">s</string>
+    <string name="day_sun">s</string>
+    <string name="meeting_location">Meeting Location</string>
+    <string name="instructor_name">Name of Instructor</string>
+    <string name="course_save">Save New Course</string>
+    
+
+</resources>
