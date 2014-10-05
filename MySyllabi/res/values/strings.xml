@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- General -->
     <string name="app_name">My Syllabi</string>
@@ -14,16 +14,25 @@
     <string name="course_title">Course Name</string>
     <string name="meeting_start">Meeting Start Time</string>
     <string name="meeting_length">Meeting Duration</string>
-    <string name="day_mon">m</string>
-    <string name="day_tue">t</string>
-    <string name="day_wed">w</string>
-    <string name="day_thu">t</string>
-    <string name="day_fri">f</string>
-    <string name="day_sat">s</string>
-    <string name="day_sun">s</string>
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">S</string>
     <string name="meeting_location">Meeting Location</string>
     <string name="instructor_name">Name of Instructor</string>
     <string name="course_save">Save New Course</string>
+    
+    <string-array name="duration_array">
+        <item android:id="0">Select Meeting Length</item>
+        <item android:id="60">1:00</item>
+        <item android:id="90">1:30</item>
+        <item android:id="120">2:00</item>
+        <item android:id="150">2:30</item>
+        <item android:id="180">3:00</item>
+    </string-array>
     
 
 </resources>

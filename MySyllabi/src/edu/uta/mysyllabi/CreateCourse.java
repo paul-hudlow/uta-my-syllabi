@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 
 public class CreateCourse extends ActionBarActivity {
@@ -32,7 +34,7 @@ public class CreateCourse extends ActionBarActivity {
 		
  		try {
  			course.meeting = new WeeklyMeeting(startTime, 
- 										   getIntFromView(R.id.meeting_length), 
+ 										   getDuration(), 
  										   meetingDays, 
  										   getStringFromView(R.id.meeting_location));
  		} catch (Exception exception) {
@@ -71,15 +73,24 @@ public class CreateCourse extends ActionBarActivity {
 		return textView.getText().toString();
 	}
 	
-	private int getIntFromView(int viewId) throws NumberFormatException {
-		EditText intView = (EditText)findViewById(viewId);
-		return Integer.parseInt(intView.getText().toString());
+	private int getDuration() {
+		Spinner spinner = (Spinner)findViewById(R.id.meeting_length);
+		return (int)spinner.getSelectedItemPosition()*30 + 30;
 	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create_course);
+		
+		Spinner spinner = (Spinner) findViewById(R.id.meeting_length);
+		// Create an ArrayAdapter using the string array and a default spinner layout
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.duration_array, 
+																			 android.R.layout.simple_spinner_item);
+		// Specify the layout to use when the list of choices appears
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// Apply the adapter to the spinner
+		spinner.setAdapter(adapter);
 	}
 
 	@Override
