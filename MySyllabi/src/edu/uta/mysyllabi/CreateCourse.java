@@ -20,7 +20,7 @@ public class CreateCourse extends ActionBarActivity {
 	private int startTime = 0;
 	
 	public void saveCourse(View view) {
-		Syllabus course = new Syllabus();
+		Course course = new Course();
 		course.name = getStringFromView(R.id.course_name);
 		course.title = getStringFromView(R.id.course_title);
 		String meetingDays = "";
@@ -46,7 +46,7 @@ public class CreateCourse extends ActionBarActivity {
 			return;
 		}
 		
-		DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+		LocalDataHelper helper = new LocalDataHelper();
 		helper.addCourse(course);
 		
 		// Change to the ViewCourse activity.

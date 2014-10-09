@@ -82,7 +82,7 @@ public class SelectCourse extends ActionBarActivity {
     	
     	public CoursePagerAdapter(FragmentManager fm) {
     		super(fm);
-    		DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+    		LocalDataHelper helper = new LocalDataHelper(getApplicationContext());
     		this.syllabusBundles = helper.getSyllabi();
     	}
 
@@ -114,7 +114,7 @@ public class SelectCourse extends ActionBarActivity {
                     R.layout.fragment_select_course, container, false);
             Bundle syllabusBundle = getArguments();
             
-            Syllabus syllabus = new Syllabus(syllabusBundle);
+            Course syllabus = new Course(syllabusBundle);
 
             TextView nextView;
 

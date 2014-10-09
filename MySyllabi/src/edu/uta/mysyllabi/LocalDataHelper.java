@@ -1,15 +1,10 @@
 package edu.uta.mysyllabi;
 
-import java.util.ArrayList;
-
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Bundle;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class LocalDataHelper extends SQLiteOpenHelper {
 	// Version must be incremented upon schema change!
 	public static final int DATABASE_VERSION = 10;
     public static final String DATABASE_NAME = "MyCourses.db";
@@ -33,8 +28,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DROP_TABLE_SYLLABI = "DROP TABLE IF EXISTS " + DataContract.Syllabi.TABLE_NAME;
     
     
-	public DatabaseHelper(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+	public LocalDataHelper() {
+		super(MySyllabi.getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	@Override
@@ -48,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		onCreate(database);
 	}
 	
-	public void addCourse(Syllabus syllabus) {		
+	public void saveCourse(Course syllabus) {		
 		ContentValues values = new ContentValues();
 	    values.put(DataContract.Syllabi.COLUMN_COURSE_NAME, syllabus.name);
 	    values.put(DataContract.Syllabi.COLUMN_COURSE_TITLE, syllabus.title);
@@ -66,39 +61,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		database.close();
 	}
 	
-	public ArrayList<Bundle> getSyllabi() {
-		ArrayList<Bundle> syllabusList = new ArrayList<Bundle>();
-		SQLiteDatabase database = this.getReadableDatabase();
-		
-		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor = database.query(DataContract.Syllabi.TABLE_NAME, null, null, null, null, null, 
-											DataContract.Syllabi.COLUMN_COURSE_NAME);
-		
-		if (!tableCursor.moveToFirst()) {
-			return syllabusList; // Return empty list if cursor is empty.
-		}
-		
-		Bundle nextBundle;
-		
-		do {
-			nextBundle = new Bundle();
-			int columnCount = tableCursor.getColumnCount();
-			for (int i = 0; i < columnCount; i++) {
-				switch (tableCursor.getType(i)){
-				case Cursor.FIELD_TYPE_INTEGER:
-					nextBundle.putInt(tableCursor.getColumnName(i), tableCursor.getInt(i));
-					break;
-				case Cursor.FIELD_TYPE_STRING:
-					nextBundle.putString(tableCursor.getColumnName(i), tableCursor.getString(i));
-				}
-			}
-			syllabusList.add(nextBundle);
-		} while (tableCursor.moveToNext()); // Keep going until there are no more rows in cursor.
-		
-		tableCursor.close();
-		database.close();
-		
-		return syllabusList;
+	public Course getCourse() {
+		Course localCourse = new Course();
+		// TODO implement method
+		return localCourse;
+	}
+	
+	public int[] getCourseKeys() {
+		// TODO implement method
+		return null;
 	}
 
 }
