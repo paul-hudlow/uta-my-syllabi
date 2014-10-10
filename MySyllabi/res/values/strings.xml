@@ -3,36 +3,69 @@
 
     <!-- General -->
     <string name="app_name">My Syllabi</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="okay">Done</string>
+    <string name="cancel">Cancel</string>
     <string name="action_settings">Settings</string>
-    
+
     <!-- Create New Course -->
     <string name="title_activity_create_course">Create New Course</string>
-    <string name="course_name">Course ID</string>
-    <string name="course_title">Course Name</string>
-    <string name="meeting_start">Meeting Start Time</string>
-    <string name="meeting_length">Meeting Duration</string>
-    <string name="day_mon">M</string>
-    <string name="day_tue">T</string>
-    <string name="day_wed">W</string>
-    <string name="day_thu">T</string>
-    <string name="day_fri">F</string>
-    <string name="day_sat">S</string>
-    <string name="day_sun">S</string>
-    <string name="meeting_location">Meeting Location</string>
-    <string name="instructor_name">Name of Instructor</string>
-    <string name="course_save">Save New Course</string>
     
-    <string-array name="duration_array">
-        <item android:id="0">Select Meeting Length</item>
-        <item android:id="60">1:00</item>
-        <item android:id="90">1:30</item>
-        <item android:id="120">2:00</item>
-        <item android:id="150">2:30</item>
-        <item android:id="180">3:00</item>
+    <string name="hint_course_name">Course ID</string>
+    <string name="hint_course_section">Section</string>
+    <string name="hint_course_school">College or University</string>
+    <string name="create_course_submit">Create Course</string>
+
+    <string-array name="us_states">
+        <item>Alabama</item>
+        <item>Alaska</item>
+        <item>Arizona</item>
+        <item>Arkansas</item>
+        <item>California</item>
+        <item>Colorado</item>
+        <item>Connecticut</item>
+        <item>Delaware</item>
+        <item>Florida</item>
+        <item>Georgia</item>
+        <item>Hawaii</item>
+        <item>Idaho</item>
+        <item>Illinois</item>
+        <item>Indiana</item>
+        <item>Iowa</item>
+        <item>Kansas</item>
+        <item>Kentucky</item>
+        <item>Louisiana</item>
+        <item>Maine</item>
+        <item>Maryland</item>
+        <item>Massachusetts</item>
+        <item>Michigan</item>
+        <item>Minnesota</item>
+        <item>Mississippi</item>
+        <item>Missouri</item>
+        <item>Montana</item>
+        <item>Nebraska</item>
+        <item>Nevada</item>
+        <item>New Hampshire</item>
+        <item>New Jersey</item>
+        <item>New Mexico</item>
+        <item>New York</item>
+        <item>North Carolina</item>
+        <item>North Dakota</item>
+        <item>Ohio</item>
+        <item>Oklahoma</item>
+        <item>Oregon</item>
+        <item>Pennsylvania</item>
+        <item>Rhode Island</item>
+        <item>South Carolina</item>
+        <item>South Dakota</item>
+        <item>Tennessee</item>
+        <item>Texas</item>
+        <item>Utah</item>
+        <item>Vermont</item>
+        <item>Virginia</item>
+        <item>Washington</item>
+        <item>West Virginia</item>
+        <item>Wisconsin</item>
+        <item>Wyoming</item>
     </string-array>
-    
 
 </resources>

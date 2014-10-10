@@ -82,8 +82,8 @@ public class SelectCourse extends ActionBarActivity {
     	
     	public CoursePagerAdapter(FragmentManager fm) {
     		super(fm);
-    		LocalDataHelper helper = new LocalDataHelper(getApplicationContext());
-    		this.syllabusBundles = helper.getSyllabi();
+    		// LocalDataHelper helper = new LocalDataHelper();
+    		this.syllabusBundles = new ArrayList<Bundle>();
     	}
 
     	@Override
@@ -112,25 +112,25 @@ public class SelectCourse extends ActionBarActivity {
             // properly.
             View rootView = inflater.inflate(
                     R.layout.fragment_select_course, container, false);
-            Bundle syllabusBundle = getArguments();
+            // Bundle syllabusBundle = getArguments();
             
-            Course syllabus = new Course(syllabusBundle);
+            Course syllabus = new Course();
 
             TextView nextView;
 
             nextView = (TextView) rootView.findViewById(R.id.view_course_name);
-            nextView.setText(syllabus.name);
+            nextView.setText(syllabus.getName());
 
             nextView = (TextView) rootView.findViewById(R.id.view_course_title);
-            nextView.setText(syllabus.title);
+            nextView.setText(syllabus.getTitle());
             
-            if (syllabus.meeting != null) {
+            /*if (syllabus.meeting != null) {
 	            nextView = (TextView) rootView.findViewById(R.id.view_meeting_time);
 	            nextView.setText(syllabus.meeting.getOccurence());
             }
 
             nextView = (TextView) rootView.findViewById(R.id.view_instructor_name);
-            nextView.setText(syllabus.instructor.getName()); 
+            nextView.setText(syllabus.instructor.getName()); */
             
             return rootView;
         }

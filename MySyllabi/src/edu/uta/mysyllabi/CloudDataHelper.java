@@ -11,4 +11,5 @@ public class CloudDataHelper {
 		// TODO implement method
 		return cloudCourse;
 	}
+
 }

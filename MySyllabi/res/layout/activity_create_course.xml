@@ -1,206 +1,69 @@
-<ScrollView 
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-
-<LinearLayout
+    
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
+    
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    
     tools:context="edu.uta.mysyllabi.CreateCourse" >
-
-    <EditText
-        android:id="@+id/course_name"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/course_name" />
     
-    <EditText
-        android:id="@+id/course_title"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/course_title"
-        android:inputType="textCapWords" />
     
-	<Spinner
-	    android:id="@+id/meeting_length"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content" />
-    
+    <!-- launch school selection dialog -->
     <Button
-        android:id="@+id/meeting_start"
+        android:id="@+id/create_course_school"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/meeting_start"
-        android:onClick="showTimePicker" />
+        android:text="@string/hint_course_school"
+        android:onClick="selectSchool"
+        style="@style/DecoySpinner" />
     
-	<LinearLayout 
-        android:orientation="horizontal"
+    <!-- select school semester -->
+    <Spinner
+        android:id="@+id/create_course_semester"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="0sp" />
+    
+    <!-- display course id and section on the same line -->
+    <LinearLayout
         android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:baselineAligned="false">
-    	
-	    <!-- Monday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal" >
+	    <!-- course id -->
+	    <EditText
+	        android:id="@+id/create_course_name"
 	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/day_mon" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_mon"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-    	
-    	<!-- Tuesday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
+	        android:layout_weight="1"
+	        android:hint="@string/hint_course_name"
+	        style="@style/InputField" />
+	    <!-- course section -->
+	    <EditText
+	        android:id="@+id/create_course_section"
 	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/day_tue" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_tue"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-    	
-    	<!-- Wednesday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
-	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/day_wed" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_wed"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-    	
-    	<!-- Thursday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
-	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/day_thu" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_thu"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-    	
-    	<!-- Friday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
-	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/day_fri" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_fri"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-    	
-    	<!-- Saturday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
-	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/day_sat" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_sat"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-    	
-    	<!-- Sunday Checkbox -->
-    	<LinearLayout 
-	        android:orientation="vertical"
-	        android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="1"
-	    	android:gravity="center">
-	    	
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/day_sun" />
-	    <CheckBox 
-	        android:id="@+id/checkbox_sun"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
-	    
-	    </LinearLayout>
-	    
-
+	        android:layout_weight="1"
+	        android:hint="@string/hint_course_section"
+	        style="@style/InputField" />
     </LinearLayout>
     
-	<EditText
-        android:id="@+id/meeting_location"
+    <!-- display courses from the cloud -->
+	<ListView
+	    android:id="@+id/create_course_list_view"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/meeting_location"
-        android:inputType="textCapWords" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
     
-    <EditText
-        android:id="@+id/instructor_name"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/instructor_name"
-        android:inputType="textCapWords" />
-    
+	<!-- finish creating course -->
     <Button
-        android:id="@+id/save"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:text="@string/course_save"
-	    android:onClick ="saveCourse" />
-
+        android:id="@+id/create_course_submit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_course_submit"
+        style="@style/SubmitButton" />
+    
 </LinearLayout>
-</ScrollView>

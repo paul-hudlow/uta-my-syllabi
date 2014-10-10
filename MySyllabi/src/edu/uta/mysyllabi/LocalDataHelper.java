@@ -1,6 +1,5 @@
 package edu.uta.mysyllabi;
 
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -44,7 +43,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	}
 	
 	public void saveCourse(Course syllabus) {		
-		ContentValues values = new ContentValues();
+		/*ContentValues values = new ContentValues();
 	    values.put(DataContract.Syllabi.COLUMN_COURSE_NAME, syllabus.name);
 	    values.put(DataContract.Syllabi.COLUMN_COURSE_TITLE, syllabus.title);
 	    values.put(DataContract.Syllabi.COLUMN_INSTRUCTOR_NAME, syllabus.instructor.getName());
@@ -57,8 +56,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    }
 	    
 	    SQLiteDatabase database = this.getWritableDatabase();
-		database.insert(DataContract.Syllabi.TABLE_NAME, null, values);
-		database.close();
+		database.insert(DataContract.Syllabi.TABLE_NAME, null, values); */
 	}
 	
 	public Course getCourse() {
