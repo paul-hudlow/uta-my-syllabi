@@ -1,4 +1,5 @@
-package edu.uta.mysyllabi;
+package edu.uta.mysyllabi.datatypes;
+
 
 public class Instructor {
 	private String prefix;

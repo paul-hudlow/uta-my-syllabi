@@ -1,6 +1,9 @@
-package edu.uta.mysyllabi;
+package edu.uta.mysyllabi.frontend;
 
 import java.util.ArrayList;
+
+import edu.uta.mysyllabi.R;
+import edu.uta.mysyllabi.core.Course;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
@@ -66,7 +69,7 @@ public class SelectCourse extends ActionBarActivity {
             return true;
         }
         if (id == R.id.action_create_course) {
-    		Intent intent = new Intent(this, CreateCourse.class);
+    		Intent intent = new Intent(this, CreateCourseController.class);
     		startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
@@ -119,10 +122,10 @@ public class SelectCourse extends ActionBarActivity {
             TextView nextView;
 
             nextView = (TextView) rootView.findViewById(R.id.view_course_name);
-            nextView.setText(syllabus.getName());
+            nextView.setText(syllabus.name);
 
             nextView = (TextView) rootView.findViewById(R.id.view_course_title);
-            nextView.setText(syllabus.getTitle());
+            nextView.setText(syllabus.title);
             
             /*if (syllabus.meeting != null) {
 	            nextView = (TextView) rootView.findViewById(R.id.view_meeting_time);

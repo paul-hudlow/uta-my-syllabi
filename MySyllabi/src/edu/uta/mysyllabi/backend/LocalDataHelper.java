@@ -1,5 +1,8 @@
-package edu.uta.mysyllabi;
+package edu.uta.mysyllabi.backend;
 
+import edu.uta.mysyllabi.MySyllabi;
+import edu.uta.mysyllabi.backend.DataContract.Syllabi;
+import edu.uta.mysyllabi.core.Course;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -42,7 +45,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		onCreate(database);
 	}
 	
-	public void saveCourse(Course syllabus) {		
+	public static void saveCourse(Course syllabus) {		
 		/*ContentValues values = new ContentValues();
 	    values.put(DataContract.Syllabi.COLUMN_COURSE_NAME, syllabus.name);
 	    values.put(DataContract.Syllabi.COLUMN_COURSE_TITLE, syllabus.title);
@@ -59,8 +62,12 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		database.insert(DataContract.Syllabi.TABLE_NAME, null, values); */
 	}
 	
-	public Course getCourse() {
-		Course localCourse = new Course();
+	public static void saveCourse(Course course, String cloudId) {
+		// TODO implement method
+	}
+	
+	public static Course getCourse(String localId) {
+		Course localCourse = new Course(localId, null);
 		// TODO implement method
 		return localCourse;
 	}

@@ -1,4 +1,4 @@
-package edu.uta.mysyllabi;
+package edu.uta.mysyllabi.datatypes;
 
 import java.util.Calendar;
 

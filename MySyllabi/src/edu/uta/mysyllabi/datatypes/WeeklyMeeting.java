@@ -1,4 +1,5 @@
-package edu.uta.mysyllabi;
+package edu.uta.mysyllabi.datatypes;
+
 
 public class WeeklyMeeting {
 	public static final int MAX_TIME = 1439;

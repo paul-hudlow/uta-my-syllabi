@@ -1,4 +1,4 @@
-package edu.uta.mysyllabi;
+package edu.uta.mysyllabi.backend;
 
 import android.provider.BaseColumns;
 

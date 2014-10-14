@@ -9,11 +9,12 @@
 
     <!-- Create New Course -->
     <string name="title_activity_create_course">Create New Course</string>
-    
     <string name="hint_course_name">Course ID</string>
     <string name="hint_course_section">Section</string>
     <string name="hint_course_school">College or University</string>
     <string name="create_course_submit">Create Course</string>
+    <string name="course_item_open_parenthetical">&#160;(</string>
+    <string name="course_item_close_parenthetical">)</string>
 
     <string-array name="us_states">
         <item>Alabama</item>
@@ -67,5 +68,32 @@
         <item>Wisconsin</item>
         <item>Wyoming</item>
     </string-array>
+
+    
+    <!-- Modify Existing Course -->
+    <string name="title_activity_modify_course">ModifyCourse</string>
+    <string name="modify_course_submit">Save Course</string>
+    <string name="hint_meeting_start">Start Time</string>
+    <string name="hint_meeting_duration">Length</string>
+    <string name="heading_course_meeting">Class Meetings</string>
+    <string name="heading_instructor_contact">Instructor Information</string>
+    <string name="heading_teaching_assistant">Add Teaching Assistant</string>
+    <string name="heading_grade_composition">Grade Composition</string>
+    <string name="hint_first_name">First Name</string>
+    <string name="hint_last_name">Last Name</string>
+    <string name="hint_email">Email Address</string>
+    <string name="hint_phone">Phone Number</string>
+    <string name="hint_office">Office ID</string>
+    <string name="hint_office_hours">Office Hours</string>
+    <string name="hint_class_meeting_time">Meeting Times</string>
+    <string name="hint_class_room">Classroom</string>
+     
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">S</string>
 
 </resources>

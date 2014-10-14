@@ -9,13 +9,13 @@
         android:targetSdkVersion="21" />
 
     <application
-        android:name="edu.uta.mysyllabi.MySyllabi"
+        android:name=".MySyllabi"
         android:allowBackup="true"
         android:icon="@drawable/mysyllabi"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".SelectCourse"
+            android:name="edu.uta.mysyllabi.frontend.SelectCourse"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,8 +24,8 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="edu.uta.mysyllabi.frontend.CreateCourseController"
             android:icon="@drawable/mysyllabi"
-            android:name=".CreateCourse"
             android:label="@string/title_activity_create_course" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -34,6 +34,10 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="edu.uta.mysyllabi.frontend.ModifyCourseController"
+            android:label="@string/title_activity_modify_course" >
         </activity>
     </application>
 

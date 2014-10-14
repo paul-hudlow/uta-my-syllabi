@@ -2,6 +2,7 @@
 <lint>
     <issue id="InflateParams">
         <ignore path="src/edu/uta/mysyllabi/CreateCourse.java" />
+        <ignore path="src/edu/uta/mysyllabi/frontend/CreateCourse.java" />
     </issue>
     <issue id="NewApi">
         <ignore path="src/edu/uta/mysyllabi/CreateCourse.java" />
