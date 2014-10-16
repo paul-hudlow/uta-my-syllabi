@@ -1,7 +1,6 @@
 package edu.uta.mysyllabi.backend;
 
 import edu.uta.mysyllabi.MySyllabi;
-import edu.uta.mysyllabi.backend.DataContract.Syllabi;
 import edu.uta.mysyllabi.core.Course;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;

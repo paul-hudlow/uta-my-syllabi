@@ -86,7 +86,8 @@
     <string name="hint_office">Office ID</string>
     <string name="hint_office_hours">Office Hours</string>
     <string name="hint_class_meeting_time">Meeting Times</string>
-    <string name="hint_class_room">Classroom</string>
+    <string name="hint_classroom">Classroom</string>
+    <string name="hint_meeting_days">Days of Week</string>
      
     <string name="day_mon">M</string>
     <string name="day_tue">T</string>

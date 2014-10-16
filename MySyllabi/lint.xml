@@ -3,6 +3,9 @@
     <issue id="InflateParams">
         <ignore path="src/edu/uta/mysyllabi/CreateCourse.java" />
         <ignore path="src/edu/uta/mysyllabi/frontend/CreateCourse.java" />
+        <ignore path="src/edu/uta/mysyllabi/frontend/CreateCourseController.java" />
+        <ignore path="src/edu/uta/mysyllabi/frontend/ModifyCourseController.java" />
+        <ignore path="src/edu/uta/mysyllabi/frontend/SelectDaysDialogFragment.java" />
     </issue>
     <issue id="NewApi">
         <ignore path="src/edu/uta/mysyllabi/CreateCourse.java" />

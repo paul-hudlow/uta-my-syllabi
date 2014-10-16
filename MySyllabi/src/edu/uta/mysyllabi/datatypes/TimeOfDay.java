@@ -8,17 +8,17 @@ public class TimeOfDay {
 	private final int hour;
 	private final int minute;
 	
-	TimeOfDay(int hour, int minute) {
+	public TimeOfDay(int hour, int minute) {
 		this.hour = hour;
 		this.minute = minute;
 	}
 	
-	TimeOfDay(int totalMinutes) {
+	public TimeOfDay(int totalMinutes) {
 		hour = totalMinutes/60;
 		minute = totalMinutes%60;
 	}
 	
-	public String getTime(boolean in24HourFormat) {
+	public String toString(boolean in24HourFormat) {
 		String hourString;
 		String postfix;
 		if (!in24HourFormat) {
@@ -51,6 +51,14 @@ public class TimeOfDay {
 		}
 		
 		return hourString + ":" + minuteString + postfix;
+	}
+	
+	public int getHour() {
+		return hour;
+	}
+	
+	public int getMinute() {
+		return minute;
 	}
 	
 	public int getTotalMinutes() {

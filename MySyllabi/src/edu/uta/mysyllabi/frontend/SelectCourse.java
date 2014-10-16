@@ -117,15 +117,15 @@ public class SelectCourse extends ActionBarActivity {
                     R.layout.fragment_select_course, container, false);
             // Bundle syllabusBundle = getArguments();
             
-            Course syllabus = new Course();
+            Course syllabus = new Course(null, null);
 
             TextView nextView;
 
             nextView = (TextView) rootView.findViewById(R.id.view_course_name);
-            nextView.setText(syllabus.name);
+            //nextView.setText(syllabus.name);
 
             nextView = (TextView) rootView.findViewById(R.id.view_course_title);
-            nextView.setText(syllabus.title);
+            //nextView.setText(syllabus.title);
             
             /*if (syllabus.meeting != null) {
 	            nextView = (TextView) rootView.findViewById(R.id.view_meeting_time);

@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -32,7 +31,8 @@ import android.widget.TextView;
 import android.text.Editable;
 import android.text.TextWatcher;
 
-public class CreateCourseController extends ActionBarActivity {
+public class CreateCourseController extends ActionBarActivity 
+									implements TextWatcher, OnItemSelectedListener {
 	private TextView schoolButton;
 	private Spinner semesterSpinner;
 	private EditText courseName;
@@ -45,6 +45,7 @@ public class CreateCourseController extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create_course);
 		
+		
 		this.schoolButton = (TextView) findViewById(R.id.create_course_school);
 		this.semesterSpinner = (Spinner) findViewById(R.id.create_course_semester);
 		this.courseName = (EditText) findViewById(R.id.create_course_name);
@@ -52,10 +53,9 @@ public class CreateCourseController extends ActionBarActivity {
 		this.courseList = (ListView) findViewById(R.id.create_course_list);
 		this.controller = new Controller();
 		
-		CourseSearchListener searchListener = new CourseSearchListener(this);
-		this.courseName.addTextChangedListener(searchListener);
-		this.courseSection.addTextChangedListener(searchListener);
-		this.semesterSpinner.setOnItemSelectedListener(searchListener);
+		this.courseName.addTextChangedListener(this);
+		this.courseSection.addTextChangedListener(this);
+		this.semesterSpinner.setOnItemSelectedListener(this);
 		
 		/* Create an new ArrayAdapter for school semester. */
 		ArrayAdapter<SchoolSemester> spinnerAdapter = 
@@ -100,23 +100,19 @@ public class CreateCourseController extends ActionBarActivity {
 	}
 	
 	public void updateCourseSearch() {
-		ArrayList<HashMap<String,String>> cloudList = new ArrayList<HashMap<String,String>>();
-		HashMap<String,String> map = new HashMap<String,String>();
-		map.put("name", "CSE 5324");
-		map.put("meeting", "TuThu 11:00am-12:20pm");
-		map.put("instructor", "Dr. Jeff Lei");
-		cloudList.add(map);
-		map = new HashMap<String,String>();
-		map.put("name", "CSE 5320");
-		map.put("meeting", "Fri 1:00pm-4:00pm");
-		map.put("instructor", "Dennis Frailey");
-		for (int i = 0; i < 20; i++) {
-			cloudList.add(map);
+		ArrayList<Course> cloudList = controller.findCourses(courseName.getText().toString(),
+				courseSection.getText().toString(), schoolButton.getText().toString(),
+				semesterSpinner.getSelectedItem().toString());
+		ArrayList<HashMap<String,String>> mapList = new ArrayList<HashMap<String,String>>();
+		
+		for (Course nextCourse : cloudList) {
+			mapList.add(nextCourse.getPreviewMap());
 		}
-		String[] courseElements = {"name", "meeting", "instructor"};
+		
+		String[] courseElements = {Course.MAP_KEY_NAME, Course.MAP_KEY_MEETING, Course.MAP_KEY_INSTRUCTOR};
 		int[] viewElements = {R.id.course_item_name, 
 				R.id.course_item_meeting, R.id.course_item_instructor};
-		SimpleAdapter listViewAdapter = new SimpleAdapter(this, cloudList, 
+		SimpleAdapter listViewAdapter = new SimpleAdapter(this, mapList, 
 				R.layout.course_item, courseElements, viewElements);
 		this.courseList.setAdapter(listViewAdapter);
 		
@@ -142,46 +138,36 @@ public class CreateCourseController extends ActionBarActivity {
 	public String getCourseSection() {
 		return this.courseSection.getText().toString();
 	}
+		
+	@Override
+	public void afterTextChanged(Editable view) {
+		updateCourseSearch();
+	}
 	
-	public class CourseSearchListener implements TextWatcher, OnItemSelectedListener {
-		private final CreateCourseController activity;
+	@Override
+	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
 		
-		public CourseSearchListener(CreateCourseController hostActivity) {
-			this.activity = hostActivity;
-		}
-		
-		@Override
-		public void afterTextChanged(Editable view) {
-			activity.updateCourseSearch();
-		}
+	}
 
-		@Override
-		public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-				int arg3) {
-			// TODO Auto-generated method stub
+	@Override
+	public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+			int arg3) {
+	// TODO Auto-generated method stub
 			
-		}
+	}
 
-		@Override
-		public void onTextChanged(CharSequence arg0, int arg1, int arg2,
-				int arg3) {
-			// TODO Auto-generated method stub
-			
-		}
+	@Override
+	public void onItemSelected(AdapterView<?> parentView, View view, 
+			int position, long id) {
+		updateCourseSearch();
+	}
 
-		@Override
-		public void onItemSelected(AdapterView<?> parentView, View view, 
-				int position, long id) {
-			activity.updateCourseSearch();
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// TODO Auto-generated method stub
 			
-		}
-
-		@Override
-		public void onNothingSelected(AdapterView<?> arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 	}
 	
 	public class SelectSchoolDialogFragment extends DialogFragment 
@@ -234,7 +220,7 @@ public class CreateCourseController extends ActionBarActivity {
 	        try {
 	        	this.activity = (CreateCourseController) activity;
 	        } catch (ClassCastException exception) {
-	        	throw new ClassCastException("Must be CreateCourse activity!");
+	        	throw new ClassCastException("Must be CreateCourseController activity!");
 	        }
 	        
 	    }
