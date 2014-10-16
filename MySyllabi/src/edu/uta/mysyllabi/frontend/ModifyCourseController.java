@@ -1,19 +1,24 @@
 package edu.uta.mysyllabi.frontend;
 
 import edu.uta.mysyllabi.R;
+import edu.uta.mysyllabi.datatypes.Instructor;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
+import edu.uta.mysyllabi.datatypes.SchoolSemester;
 import edu.uta.mysyllabi.datatypes.TimeOfDay;
 import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 
 public class ModifyCourseController extends Activity {
 	private Course course; // course object to be modified
@@ -45,7 +50,7 @@ public class ModifyCourseController extends Activity {
 		
 		/* Assign views from layout to object fields. */
 		courseNameView = (EditText) findViewById(R.id.create_course_name);
-		// courseTitleView = (EditText) findViewById(R.id.modify_course_title);
+		courseTitleView = (EditText) findViewById(R.id.modify_course_title);
 		courseSectionView = (EditText) findViewById(R.id.create_course_section);
 		courseClassroomView = (EditText) findViewById(R.id.modify_classroom);
 		courseMeetingStartView = (TextView) findViewById(R.id.modify_meeting_start);
@@ -74,31 +79,32 @@ public class ModifyCourseController extends Activity {
 	public void prepareInputViews() {
 		/* Course Identity */
 		courseNameView.setText(course.getName());
-		// courseTitleView.setText(course.getTitle());
+		courseTitleView.setText(course.getTitle());
 		courseSectionView.setText(course.getSection());
 		
 		/* Class Meetings */
 		courseClassroomView.setText(course.getClassroom());
-		if (course.getMeetingStart() != null) {
-			courseMeetingStartView.setText(course.getMeetingStart());
-		}
-		courseMeetingStartView.setOnClickListener(new SetTimeDialogFragment(this, new WeeklyMeeting(), false));
-		// courseMeetingDurationView.setText(course.getMeetingDuration());
-		courseMeetingDurationView.setOnClickListener(new SetTimeDialogFragment(this, new WeeklyMeeting(), true));
-		if (course.getMeetingDays() != null) {
+		if (course.getMeeting() != null) {
+			courseMeetingStartView.setText(course.getMeetingStart().toString(DateFormat.is24HourFormat(this)));
+			courseMeetingDurationView.setText(course.getMeetingDuration().toString(true));
 			courseMeetingDaysView.setText(course.getMeetingDays());
+		} else {
+			course.setMeeting(new WeeklyMeeting());
 		}
-		courseMeetingDaysView.setOnClickListener(new SelectDaysDialogFragment(this, new WeeklyMeeting()));
+		courseMeetingStartView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), false));
+		courseMeetingDurationView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), true));
+		courseMeetingDaysView.setOnClickListener(new SelectDaysDialogFragment(this, course.getMeeting()));
 		
 		/* Instructor Information */
-		try {
-			instructorFirstNameView.setText(course.getInstructor().getFirstName());
-			instructorLastNameView.setText(course.getInstructor().getLastName());
-			instructorPhoneView.setText(course.getInstructor().getPhoneNumber());
-			instructorEmailView.setText(course.getInstructor().getEmailAddress());
-			instructorOfficeView.setText(course.getInstructor().getOfficeId());
-		} catch (NullPointerException exception) {
-			// If no instructor exists, ignore.
+		Instructor instructor = course.getInstructor();
+		if (instructor != null) {
+			instructorFirstNameView.setText(instructor.getFirstName());
+			instructorLastNameView.setText(instructor.getLastName());
+			instructorPhoneView.setText(instructor.getPhoneNumber());
+			instructorEmailView.setText(instructor.getEmailAddress());
+			instructorOfficeView.setText(instructor.getOfficeId());
+		} else {
+			course.setInstructor(new Instructor());
 		}
 		// instructorOfficeHoursStartView
 		//	.setText(course.getInstructor().getOfficeHoursStart());
@@ -123,6 +129,36 @@ public class ModifyCourseController extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void modifyCourse(View view) {
+		if (courseNameView.getText().toString().length() < 1) {
+			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
+			error.show();
+			return;
+		} 
+
+		course.setName(courseNameView.getText().toString());
+		String section = courseSectionView.getText().toString();
+		if (section.length() != 0) {
+			course.setSection(section);
+		}
+		
+		course.setTitle(courseTitleView.getText().toString());
+		course.setClassroom(courseClassroomView.getText().toString());
+		
+		Instructor instructor = course.getInstructor();
+		instructor.setFirstName(instructorFirstNameView.getText().toString());
+		instructor.setLastName(instructorLastNameView.getText().toString());
+		instructor.setOfficeId(instructorOfficeView.getText().toString());
+		instructor.setPhoneNumber(instructorPhoneView.getText().toString());
+		instructor.setEmailAddress(instructorEmailView.getText().toString());
+		
+		controller.updateCourse(course);
+		
+		Intent intent = new Intent(this, SelectCourse.class);
+		intent.putExtra(SelectCourse.KEY_COURSE_ID, course.getLocalId());
+		startActivity(intent);
 	}
 
 }

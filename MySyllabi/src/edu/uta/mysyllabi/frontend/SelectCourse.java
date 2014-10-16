@@ -3,13 +3,18 @@ package edu.uta.mysyllabi.frontend;
 import java.util.ArrayList;
 
 import edu.uta.mysyllabi.R;
+import edu.uta.mysyllabi.backend.LocalDataHelper;
+import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
+import edu.uta.mysyllabi.datatypes.Instructor;
+import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -22,7 +27,9 @@ import android.widget.TextView;
 
 
 public class SelectCourse extends ActionBarActivity {
-
+	private Controller controller;
+	
+	public static final String KEY_COURSE_ID = "course_id";
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -42,8 +49,9 @@ public class SelectCourse extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_course);
+        this.controller = new Controller();
 
-        // Create the adapter that will return a fragment for each of the three
+        // Create the adapter that will return a fragment for each of the
         // primary sections of the activity.
         pagerAdapter = new CoursePagerAdapter(getSupportFragmentManager());
 
@@ -67,9 +75,17 @@ public class SelectCourse extends ActionBarActivity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
-        }
-        if (id == R.id.action_create_course) {
+        } else if (id == R.id.action_create_course) {
     		Intent intent = new Intent(this, CreateCourseController.class);
+    		startActivity(intent);
+        } else if (id == R.id.action_delete_course) {
+        	controller.deleteCourse(pagerAdapter.courseList.get(pager.getCurrentItem()));
+        	Intent intent = new Intent(this, SelectCourse.class);
+    		startActivity(intent);
+        } else if (id == R.id.action_modify_course) {
+        	String courseId = pagerAdapter.courseList.get(pager.getCurrentItem());
+        	Intent intent = new Intent(this, ModifyCourseController.class);
+    		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
     		startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
@@ -80,25 +96,25 @@ public class SelectCourse extends ActionBarActivity {
      * one of the sections/tabs/pages.
      */
     public class CoursePagerAdapter extends FragmentStatePagerAdapter {
-    	// List of bundles; one for each course.
-    	private ArrayList<Bundle> syllabusBundles;
+    	protected ArrayList<String> courseList;
     	
     	public CoursePagerAdapter(FragmentManager fm) {
     		super(fm);
-    		// LocalDataHelper helper = new LocalDataHelper();
-    		this.syllabusBundles = new ArrayList<Bundle>();
+    		this.courseList = controller.getCourseList();
     	}
 
     	@Override
     	public Fragment getItem(int index) {
     		Fragment fragment = new CourseFragment();
-    		fragment.setArguments(syllabusBundles.get(index));
+    		Bundle fragmentBundle = new Bundle();
+    		fragmentBundle.putString(SelectCourse.KEY_COURSE_ID, courseList.get(index).toString());
+    		fragment.setArguments(fragmentBundle);
     		return fragment;
     	}
 
     	@Override
     	public int getCount() {
-    		return syllabusBundles.size();
+    		return courseList.size();
     	}
 
     }
@@ -107,6 +123,9 @@ public class SelectCourse extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class CourseFragment extends Fragment {
+    	private Course course;
+    	private Controller controller;
+    	private View root;
     	
     	@Override
         public View onCreateView(LayoutInflater inflater,
@@ -115,28 +134,61 @@ public class SelectCourse extends ActionBarActivity {
             // properly.
             View rootView = inflater.inflate(
                     R.layout.fragment_select_course, container, false);
-            // Bundle syllabusBundle = getArguments();
+            String courseId = getArguments().getString(KEY_COURSE_ID);
             
-            Course syllabus = new Course(null, null);
-
-            TextView nextView;
-
-            nextView = (TextView) rootView.findViewById(R.id.view_course_name);
-            //nextView.setText(syllabus.name);
-
-            nextView = (TextView) rootView.findViewById(R.id.view_course_title);
-            //nextView.setText(syllabus.title);
+            this.root = rootView;
+            this.controller = new Controller();
+            course = controller.getCourse(courseId);
             
-            /*if (syllabus.meeting != null) {
-	            nextView = (TextView) rootView.findViewById(R.id.view_meeting_time);
-	            nextView.setText(syllabus.meeting.getOccurence());
+            setText(R.id.view_course_name, course.getName());
+            setText(R.id.view_course_title, course.getTitle());
+            
+            Instructor instructor = course.getInstructor();
+            if (instructor != null && instructor.getName() != null && instructor.getName().length() > 1) {
+            	
+            	setText(R.id.view_instructor_name, instructor.getName());
+            	setText(R.id.view_instructor_email, instructor.getEmailAddress());
+            	setText(R.id.view_instructor_office, instructor.getOfficeId());
+            	setText(R.id.view_instructor_phone, instructor.getPhoneNumber());
+            	
+            } else {
+            	
+            	hideView(R.id.heading_instructor_contact);
+            	hideView(R.id.view_instructor_name);
+            	hideView(R.id.view_instructor_email);
+            	hideView(R.id.view_instructor_office);
+            	hideView(R.id.view_instructor_phone);
+            	
             }
-
-            nextView = (TextView) rootView.findViewById(R.id.view_instructor_name);
-            nextView.setText(syllabus.instructor.getName()); */
+            
+            WeeklyMeeting meeting = course.getMeeting();
+            if (meeting != null && meeting.getStartTime() != null) {
+            	
+            	setText(R.id.view_classroom, meeting.getLocation());
+            	setText(R.id.view_meeting_time, meeting.getOccurence());
+            	
+            } else {
+            	
+            	hideView(R.id.heading_course_meeting);
+            	hideView(R.id.view_classroom);
+            	hideView(R.id.view_meeting_time);
+            	
+            }
             
             return rootView;
         }
+    	
+    	private void setText(int viewId, String text) {
+    		if (text != null && text.length() > 0) {
+    			((TextView) root.findViewById(viewId)).setText(text);
+    		} else {
+    			hideView(viewId);
+    		}
+    	}
+    	
+    	private void hideView(int viewId) {
+    		((ViewGroup) root.findViewById(viewId).getParent()).setVisibility(View.GONE);
+    	}
     	
     }
 

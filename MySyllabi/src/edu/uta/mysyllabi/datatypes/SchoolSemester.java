@@ -9,8 +9,24 @@ public class SchoolSemester {
 	public static int WINTER = 3;
 	private final int year;
 	private final int season;
-	private String[] season_string = {"Spring", "Summer", "Fall", "Winter"};
-
+	private String[] seasonString = {"Spring", "Summer", "Fall", "Winter"};
+	
+	public SchoolSemester(String semester) {
+		String[] segmented = semester.split(" ");
+		if (segmented.length != 2) {
+			throw new IllegalArgumentException("Semester string must have two words!");
+		}
+		this.year = Integer.parseInt(segmented[1]);
+		
+		for (int i = 0; i < seasonString.length; i++) {
+			if (seasonString[i].equals(segmented[0])) {
+				this.season = i;
+				return;
+			}
+		}
+		throw new IllegalArgumentException("Season string '" + segmented[0] + "' is invalid!");
+	}
+	
 	public SchoolSemester(int year, int season) {
 		this.year = year;
 		this.season = season;
@@ -18,7 +34,7 @@ public class SchoolSemester {
 	
 	@Override
 	public String toString() {
-		return season_string[season] + " " + year;
+		return seasonString[season] + " " + year;
 	}
 	
 	public static SchoolSemester getCurrent() {

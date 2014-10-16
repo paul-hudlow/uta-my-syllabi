@@ -47,6 +47,14 @@ public class WeeklyMeeting {
 		return false;
 	}
 	
+	public void setDaysOfWeek(String days) {
+		this.daysOfWeek = days.toCharArray();
+	}
+	
+	public String getDaysString() {
+		return new String(this.daysOfWeek);
+	}
+	
 	public void setDaysOfWeek(List<Integer> days) {
 		daysOfWeek = new String("nnnnnnn").toCharArray();
 		for (int nextDay : days) {

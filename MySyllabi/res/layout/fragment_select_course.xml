@@ -1,37 +1,136 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
-    tools:context="edu.uta.mysyllabi.SelectCourse$PlaceholderFragment" >
-
-    <TextView
-        android:id="@+id/view_course_name"
+    
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    
+    tools:context="edu.uta.mysyllabi.frontend.SelectCourse" >
+    
+    <!-- display course id -->
+	<TextView
+			android:id="@+id/view_course_name"
+			android:layout_width="match_parent"
+			style="@style/Heading1" />
+	<LinearLayout style="@style/Container">
+		<TextView
+			android:id="@+id/view_course_title"
+			android:layout_width="match_parent"
+			style="@style/Heading2" />
+	</LinearLayout>
+    
+	<View
+    	style="@style/Divider"/>
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="30sp" />
-    
-    <TextView
-        android:id="@+id/view_course_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="24sp" />
-    
-    <TextView
-        android:id="@+id/view_meeting_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
-    
-    <TextView
-        android:id="@+id/view_instructor_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
-    
+        android:layout_height="0dp"
+        android:layout_weight="1">
+     <LinearLayout 
+            android:layout_width="match_parent"
+    		android:layout_height="wrap_content"
+    		android:orientation="vertical">
+          
+          <LinearLayout style="@style/Container">
+              
+            <TextView
+                android:id="@+id/heading_course_meeting"
+				android:text="@string/heading_course_meeting"
+				style="@style/Heading" />
+            
+            <View
+    			style="@style/Divider"/>
+            
+			<LinearLayout style="@style/Container">
+	            <TextView
+					android:id="@+id/view_classroom"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					style="@style/Normal" />
+            </LinearLayout>
+            
+			<TextView
+			    android:id="@+id/view_meeting_time"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/Normal" />
+           	
+            <View
+    			style="@style/Divider"/>
 
+          </LinearLayout>
+          	
+            <LinearLayout style="@style/Container">
+            
+		    	<TextView
+		    	    android:id="@+id/heading_instructor_contact"
+					android:text="@string/heading_instructor_contact"
+					style="@style/Heading" />
+		    	
+		    	<View
+	    			style="@style/Divider"/>
+	    	
+				<TextView
+					android:id="@+id/view_instructor_name"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					style="@style/Normal" />
+				
+				<LinearLayout style="@style/Container">
+					<TextView
+					    android:layout_width="match_parent"
+						android:text="@string/hint_phone"
+						style="@style/Label" />
+					<TextView
+						android:id="@+id/view_instructor_phone"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						style="@style/Normal" />
+				</LinearLayout>
+				<LinearLayout style="@style/Container">
+					<TextView
+					    android:layout_width="match_parent"
+						android:text="@string/hint_email"
+						style="@style/Label" />
+					<TextView
+						android:id="@+id/view_instructor_email"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						style="@style/Normal" />
+				</LinearLayout>
+				<LinearLayout style="@style/Container">
+					<TextView
+					    android:layout_width="match_parent"
+						android:text="@string/hint_office"
+						style="@style/Label" />
+					<TextView
+						android:id="@+id/view_instructor_office"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						style="@style/Normal" />
+				</LinearLayout>
+			</LinearLayout>
+			  
+			<!--<View
+    			style="@style/Divider"/>
+            
+	    	<TextView
+				android:text="@string/heading_teaching_assistant"
+				android:onClick="addTeachingAssistant"
+				style="@style/Heading" />
+	    	
+	    	<View
+    			style="@style/Divider"/>
+            
+	    	<TextView
+				android:text="@string/heading_grade_composition"
+				style="@style/Heading" /> -->
+	    	
+	    	
+	    </LinearLayout>
+    </ScrollView>
+    
 </LinearLayout>

@@ -49,9 +49,46 @@
         <item name="android:clickable">true</item>
     </style>
     
+    <style name="Heading1">
+		<item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+    
+    <style name="Heading2">
+		<item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:textColor">@color/gray</item>
+    </style>
+    
+    <style name="Label">
+		<item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:textColor">@color/gray</item>
+    </style>
+    
+    <style name="Normal">
+		<item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+    
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">5dp</item>
+    </style>
+    
+    <style name="Container">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
     </style>
  
 </resources>

@@ -30,6 +30,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.Toast;
 
 public class CreateCourseController extends ActionBarActivity 
 									implements TextWatcher, OnItemSelectedListener {
@@ -44,7 +45,6 @@ public class CreateCourseController extends ActionBarActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create_course);
-		
 		
 		this.schoolButton = (TextView) findViewById(R.id.create_course_school);
 		this.semesterSpinner = (Spinner) findViewById(R.id.create_course_semester);
@@ -94,8 +94,31 @@ public class CreateCourseController extends ActionBarActivity
 	}
 	
 	public void createCourse(View view) {
-		/* Move on to the main activity. */
+		if (courseName.getText().toString().length() < 1) {
+			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
+			error.show();
+			return;
+		} 
+		
+		if (schoolButton.getText().toString().equals(getResources().getString(R.string.hint_course_school))) {
+			Toast error = Toast.makeText(this, "Please select a school", Toast.LENGTH_SHORT);
+			error.show();
+			return;
+		}
+		
+		Course course = new Course(null, null);
+		course.setName(courseName.getText().toString());
+		String section = courseSection.getText().toString();
+		if (section.length() != 0) {
+			course.setSection(section);
+		}
+		course.setSchool(schoolButton.getText().toString());
+		course.setSemester((SchoolSemester) semesterSpinner.getSelectedItem());
+		
+		String courseId = controller.createCourse(course, false);
+		
 		Intent intent = new Intent(this, ModifyCourseController.class);
+		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
 		startActivity(intent);
 	}
 	

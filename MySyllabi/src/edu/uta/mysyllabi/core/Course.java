@@ -9,6 +9,7 @@ import edu.uta.mysyllabi.datatypes.SchoolSemester;
 import edu.uta.mysyllabi.datatypes.TimeOfDay;
 import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
+import android.text.format.DateFormat;
 import android.text.format.Time;
 
 public class Course {
@@ -113,18 +114,22 @@ public class Course {
 		return meeting.getLocation();
 	}
 	
-	public String getMeetingStart() {
+	public void setClassroom(String classroom) {
+		meeting.setLocation(classroom);
+	}
+	
+	public TimeOfDay getMeetingStart() {
 		if (meeting == null || meeting.getStartTime() == null) {
 			return null;
 		}
-		return meeting.getStartTime().toString();
+		return meeting.getStartTime();
 	}
 	
-	public int getMeetingDuration() {
+	public TimeOfDay getMeetingDuration() {
 		if (meeting == null) {
-			return 0;
+			return null;
 		}
-		return meeting.getDuration();
+		return new TimeOfDay(meeting.getDuration());
 	}
 	
 	public String getMeetingDays() {

@@ -10,6 +10,10 @@ public class Instructor {
 	private String emailAddress;
 	protected WeeklyMeeting officeHours;
 	
+	public Instructor() {
+		super();
+	}
+	
 	public Instructor(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -46,6 +50,14 @@ public class Instructor {
 	
 	public String getFirstName() {
 		return firstName;
+	}
+	
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 	
 	public String getLastName() {

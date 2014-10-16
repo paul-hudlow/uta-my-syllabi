@@ -10,19 +10,37 @@ public class Controller {
 	
 	public void addCourse(String cloudId) {
 		Course cloudCourse = CloudDataHelper.getCourse(cloudId);
-		LocalDataHelper.saveCourse(cloudCourse);
+		LocalDataHelper localData = new LocalDataHelper();
+		localData.saveCourse(cloudCourse);
 	}
 	
-	public void createCourse(Course course, boolean onCloud) {
+	public void updateCourse(Course course) {
+		LocalDataHelper localData = new LocalDataHelper();
+		localData.saveCourse(course);
+	}
+	
+	public String createCourse(Course course, boolean onCloud) {
 		if (onCloud) {
 			String cloudId = CloudDataHelper.saveCourse(course);
 			course.setCloudId(cloudId);
 		}
-		LocalDataHelper.saveCourse(course);
+		LocalDataHelper localData = new LocalDataHelper();
+		return localData.saveCourse(course);
 	}
 	
 	public Course getCourse(String localId) {
-		return LocalDataHelper.getCourse(localId);
+		LocalDataHelper localData = new LocalDataHelper();
+		return localData.getCourse(localId);
+	}
+	
+	public ArrayList<String> getCourseList() {
+		LocalDataHelper localData = new LocalDataHelper();
+		return localData.getCourseKeys();
+	}
+	
+	public void deleteCourse(String localId) {
+		LocalDataHelper localData = new LocalDataHelper();
+		localData.deleteCourse(localId);
 	}
 	
 	public String[] getSchools(String state) {
@@ -32,7 +50,7 @@ public class Controller {
 	public ArrayList<Course> findCourses(String courseId, String courseSection, String school, String semester) {
 		
 		/* Create a dummy list. */
-		ArrayList<Course> courseList = new ArrayList<Course>();
+		ArrayList<Course> courseList = new ArrayList<Course>(); /*
 		Course nextCourse;
 		
 		nextCourse = new Course(null,null);
@@ -76,7 +94,7 @@ public class Controller {
 		nextCourse.setMeeting(new WeeklyMeeting(60*10, 50, "ynynynn", "NH 106"));
 		nextCourse.setSection("001");
 		courseList.add(nextCourse);
-		
+		*/
 		return courseList;
 	}
 }

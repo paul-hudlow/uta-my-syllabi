@@ -1099,11 +1099,13 @@ containing a value of this type.
         public static final int action_bar_subtitle=0x7f050023;
         public static final int action_bar_title=0x7f050022;
         public static final int action_context_bar=0x7f05001d;
-        public static final int action_create_course=0x7f05005f;
+        public static final int action_create_course=0x7f050065;
+        public static final int action_delete_course=0x7f050066;
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
         public static final int action_mode_close_button=0x7f050024;
-        public static final int action_settings=0x7f05005e;
+        public static final int action_modify_course=0x7f050067;
+        public static final int action_settings=0x7f050064;
         public static final int activity_chooser_view_content=0x7f050025;
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
@@ -1135,6 +1137,8 @@ containing a value of this type.
         public static final int end=0x7f050013;
         public static final int expand_activities_button=0x7f050026;
         public static final int expanded_menu=0x7f05002c;
+        public static final int heading_course_meeting=0x7f05005c;
+        public static final int heading_instructor_contact=0x7f05005f;
         public static final int home=0x7f050014;
         public static final int homeAsUp=0x7f050005;
         public static final int icon=0x7f05002a;
@@ -1143,17 +1147,17 @@ containing a value of this type.
         public static final int listMode=0x7f050001;
         public static final int list_item=0x7f050029;
         public static final int middle=0x7f050012;
-        public static final int modify_classroom=0x7f050042;
+        public static final int modify_classroom=0x7f050043;
         public static final int modify_course_submit=0x7f05004c;
-        public static final int modify_instructor_email=0x7f050049;
-        public static final int modify_instructor_first_name=0x7f050046;
-        public static final int modify_instructor_last_name=0x7f050047;
-        public static final int modify_instructor_office=0x7f05004a;
-        public static final int modify_instructor_office_hours=0x7f05004b;
-        public static final int modify_instructor_phone=0x7f050048;
-        public static final int modify_meeting_days=0x7f050045;
-        public static final int modify_meeting_duration=0x7f050044;
-        public static final int modify_meeting_start=0x7f050043;
+        public static final int modify_course_title=0x7f050042;
+        public static final int modify_instructor_email=0x7f05004a;
+        public static final int modify_instructor_first_name=0x7f050047;
+        public static final int modify_instructor_last_name=0x7f050048;
+        public static final int modify_instructor_office=0x7f05004b;
+        public static final int modify_instructor_phone=0x7f050049;
+        public static final int modify_meeting_days=0x7f050046;
+        public static final int modify_meeting_duration=0x7f050045;
+        public static final int modify_meeting_start=0x7f050044;
         public static final int never=0x7f050009;
         public static final int none=0x7f050010;
         public static final int normal=0x7f050000;
@@ -1182,10 +1186,14 @@ containing a value of this type.
         public static final int top_action_bar=0x7f050020;
         public static final int up=0x7f050021;
         public static final int useLogo=0x7f050003;
+        public static final int view_classroom=0x7f05005d;
         public static final int view_course_name=0x7f05005a;
         public static final int view_course_title=0x7f05005b;
-        public static final int view_instructor_name=0x7f05005d;
-        public static final int view_meeting_time=0x7f05005c;
+        public static final int view_instructor_email=0x7f050062;
+        public static final int view_instructor_name=0x7f050060;
+        public static final int view_instructor_office=0x7f050063;
+        public static final int view_instructor_phone=0x7f050061;
+        public static final int view_meeting_time=0x7f05005e;
         public static final int withText=0x7f05000c;
     }
     public static final class integer {
@@ -1299,42 +1307,44 @@ containing a value of this type.
          */
         public static final int app_name=0x7f0a000d;
         public static final int cancel=0x7f0a000f;
-        public static final int course_item_close_parenthetical=0x7f0a0017;
-        public static final int course_item_open_parenthetical=0x7f0a0016;
-        public static final int create_course_submit=0x7f0a0015;
-        public static final int day_fri=0x7f0a002d;
-        public static final int day_mon=0x7f0a0029;
-        public static final int day_sat=0x7f0a002e;
-        public static final int day_sun=0x7f0a002f;
-        public static final int day_thu=0x7f0a002c;
-        public static final int day_tue=0x7f0a002a;
-        public static final int day_wed=0x7f0a002b;
-        public static final int heading_course_meeting=0x7f0a001c;
-        public static final int heading_grade_composition=0x7f0a001f;
-        public static final int heading_instructor_contact=0x7f0a001d;
-        public static final int heading_teaching_assistant=0x7f0a001e;
-        public static final int hint_class_meeting_time=0x7f0a0026;
-        public static final int hint_classroom=0x7f0a0027;
-        public static final int hint_course_name=0x7f0a0012;
-        public static final int hint_course_school=0x7f0a0014;
-        public static final int hint_course_section=0x7f0a0013;
-        public static final int hint_email=0x7f0a0022;
-        public static final int hint_first_name=0x7f0a0020;
-        public static final int hint_last_name=0x7f0a0021;
-        public static final int hint_meeting_days=0x7f0a0028;
-        public static final int hint_meeting_duration=0x7f0a001b;
-        public static final int hint_meeting_start=0x7f0a001a;
-        public static final int hint_office=0x7f0a0024;
-        public static final int hint_office_hours=0x7f0a0025;
-        public static final int hint_phone=0x7f0a0023;
-        public static final int modify_course_submit=0x7f0a0019;
+        public static final int course_item_close_parenthetical=0x7f0a0018;
+        public static final int course_item_open_parenthetical=0x7f0a0017;
+        public static final int create_course_submit=0x7f0a0016;
+        public static final int day_fri=0x7f0a002f;
+        public static final int day_mon=0x7f0a002b;
+        public static final int day_sat=0x7f0a0030;
+        public static final int day_sun=0x7f0a0031;
+        public static final int day_thu=0x7f0a002e;
+        public static final int day_tue=0x7f0a002c;
+        public static final int day_wed=0x7f0a002d;
+        public static final int heading_course_meeting=0x7f0a001d;
+        public static final int heading_grade_composition=0x7f0a0020;
+        public static final int heading_instructor_contact=0x7f0a001e;
+        public static final int heading_teaching_assistant=0x7f0a001f;
+        public static final int hint_class_meeting_time=0x7f0a0027;
+        public static final int hint_classroom=0x7f0a0028;
+        public static final int hint_course_name=0x7f0a0013;
+        public static final int hint_course_school=0x7f0a0015;
+        public static final int hint_course_section=0x7f0a0014;
+        public static final int hint_course_title=0x7f0a002a;
+        public static final int hint_email=0x7f0a0023;
+        public static final int hint_first_name=0x7f0a0021;
+        public static final int hint_last_name=0x7f0a0022;
+        public static final int hint_meeting_days=0x7f0a0029;
+        public static final int hint_meeting_duration=0x7f0a001c;
+        public static final int hint_meeting_start=0x7f0a001b;
+        public static final int hint_office=0x7f0a0025;
+        public static final int hint_office_hours=0x7f0a0026;
+        public static final int hint_phone=0x7f0a0024;
+        public static final int menu_item_delete_course=0x7f0a0011;
+        public static final int modify_course_submit=0x7f0a001a;
         public static final int okay=0x7f0a000e;
         /**  Create New Course 
          */
-        public static final int title_activity_create_course=0x7f0a0011;
+        public static final int title_activity_create_course=0x7f0a0012;
         /**  Modify Existing Course 
          */
-        public static final int title_activity_modify_course=0x7f0a0018;
+        public static final int title_activity_modify_course=0x7f0a0019;
     }
     public static final class style {
         /** 
@@ -1362,14 +1372,19 @@ containing a value of this type.
         /**  Application theme. 
          */
         public static final int AppTheme=0x7f0b008c;
+        public static final int Container=0x7f0b0096;
         /**  makes non-spinner view appear as a spinner 
          */
         public static final int DecoySpinner=0x7f0b008f;
-        public static final int Divider=0x7f0b0091;
+        public static final int Divider=0x7f0b0095;
         public static final int Heading=0x7f0b0090;
+        public static final int Heading1=0x7f0b0091;
+        public static final int Heading2=0x7f0b0092;
         /**  standardizes appearance of input views 
          */
         public static final int InputField=0x7f0b008e;
+        public static final int Label=0x7f0b0093;
+        public static final int Normal=0x7f0b0094;
         /**  style for bottom-positioned submit buttons 
          */
         public static final int SubmitButton=0x7f0b008d;
