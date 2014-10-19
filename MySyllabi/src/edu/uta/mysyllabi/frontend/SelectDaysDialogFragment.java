@@ -92,8 +92,10 @@ public class SelectDaysDialogFragment extends DialogFragment implements View.OnC
 			meeting.setDaysOfWeek(dayList);
 			if (dayList.size() > 0) {
 				hostView.setText(meeting.getDaysOfWeek());
+				hostView.setTextColor(getResources().getColor(R.color.black));
 			} else {
 				hostView.setText(R.string.hint_meeting_days);
+				hostView.setTextColor(getResources().getColor(R.color.gray));
 			}
 		}
 		

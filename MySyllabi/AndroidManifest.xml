@@ -15,21 +15,19 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="edu.uta.mysyllabi.frontend.SelectCourse"
+            android:name="edu.uta.mysyllabi.frontend.ViewCourseController"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="edu.uta.mysyllabi.frontend.CreateCourseController"
-            android:icon="@drawable/mysyllabi"
             android:label="@string/title_activity_create_course" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uta.mysyllabi.SelectCourse" />
+                android:value="edu.uta.mysyllabi.frontend.ViewCourseController" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,6 +36,12 @@
         <activity
             android:name="edu.uta.mysyllabi.frontend.ModifyCourseController"
             android:label="@string/title_activity_modify_course" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uta.mysyllabi.frontend.ViewCourseController" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
     </application>
 

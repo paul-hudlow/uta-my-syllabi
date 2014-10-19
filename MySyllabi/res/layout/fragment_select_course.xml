@@ -9,7 +9,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     
-    tools:context="edu.uta.mysyllabi.frontend.SelectCourse" >
+    tools:context="edu.uta.mysyllabi.frontend.ViewCourseController" >
     
     <!-- display course id -->
 	<TextView

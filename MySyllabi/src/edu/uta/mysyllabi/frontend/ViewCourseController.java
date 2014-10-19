@@ -26,10 +26,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-public class SelectCourse extends ActionBarActivity {
+public class ViewCourseController extends ActionBarActivity {
 	private Controller controller;
 	
 	public static final String KEY_COURSE_ID = "course_id";
+	public static final String KEY_PAGER_INDEX = "pager_index";
+	public static final String KEY_MODIFY_COURSE = "modify_course";
+	public static int REQUEST_FINISH = 1;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -58,6 +62,20 @@ public class SelectCourse extends ActionBarActivity {
         // Set up the ViewPager with the sections adapter.
         pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(pagerAdapter);
+        
+        Bundle extras = getIntent().getExtras();
+        
+        if (extras != null) {
+        	String courseId = extras.getString(KEY_COURSE_ID);
+        	if (courseId != null) {
+        		pager.setCurrentItem(pagerAdapter.getCourseIndex(courseId));
+        	}
+        	Boolean modifyCourse = extras.getBoolean(KEY_MODIFY_COURSE);
+        	if (modifyCourse) {
+            	modifyCourse(courseId);
+            }
+        }
+        
     }
 
     @Override
@@ -77,23 +95,39 @@ public class SelectCourse extends ActionBarActivity {
             return true;
         } else if (id == R.id.action_create_course) {
     		Intent intent = new Intent(this, CreateCourseController.class);
-    		startActivity(intent);
+    		startActivityForResult(intent, REQUEST_FINISH);
         } else if (id == R.id.action_delete_course) {
-        	controller.deleteCourse(pagerAdapter.courseList.get(pager.getCurrentItem()));
-        	Intent intent = new Intent(this, SelectCourse.class);
-    		startActivity(intent);
+        	int pagerPosition = pager.getCurrentItem();
+        	controller.deleteCourse(pagerAdapter.courseList.get(pagerPosition));
+        	pagerAdapter = new CoursePagerAdapter(getSupportFragmentManager());
+            pager.setAdapter(pagerAdapter);
+            if (pagerPosition > 1) {
+            	pager.setCurrentItem(pagerPosition - 1);
+            }
         } else if (id == R.id.action_modify_course) {
         	String courseId = pagerAdapter.courseList.get(pager.getCurrentItem());
-        	Intent intent = new Intent(this, ModifyCourseController.class);
-    		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
-    		startActivity(intent);
+        	modifyCourse(courseId);
         }
         return super.onOptionsItemSelected(item);
     }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_FINISH && resultCode == RESULT_OK) {
+        	this.finish();
+        }
+    }
+    
+    public void modifyCourse(String courseId) {
+    	Intent intent = new Intent(this, ModifyCourseController.class);
+		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
+		startActivityForResult(intent, REQUEST_FINISH);
+    }    
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
+     * one of the courses.
      */
     public class CoursePagerAdapter extends FragmentStatePagerAdapter {
     	protected ArrayList<String> courseList;
@@ -107,7 +141,7 @@ public class SelectCourse extends ActionBarActivity {
     	public Fragment getItem(int index) {
     		Fragment fragment = new CourseFragment();
     		Bundle fragmentBundle = new Bundle();
-    		fragmentBundle.putString(SelectCourse.KEY_COURSE_ID, courseList.get(index).toString());
+    		fragmentBundle.putString(ViewCourseController.KEY_COURSE_ID, courseList.get(index).toString());
     		fragment.setArguments(fragmentBundle);
     		return fragment;
     	}
@@ -115,6 +149,15 @@ public class SelectCourse extends ActionBarActivity {
     	@Override
     	public int getCount() {
     		return courseList.size();
+    	}
+    	
+    	public int getCourseIndex(String courseId) {
+    		for (int i = 0; i < courseList.size(); i++) {
+    			if (courseId.equals(courseList.get(i))) {
+    				return i;
+    			}
+    		}
+    		return 0;
     	}
 
     }

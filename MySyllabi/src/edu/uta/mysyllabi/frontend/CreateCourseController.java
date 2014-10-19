@@ -117,9 +117,12 @@ public class CreateCourseController extends ActionBarActivity
 		
 		String courseId = controller.createCourse(course, false);
 		
-		Intent intent = new Intent(this, ModifyCourseController.class);
-		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
-		startActivity(intent);
+		Intent intent = new Intent(this, ViewCourseController.class);
+		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
+		intent.putExtra(ViewCourseController.KEY_MODIFY_COURSE, true);
+		this.startActivity(intent);
+		this.setResult(RESULT_OK);
+		this.finish();
 	}
 	
 	public void updateCourseSearch() {
