@@ -3,7 +3,6 @@ package edu.uta.mysyllabi.frontend;
 import java.util.ArrayList;
 
 import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.backend.LocalDataHelper;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
 import edu.uta.mysyllabi.datatypes.Instructor;
@@ -14,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -96,7 +94,7 @@ public class ViewCourseController extends ActionBarActivity {
         } else if (id == R.id.action_create_course) {
     		Intent intent = new Intent(this, CreateCourseController.class);
     		startActivityForResult(intent, REQUEST_FINISH);
-        } else if (id == R.id.action_delete_course) {
+        } else if (id == R.id.action_delete_course && pager.getChildCount() > 0) {
         	int pagerPosition = pager.getCurrentItem();
         	controller.deleteCourse(pagerAdapter.courseList.get(pagerPosition));
         	pagerAdapter = new CoursePagerAdapter(getSupportFragmentManager());
@@ -104,7 +102,7 @@ public class ViewCourseController extends ActionBarActivity {
             if (pagerPosition > 1) {
             	pager.setCurrentItem(pagerPosition - 1);
             }
-        } else if (id == R.id.action_modify_course) {
+        } else if (id == R.id.action_modify_course && pager.getChildCount() > 0) {
         	String courseId = pagerAdapter.courseList.get(pager.getCurrentItem());
         	modifyCourse(courseId);
         }

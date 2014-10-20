@@ -3,8 +3,6 @@ package edu.uta.mysyllabi.core;
 import java.util.ArrayList;
 
 import edu.uta.mysyllabi.backend.*;
-import edu.uta.mysyllabi.datatypes.Instructor;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class Controller {
 	

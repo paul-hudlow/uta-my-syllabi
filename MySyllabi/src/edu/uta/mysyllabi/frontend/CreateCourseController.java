@@ -10,7 +10,6 @@ import edu.uta.mysyllabi.datatypes.SchoolSemester;
 
 import android.support.v7.app.ActionBarActivity;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -34,6 +33,7 @@ import android.widget.Toast;
 
 public class CreateCourseController extends ActionBarActivity 
 									implements TextWatcher, OnItemSelectedListener {
+	/* Create fields for all view objects. */
 	private TextView schoolButton;
 	private Spinner semesterSpinner;
 	private EditText courseName;
@@ -46,6 +46,7 @@ public class CreateCourseController extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create_course);
 		
+		/* Initialize object fields. */
 		this.schoolButton = (TextView) findViewById(R.id.create_course_school);
 		this.semesterSpinner = (Spinner) findViewById(R.id.create_course_semester);
 		this.courseName = (EditText) findViewById(R.id.create_course_name);
@@ -53,11 +54,12 @@ public class CreateCourseController extends ActionBarActivity
 		this.courseList = (ListView) findViewById(R.id.create_course_list);
 		this.controller = new Controller();
 		
+		/* Set this activity as listener for view content changes. */
 		this.courseName.addTextChangedListener(this);
 		this.courseSection.addTextChangedListener(this);
 		this.semesterSpinner.setOnItemSelectedListener(this);
 		
-		/* Create an new ArrayAdapter for school semester. */
+		/* Create an new ArrayAdapter for semester spinner. */
 		ArrayAdapter<SchoolSemester> spinnerAdapter = 
 				new ArrayAdapter<SchoolSemester>(getBaseContext(), R.layout.spinner_item);
 		spinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
@@ -87,25 +89,33 @@ public class CreateCourseController extends ActionBarActivity
 		return super.onOptionsItemSelected(item);
 	}
 	
+	/* Called when the school selection view is touched. */
 	public void selectSchool(View view) {
+		
 		/* Open the school selection dialog. */
 		DialogFragment dialog = new SelectSchoolDialogFragment();
 		dialog.show(getFragmentManager(), "school");
 	}
 	
+	/* Called when create course button is touched. */
 	public void createCourse(View view) {
+		
+		/* Validate course name. */
 		if (courseName.getText().toString().length() < 1) {
 			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
 			error.show();
 			return;
 		} 
 		
-		if (schoolButton.getText().toString().equals(getResources().getString(R.string.hint_course_school))) {
+		/* Validate selected school. */
+		String school = schoolButton.getText().toString();
+		if (school.equals(getResources().getString(R.string.hint_course_school))) {
 			Toast error = Toast.makeText(this, "Please select a school", Toast.LENGTH_SHORT);
 			error.show();
 			return;
 		}
 		
+		/* Enter data into new Course object. */
 		Course course = new Course(null, null);
 		course.setName(courseName.getText().toString());
 		String section = courseSection.getText().toString();
@@ -115,8 +125,10 @@ public class CreateCourseController extends ActionBarActivity
 		course.setSchool(schoolButton.getText().toString());
 		course.setSemester((SchoolSemester) semesterSpinner.getSelectedItem());
 		
+		/* Create new course. */
 		String courseId = controller.createCourse(course, false);
 		
+		/* Start the view course activity, telling it to forward to the modify course activity. */
 		Intent intent = new Intent(this, ViewCourseController.class);
 		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
 		intent.putExtra(ViewCourseController.KEY_MODIFY_COURSE, true);
@@ -126,85 +138,70 @@ public class CreateCourseController extends ActionBarActivity
 	}
 	
 	public void updateCourseSearch() {
+		
+		/* Retrieve course list from the cloud. */
 		ArrayList<Course> cloudList = controller.findCourses(courseName.getText().toString(),
 				courseSection.getText().toString(), schoolButton.getText().toString(),
 				semesterSpinner.getSelectedItem().toString());
 		ArrayList<HashMap<String,String>> mapList = new ArrayList<HashMap<String,String>>();
 		
+		/* Get hash maps from course objects. */
 		for (Course nextCourse : cloudList) {
 			mapList.add(nextCourse.getPreviewMap());
 		}
 		
-		String[] courseElements = {Course.MAP_KEY_NAME, Course.MAP_KEY_MEETING, Course.MAP_KEY_INSTRUCTOR};
-		int[] viewElements = {R.id.course_item_name, 
-				R.id.course_item_meeting, R.id.course_item_instructor};
+		/* Identify layout views with Course components. */
+		String[] courseElements = {Course.MAP_KEY_NAME, Course.MAP_KEY_MEETING, 
+				Course.MAP_KEY_INSTRUCTOR};
+		int[] viewElements = {R.id.course_item_name, R.id.course_item_meeting, 
+				R.id.course_item_instructor};
+		
+		/* Finish setting up adapter. */
 		SimpleAdapter listViewAdapter = new SimpleAdapter(this, mapList, 
 				R.layout.course_item, courseElements, viewElements);
 		this.courseList.setAdapter(listViewAdapter);
 		
 	}
 	
-	public String getSchool() {
-		return this.schoolButton.getText().toString();
-	}
-	
-	public void setSchool(String school) {
+	protected void setSchool(String school) {
 		this.schoolButton.setText(school);
 		this.schoolButton.setTextColor(getResources().getColor(R.color.black));
 	}
 	
-	public SchoolSemester getSemester() {
-		return (SchoolSemester) this.semesterSpinner.getSelectedItem();
-	}
-	
-	public String getCourseName() {
-		return this.courseName.getText().toString();
-	}
-	
-	public String getCourseSection() {
-		return this.courseSection.getText().toString();
-	}
-		
+	/* Update search when text is changed. */
 	@Override
 	public void afterTextChanged(Editable view) {
 		updateCourseSearch();
 	}
 	
+	/* Required for TextWatcher interface. */
 	@Override
-	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-			int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void beforeTextChanged(CharSequence a, int b, int c, int d) {}
 	@Override
-	public void onTextChanged(CharSequence arg0, int arg1, int arg2,
-			int arg3) {
-	// TODO Auto-generated method stub
-			
-	}
+	public void onTextChanged(CharSequence a, int b, int c, int d) {}
 
+	/* Update course search when spinner value is changed. */
 	@Override
 	public void onItemSelected(AdapterView<?> parentView, View view, 
 			int position, long id) {
 		updateCourseSearch();
 	}
 
+	/* Required for OnItemSelectedListener interface. */
 	@Override
-	public void onNothingSelected(AdapterView<?> arg0) {
-		// TODO Auto-generated method stub
-			
-	}
+	public void onNothingSelected(AdapterView<?> a) {}
 	
+	/* Handler class for school selection dialog. */
 	public class SelectSchoolDialogFragment extends DialogFragment 
 											implements OnItemSelectedListener {
-		private CreateCourseController activity;
+		/* Create fields for the activity and dialog views. */
 		private Spinner stateSpinner;
 		private Spinner schoolSpinner;
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
+			
 			
 			/* Get a builder to prepare the dialog. */
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -230,26 +227,17 @@ public class CreateCourseController extends ActionBarActivity
 			stateSpinner.setAdapter(spinnerAdapter);
 			stateSpinner.setOnItemSelectedListener(this);
 		    
+			/* Build dialog with predefined layout and standard buttons. */
 		    builder.setView(inflatedView)
 		    		.setTitle("Select School")
-		    // Add action buttons
 		    		.setPositiveButton(R.string.okay, 
-		        		   new SelectSchoolListener(activity, schoolSpinner))
-		        	.setNegativeButton(R.string.cancel, new CancelDialogListener());	
+		    				new SelectSchoolListener((CreateCourseController) getActivity(), 
+		    						schoolSpinner))
+		        	.setNegativeButton(R.string.cancel, 
+		        			new CancelDialogListener());	
 			
 			return builder.create();
 		}
-		
-		@Override
-	    public void onAttach(Activity activity) {
-	        super.onAttach(activity);
-	        try {
-	        	this.activity = (CreateCourseController) activity;
-	        } catch (ClassCastException exception) {
-	        	throw new ClassCastException("Must be CreateCourseController activity!");
-	        }
-	        
-	    }
 
 		@Override
 		public void onItemSelected(AdapterView<?> parentView, View view, 
@@ -268,26 +256,29 @@ public class CreateCourseController extends ActionBarActivity
 			schoolSpinner.setAdapter(spinnerAdapter);
 		}
 
+		/* Required for OnItemSelectedListener interface. */
 		@Override
-		public void onNothingSelected(AdapterView<?> parentView) {
-			// Do nothing.
-		}
+		public void onNothingSelected(AdapterView<?> parentView) {}
 		
+		/* Listener for dialogs 'okay' button. */
 		protected class SelectSchoolListener implements DialogInterface.OnClickListener {
 			private CreateCourseController activity;
 			private Spinner schoolSpinner;
 			
+			/* Must be created with the host activity and source spinner. */
 			public SelectSchoolListener(CreateCourseController activity, Spinner schoolSpinner) {
 				this.activity = activity;
 				this.schoolSpinner = schoolSpinner;
 			}
 			
+			/* Set the school on the activity. */
             public void onClick(DialogInterface dialog, int id) {
                 String schoolName = schoolSpinner.getSelectedItem().toString();
                 activity.setSchool(schoolName);
             }
         }
 		
+		/* Cancel the dialog. */
 		protected class CancelDialogListener implements DialogInterface.OnClickListener {
             public void onClick(DialogInterface dialog, int id) {
                 SelectSchoolDialogFragment.this.getDialog().cancel();

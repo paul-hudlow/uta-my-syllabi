@@ -4,8 +4,6 @@ import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.datatypes.Instructor;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
-import edu.uta.mysyllabi.datatypes.SchoolSemester;
-import edu.uta.mysyllabi.datatypes.TimeOfDay;
 import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,9 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 
 public class ModifyCourseController extends Activity {
@@ -40,8 +36,8 @@ public class ModifyCourseController extends Activity {
 	private EditText instructorPhoneView;
 	private EditText instructorEmailView;
 	private EditText instructorOfficeView;
-	private TextView instructorOfficeHoursStartView;
-	private TextView instructorOfficeHoursDurationView;
+	// private TextView instructorOfficeHoursStartView;
+	// private TextView instructorOfficeHoursDurationView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -122,11 +118,9 @@ public class ModifyCourseController extends Activity {
 		return true;
 	}
 
+	/* default menu handling method */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
@@ -135,21 +129,23 @@ public class ModifyCourseController extends Activity {
 	}
 	
 	public void modifyCourse(View view) {
+		/* Validate course name. */
 		if (courseNameView.getText().toString().length() < 1) {
 			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
 			error.show();
 			return;
 		} 
 
+		/* Set course name, section, title, and classroom. */
 		course.setName(courseNameView.getText().toString());
 		String section = courseSectionView.getText().toString();
 		if (section.length() != 0) {
 			course.setSection(section);
 		}
-		
 		course.setTitle(courseTitleView.getText().toString());
 		course.setClassroom(courseClassroomView.getText().toString());
 		
+		/* Set instructor information. */
 		Instructor instructor = course.getInstructor();
 		instructor.setFirstName(instructorFirstNameView.getText().toString());
 		instructor.setLastName(instructorLastNameView.getText().toString());
@@ -157,8 +153,10 @@ public class ModifyCourseController extends Activity {
 		instructor.setPhoneNumber(instructorPhoneView.getText().toString());
 		instructor.setEmailAddress(instructorEmailView.getText().toString());
 		
+		/* Update back-end course data. */
 		controller.updateCourse(course);
 		
+		/* Start view course activity. */
 		Intent intent = new Intent(this, ViewCourseController.class);
 		intent.putExtra(ViewCourseController.KEY_COURSE_ID, course.getLocalId());
 		this.startActivity(intent);

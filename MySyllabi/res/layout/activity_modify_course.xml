@@ -35,14 +35,6 @@
 			android:hint="@string/hint_course_section"
 			style="@style/InputField" />
 	</LinearLayout>
-	
-	<EditText
-		android:id="@+id/modify_course_title"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:inputType="textCapWords"
-		android:hint="@string/hint_course_title"
-		style="@style/InputField" />
     
 	<View
     	style="@style/Divider"/>
@@ -55,11 +47,19 @@
     		android:layout_height="wrap_content"
     		android:orientation="vertical">
     		
-            <TextView
+           	<EditText
+				android:id="@+id/modify_course_title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:inputType="textCapWords"
+				android:hint="@string/hint_course_title"
+				style="@style/InputField" />
+    		
+          	<TextView
 				android:text="@string/heading_course_meeting"
 				style="@style/Heading" />
 			
-            <EditText
+			<EditText
 				android:id="@+id/modify_classroom"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
