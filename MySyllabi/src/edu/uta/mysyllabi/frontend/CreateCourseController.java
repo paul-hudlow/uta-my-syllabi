@@ -65,8 +65,8 @@ public class CreateCourseController extends ActionBarActivity
 		this.semesterSpinner.setOnItemSelectedListener(this);
 		
 	
-		DialogFragment dialog = new SelectSchoolDialogFragment();
-		dialog.show(getFragmentManager(), "school");
+		//DialogFragment dialog = new SelectSchoolDialogFragment();
+		//dialog.show(getFragmentManager(), "school");
 		
 		
 		/* Create an new ArrayAdapter for school semester. */
@@ -251,9 +251,8 @@ public class CreateCourseController extends ActionBarActivity
 		        		   new SelectSchoolListener(activity, schoolSpinner))
 		        	.setNegativeButton(R.string.cancel, new CancelDialogListener());	
 			
-		    schoolName = schoolSpinner.getSelectedItem().toString();
+		    //schoolName = schoolSpinner.getSelectedItem().toString();
 		    CloudDataHelper.getCourse(schoolName);
-		    
 			
 		    return builder.create();
 			

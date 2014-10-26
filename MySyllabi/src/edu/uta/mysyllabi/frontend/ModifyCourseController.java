@@ -152,8 +152,8 @@ public class ModifyCourseController extends Activity {
 		
 		controller.updateCourse(course);
 		
-		Intent intent = new Intent(this, SelectCourse.class);
-		intent.putExtra(SelectCourse.KEY_COURSE_ID, course.getLocalId());
+		Intent intent = new Intent(this, View .class);
+		//intent.putExtra(SelectCourse.KEY_COURSE_ID, course.getLocalId());
 		startActivity(intent);
 	}
 
