@@ -1,11 +1,16 @@
 package edu.uta.mysyllabi.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import edu.uta.mysyllabi.datatypes.Instructor;
 import edu.uta.mysyllabi.datatypes.SchoolSemester;
 import edu.uta.mysyllabi.datatypes.TimeOfDay;
 import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
+
+import android.text.format.DateFormat;
+import android.text.format.Time;
 
 public class Course {
 	private String localId;
@@ -17,6 +22,8 @@ public class Course {
 	private SchoolSemester semester;
 	private WeeklyMeeting meeting;
 	private Instructor instructor;
+	private ArrayList<Instructor> teachingAssistantList;
+	private ArrayList<String> websiteList;
 	
 	public static final String MAP_KEY_NAME = "name";
 	public static final String MAP_KEY_SECTION = "section";

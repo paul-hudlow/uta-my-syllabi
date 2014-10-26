@@ -2,7 +2,10 @@ package edu.uta.mysyllabi.core;
 
 import java.util.ArrayList;
 
+import android.widget.Toast;
 import edu.uta.mysyllabi.backend.*;
+import edu.uta.mysyllabi.datatypes.Instructor;
+import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class Controller {
 	
@@ -14,6 +17,8 @@ public class Controller {
 	
 	public void updateCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
+		/*CloudDataHelper cloudData = new CloudDataHelper();
+		cloudData.saveCourse(course);*/
 		localData.saveCourse(course);
 	}
 	

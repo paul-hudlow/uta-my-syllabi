@@ -1,74 +1,79 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    
     android:focusable="true"
     android:focusableInTouchMode="true"
-    
+    android:orientation="vertical"
     tools:context="edu.uta.mysyllabi.frontend.CreateCourseController" >
-    
+
     <!-- display course id and section on the same line -->
+
     <LinearLayout
         android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal" >
-	    <!-- course id -->
-	    <EditText
-	        android:id="@+id/create_course_name"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:hint="@string/hint_course_name"
-	        android:inputType="textCapCharacters"
-	        style="@style/InputField" />
-	    <!-- course section -->
-	    <EditText
-	        android:id="@+id/create_course_section"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:inputType="number"
-	        android:hint="@string/hint_course_section"
-	        style="@style/InputField" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <!-- course id -->
+
+        <AutoCompleteTextView
+            android:id="@+id/create_course_name"
+            style="@style/InputField"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/hint_course_name"
+            android:inputType="textCapCharacters" />
+        <!-- course section -->
+
+        <EditText
+            android:id="@+id/create_course_section"
+            style="@style/InputField"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/hint_course_section"
+            android:inputType="number" />
     </LinearLayout>
-    
+
     <!-- launch school selection dialog -->
+
     <TextView
         android:id="@+id/create_course_school"
+        style="@style/DecoySpinner"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hint_course_school"
         android:onClick="selectSchool"
-        style="@style/DecoySpinner" />
-    
+        android:text="@string/hint_course_school" />
+
     <!-- select school semester -->
+
     <Spinner
         android:id="@+id/create_course_semester"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:padding="0sp" />
-    
-    <View
-    	style="@style/Divider"/>
-    
+
+    <View style="@style/Divider" />
+
     <!-- display courses from the cloud -->
-	<ListView
-	    android:id="@+id/create_course_list"
+
+    <ListView
+        android:id="@+id/create_course_list"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-    
-	<!-- finish creating course -->
+
+    <!-- finish creating course -->
+
     <Button
         android:id="@+id/create_course_submit"
+        style="@style/SubmitButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/create_course_submit"
         android:onClick="createCourse"
-        style="@style/SubmitButton" />
-    
+        android:text="@string/create_course_submit" />
+
+ 
+
 </LinearLayout>
