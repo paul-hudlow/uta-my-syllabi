@@ -7,6 +7,8 @@
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="21" />
+    <uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MySyllabi"
@@ -15,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="edu.uta.mysyllabi.frontend.ViewCourseController"
+            android:name="edu.uta.mysyllabi.frontend.SelectCourse"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,6 +45,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        
     </application>
 
 </manifest>

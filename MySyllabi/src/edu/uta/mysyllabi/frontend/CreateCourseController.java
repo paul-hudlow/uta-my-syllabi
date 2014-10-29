@@ -105,10 +105,10 @@ public class CreateCourseController extends ActionBarActivity implements
 					long arg3) {
 				
 				 	Toast.makeText(getApplicationContext(),courseName.getText().toString(), Toast.LENGTH_LONG).show();
-				 	Intent intent = new Intent(getBaseContext(), ModifyCourseController.class);
+				/* 	Intent intent = new Intent(getBaseContext(), ModifyCourseController.class);
 		    		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, "2");
 		    		startActivity(intent);
-				 	
+				 	*/
 		    				    		
 			}
 		});
