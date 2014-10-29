@@ -2,7 +2,8 @@ package edu.uta.mysyllabi.core;
 
 import java.util.ArrayList;
 
-import edu.uta.mysyllabi.backend.*;
+import edu.uta.mysyllabi.backend.CloudDataHelper;
+import edu.uta.mysyllabi.backend.LocalDataHelper;
 
 public class Controller {
 	
@@ -14,6 +15,8 @@ public class Controller {
 	
 	public void updateCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
+	/*	CloudDataHelper cloudData = new CloudDataHelper();
+		cloudData.saveCourse(course);*/
 		localData.saveCourse(course);
 	}
 	
@@ -21,6 +24,8 @@ public class Controller {
 		if (onCloud) {
 			String cloudId = CloudDataHelper.saveCourse(course);
 			course.setCloudId(cloudId);
+			LocalDataHelper localData = new LocalDataHelper();
+			return localData.saveCourse(course);
 		}
 		LocalDataHelper localData = new LocalDataHelper();
 		return localData.saveCourse(course);

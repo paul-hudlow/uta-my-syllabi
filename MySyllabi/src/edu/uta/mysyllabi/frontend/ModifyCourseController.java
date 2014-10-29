@@ -1,11 +1,7 @@
 package edu.uta.mysyllabi.frontend;
 
-import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.datatypes.Instructor;
-import edu.uta.mysyllabi.core.Controller;
-import edu.uta.mysyllabi.core.Course;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
@@ -14,7 +10,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
+import edu.uta.mysyllabi.R;
+import edu.uta.mysyllabi.core.Controller;
+import edu.uta.mysyllabi.core.Course;
+import edu.uta.mysyllabi.datatypes.Instructor;
+import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class ModifyCourseController extends Activity {
 	private Course course; // course object to be modified
@@ -36,8 +36,8 @@ public class ModifyCourseController extends Activity {
 	private EditText instructorPhoneView;
 	private EditText instructorEmailView;
 	private EditText instructorOfficeView;
-	// private TextView instructorOfficeHoursStartView;
-	// private TextView instructorOfficeHoursDurationView;
+	private TextView instructorOfficeHoursStartView;
+	private TextView instructorOfficeHoursDurationView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,7 @@ public class ModifyCourseController extends Activity {
 		
 		/* Load the course object from back-end. */
 		this.course = controller.getCourse(getIntent().getStringExtra(KEY_COURSE_ID));
+		//String temp = getIntent().getStringExtra(KEY_COURSE_ID);
 		
 		/* Load the course data into the input views. */
 		prepareInputViews();
@@ -82,11 +83,8 @@ public class ModifyCourseController extends Activity {
 		courseClassroomView.setText(course.getClassroom());
 		if (course.getMeeting() != null) {
 			courseMeetingStartView.setText(course.getMeetingStart().toString(DateFormat.is24HourFormat(this)));
-			courseMeetingStartView.setTextColor(getResources().getColor(R.color.black));
 			courseMeetingDurationView.setText(course.getMeetingDuration().toString(true));
-			courseMeetingDurationView.setTextColor(getResources().getColor(R.color.black));
 			courseMeetingDaysView.setText(course.getMeetingDays());
-			courseMeetingDaysView.setTextColor(getResources().getColor(R.color.black));
 		} else {
 			course.setMeeting(new WeeklyMeeting());
 		}
@@ -118,9 +116,11 @@ public class ModifyCourseController extends Activity {
 		return true;
 	}
 
-	/* default menu handling method */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
@@ -129,23 +129,21 @@ public class ModifyCourseController extends Activity {
 	}
 	
 	public void modifyCourse(View view) {
-		/* Validate course name. */
 		if (courseNameView.getText().toString().length() < 1) {
 			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
 			error.show();
 			return;
 		} 
 
-		/* Set course name, section, title, and classroom. */
 		course.setName(courseNameView.getText().toString());
 		String section = courseSectionView.getText().toString();
 		if (section.length() != 0) {
 			course.setSection(section);
 		}
+		
 		course.setTitle(courseTitleView.getText().toString());
 		course.setClassroom(courseClassroomView.getText().toString());
 		
-		/* Set instructor information. */
 		Instructor instructor = course.getInstructor();
 		instructor.setFirstName(instructorFirstNameView.getText().toString());
 		instructor.setLastName(instructorLastNameView.getText().toString());
@@ -153,15 +151,11 @@ public class ModifyCourseController extends Activity {
 		instructor.setPhoneNumber(instructorPhoneView.getText().toString());
 		instructor.setEmailAddress(instructorEmailView.getText().toString());
 		
-		/* Update back-end course data. */
 		controller.updateCourse(course);
 		
-		/* Start view course activity. */
-		Intent intent = new Intent(this, ViewCourseController.class);
-		intent.putExtra(ViewCourseController.KEY_COURSE_ID, course.getLocalId());
-		this.startActivity(intent);
-		this.setResult(RESULT_OK);
-		this.finish();
+		Intent intent = new Intent(this, SelectCourse.class);
+		intent.putExtra(SelectCourse.KEY_COURSE_ID, course.getLocalId());
+		startActivity(intent);
 	}
 
 }

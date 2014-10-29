@@ -1,6 +1,5 @@
 package edu.uta.mysyllabi.frontend;
 
-import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.datatypes.TimeOfDay;
 import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
@@ -79,7 +78,6 @@ public class SetTimeDialogFragment extends DialogFragment
 		}
 		
 		hostView.setText(time.toString(is24HourFormat));
-		hostView.setTextColor(getResources().getColor(R.color.black));
 		
 		if (meeting != null) {
 			if (isDuration) {
