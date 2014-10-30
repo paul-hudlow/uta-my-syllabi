@@ -15,18 +15,16 @@
         android:orientation="horizontal" >
 
         <!-- course id -->
-
-        <AutoCompleteTextView
+        <EditText
             android:id="@+id/create_course_name"
             style="@style/InputField"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/hint_course_name"
-            android:inputType="textCapCharacters"
-            android:imeOptions="actionDone" />
+            android:inputType="textCapCharacters" />
+        
         <!-- course section -->
-
         <EditText
             android:id="@+id/create_course_section"
             style="@style/InputField"

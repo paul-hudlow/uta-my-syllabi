@@ -4,9 +4,9 @@ import java.util.List;
 
 
 public class WeeklyMeeting {
-	private TimeOfDay startTime; // in minutes from midnight
-	private int duration; // in minutes
-	private char[] daysOfWeek; // Array has length 7 and indicates each meeting day with the character 'y'.
+	private TimeOfDay startTime = new TimeOfDay(0); // in minutes from midnight
+	private int duration = 0; // in minutes
+	private char[] daysOfWeek = {'n','n','n','n','n','n','n'}; // Array has length 7 and indicates each meeting day with the character 'y'.
 	private String location;
 	
 	private static final String[] dayAbbreviations = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
@@ -80,6 +80,10 @@ public class WeeklyMeeting {
 	
 	public void setStartTime(TimeOfDay time) {
 		startTime = time;
+	}
+	
+	public void setStartTime(int minutes) {
+		startTime = new TimeOfDay(minutes);
 	}
 	
 	public int getDuration() {

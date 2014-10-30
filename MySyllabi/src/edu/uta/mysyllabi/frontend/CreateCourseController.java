@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -18,9 +19,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -28,45 +29,30 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.Parse;
-import com.parse.ParseObject;
-
 import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.backend.CloudDataHelper;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
 import edu.uta.mysyllabi.datatypes.SchoolSemester;
 
 public class CreateCourseController extends ActionBarActivity implements
-		TextWatcher, OnItemSelectedListener {
+		TextWatcher, OnItemSelectedListener, OnItemClickListener {
 	private TextView schoolButton;
 	private Spinner semesterSpinner;
-	private AutoCompleteTextView courseName;
+	private EditText courseName;
 	private EditText courseSection;
 	private ListView courseList;
+	private ArrayList<Course> cloudList;
 	private Controller controller;
-	private String[] cList;
-	final ParseObject syllibi = new ParseObject("syllabi");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create_course);
-		selectSchool(getCurrentFocus());
-
-		Parse.initialize(this, "tDHQuyM07LOHaIEzPJPrMP2EKCC0j3ik6mmTQ9Xp",
-				"ZtXxrCSSp90ca4pmWGbLGanXEarRFR6BtPIwSVXM");
 
 		this.schoolButton = (TextView) findViewById(R.id.create_course_school);
 		this.semesterSpinner = (Spinner) findViewById(R.id.create_course_semester);
-		cList = CloudDataHelper
-				.getCourseList("University of Texas at Arlington", "CourseName");
 		
-
-		this.courseName = (AutoCompleteTextView) findViewById(R.id.create_course_name);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_dropdown_item_1line, cList);
-		courseName.setAdapter(adapter);
+		this.courseName = (EditText) findViewById(R.id.create_course_name);
 		this.courseSection = (EditText) findViewById(R.id.create_course_section);
 		this.courseList = (ListView) findViewById(R.id.create_course_list);
 		this.controller = new Controller();
@@ -74,6 +60,7 @@ public class CreateCourseController extends ActionBarActivity implements
 		this.courseName.addTextChangedListener(this);
 		this.courseSection.addTextChangedListener(this);
 		this.semesterSpinner.setOnItemSelectedListener(this);
+		this.courseList.setOnItemClickListener(this);
 
 		
 		/* Create an new ArrayAdapter for school semester. */
@@ -97,21 +84,7 @@ public class CreateCourseController extends ActionBarActivity implements
 		 */
 		semesterSpinner.setAdapter(spinnerAdapter);
 		semesterSpinner.setSelection(1);
-	
-		courseName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				
-				 	Toast.makeText(getApplicationContext(),courseName.getText().toString(), Toast.LENGTH_LONG).show();
-				/* 	Intent intent = new Intent(getBaseContext(), ModifyCourseController.class);
-		    		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, "2");
-		    		startActivity(intent);
-				 	*/
-		    				    		
-			}
-		});
 	}
 
 	@Override
@@ -120,8 +93,6 @@ public class CreateCourseController extends ActionBarActivity implements
 		getMenuInflater().inflate(R.menu.create_course, menu);
 		return true;
 	}
-	
-
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -152,7 +123,6 @@ public class CreateCourseController extends ActionBarActivity implements
 
 		Course course = new Course(null, null);
 
-
 		course.setName(courseName.getText().toString());
 		String section = courseSection.getText().toString();
 		if (section.length() != 0) {
@@ -167,26 +137,58 @@ public class CreateCourseController extends ActionBarActivity implements
 		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
 		startActivity(intent);
 	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		addCourse(this.cloudList.get(position));
+	}
+	
+	public void addCourse(Course course) {
+		String courseId = controller.createCourse(course, true);
+		Intent intent = new Intent(this, ViewCourseController.class);
+		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
+		startActivity(intent);
+	}
 
-	public void updateCourseSearch() {
-		ArrayList<Course> cloudList = controller.findCourses(courseName
-				.getText().toString(), courseSection.getText().toString(),
-				schoolButton.getText().toString(), semesterSpinner
-						.getSelectedItem().toString());
-		ArrayList<HashMap<String, String>> mapList = new ArrayList<HashMap<String, String>>();
+	private void updateCourseSearch() {
+		new CourseSearchUpdater().execute(
+				courseName.getText().toString(),
+				courseSection.getText().toString(),
+				schoolButton.getText().toString(), 
+				semesterSpinner.getSelectedItem().toString());
+	}
+	
+	private class CourseSearchUpdater extends AsyncTask<String, Void, ArrayList<Course>> {
 
-		for (Course nextCourse : cloudList) {
-			mapList.add(nextCourse.getPreviewMap());
+		@Override
+		protected ArrayList<Course> doInBackground(String... params) {
+			if (params.length != 4) {
+				throw new IllegalArgumentException();
+			}
+			ArrayList<Course> cloudList = controller.findCourses(
+					params[0], params[1], params[2], params[3]);
+			return cloudList;
 		}
-
-		String[] courseElements = { Course.MAP_KEY_NAME,
-				Course.MAP_KEY_MEETING, Course.MAP_KEY_INSTRUCTOR };
-		int[] viewElements = { R.id.course_item_name, R.id.course_item_meeting,
-				R.id.course_item_instructor };
-		SimpleAdapter listViewAdapter = new SimpleAdapter(this, mapList,
-				R.layout.course_item, courseElements, viewElements);
-		this.courseList.setAdapter(listViewAdapter);
-
+		
+		protected void onPostExecute(ArrayList<Course> cloudList) {
+			CreateCourseController.this.cloudList = cloudList;
+			ArrayList<HashMap<String, String>> mapList = new ArrayList<HashMap<String, String>>();
+			for (Course nextCourse : cloudList) {
+				mapList.add(nextCourse.getPreviewMap());
+			}
+			String[] courseElements = { 
+					Course.MAP_KEY_NAME,
+					Course.MAP_KEY_MEETING, 
+					Course.MAP_KEY_INSTRUCTOR };
+			int[] viewElements = { 
+					R.id.course_item_name, 
+					R.id.course_item_meeting,
+					R.id.course_item_instructor};
+			SimpleAdapter listViewAdapter = new SimpleAdapter(CreateCourseController.this, mapList,
+					R.layout.course_item, courseElements, viewElements);
+			CreateCourseController.this.courseList.setAdapter(listViewAdapter);
+	    }
+		
 	}
 
 	public String getSchool() {
@@ -360,6 +362,7 @@ public class CreateCourseController extends ActionBarActivity implements
 			public void onClick(DialogInterface dialog, int id) {
 				String schoolName = schoolSpinner.getSelectedItem().toString();
 				activity.setSchool(schoolName);
+				CreateCourseController.this.afterTextChanged(null);
 			}
 
 		}

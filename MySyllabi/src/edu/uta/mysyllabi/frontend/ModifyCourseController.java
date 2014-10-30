@@ -81,7 +81,7 @@ public class ModifyCourseController extends Activity {
 		
 		/* Class Meetings */
 		courseClassroomView.setText(course.getClassroom());
-		if (course.getMeeting() != null) {
+		if (course.getMeetingDuration() != null && course.getMeetingStart() != null) {
 			courseMeetingStartView.setText(course.getMeetingStart().toString(DateFormat.is24HourFormat(this)));
 			courseMeetingDurationView.setText(course.getMeetingDuration().toString(true));
 			courseMeetingDaysView.setText(course.getMeetingDays());
@@ -153,8 +153,8 @@ public class ModifyCourseController extends Activity {
 		
 		controller.updateCourse(course);
 		
-		Intent intent = new Intent(this, SelectCourse.class);
-		intent.putExtra(SelectCourse.KEY_COURSE_ID, course.getLocalId());
+		Intent intent = new Intent(this, ViewCourseController.class);
+		intent.putExtra(ViewCourseController.KEY_COURSE_ID, course.getLocalId());
 		startActivity(intent);
 	}
 

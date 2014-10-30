@@ -1,60 +1,70 @@
 package edu.uta.mysyllabi.backend;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
-import android.util.Log;
-import android.widget.Toast;
-
-import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.core.Course;
-import edu.uta.mysyllabi.datatypes.Instructor;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class CloudDataHelper {
 	
-
+	private static final String COURSE_TABLE = "Course";
 	
-	private static String[] array = null ;
-	private static List<ParseObject> courseObjects = null;
+	public CloudDataHelper() {
+		Parse.initialize(MySyllabi.getAppContext(), 
+				"tDHQuyM07LOHaIEzPJPrMP2EKCC0j3ik6mmTQ9Xp",
+				"ZtXxrCSSp90ca4pmWGbLGanXEarRFR6BtPIwSVXM");
+	}
 	
-	public static String saveCourse(Course course) {
+	public static void saveCourse(Course course) {
+		ParseObject cloudCourse = courseToParse(course);
+	    cloudCourse.saveInBackground();
+	}
+	
+	private static ParseObject courseToParse(Course courseObject) {
+		final ParseObject parseObject = new ParseObject(COURSE_TABLE);
 		
-		final ParseObject syllabi = new ParseObject("syllabi");
+		if (courseObject.getCloudId() != null) {
+			parseObject.setObjectId(courseObject.getCloudId());
+		}
 		
-		
-		
-		//String cloudId = course.getCloudId();
-		syllabi.put("CourseName", course.getName());
-	//	syllabi.put("CourseTitle", course.getTitle());
-		syllabi.put("Section", course.getSection());
-		syllabi.put("School", course.getSchool());
-		syllabi.put("Semester", course.getSemester().toString());
-		
-		Instructor instructor = course.getInstructor();
-	    if (instructor != null) {
-	    	syllabi.put("InstFName", instructor.getName());
-	    	syllabi.put("InstLName", instructor.getLastName());
-	    	syllabi.put("InstOfficeId", instructor.getOfficeHours());
-	    	syllabi.put("InstPhoneNo", instructor.getPhoneNumber());
-	    	syllabi.put("InstEmail", instructor.getEmailAddress());
-	    }
+		HashMap<String, String> courseMap = courseObject.getContentMap();
+		String[] keys = courseObject.getContentKeys();
+		String nextValue;
+		for (int i = 0; i < keys.length; i++) {
+			nextValue = courseMap.get(keys[i]);
+			if (nextValue != null) {
+				parseObject.put(keys[i], nextValue);
+			}
+		}
 	    
-	    WeeklyMeeting meeting = course.getMeeting();
-	    if (meeting != null && meeting.getStartTime() != null) {
-	    	syllabi.put("MeetingStartTime", meeting.getStartTime().getTotalMinutes());
-	    	syllabi.put("MeetingDuration", meeting.getDuration());
-	    	syllabi.put("MeetingDays", meeting.getDaysString());
-	    	syllabi.put("MeetingLocation", meeting.getLocation());
-	    }
-	    
-	    syllabi.saveInBackground();
-		return "21";
+	    return parseObject;
+	}
+	
+	private Course parseToCourse(ParseObject parseObject) {
+		
+		Set<String> keys = parseObject.keySet();
+		
+		HashMap<String, String> courseMap = new HashMap<String, String>();
+		String nextValue;
+		for (String nextKey : keys) {
+			nextValue = parseObject.getString(nextKey);
+			if (nextValue != null) {
+				courseMap.put(nextKey, nextValue);
+			}
+		}
+		
+	    Course courseObject = new Course(courseMap);
+	    courseObject.setCloudId(parseObject.getObjectId());
+		
+	    return courseObject;
 	}
 
 	public static Course getCourse(String key) {
@@ -75,45 +85,36 @@ public class CloudDataHelper {
 		}
 	}
 	
-	
-	
-	public static String[] getCourseList(String schoolName, String reqFieldName) {
-			ParseQuery<ParseObject> courseQuery = ParseQuery.getQuery("syllabi");
+	public ArrayList<Course> getCourseList(String schoolName, String semester, 
+			String courseName, String courseSection) {
+		ParseQuery<ParseObject> courseQuery = ParseQuery.getQuery(COURSE_TABLE);
 			
-			courseQuery.whereEqualTo("School", schoolName);
-			
-			
-			
-			try {
-				courseObjects = courseQuery.find();
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-					
-			array = new String[courseObjects.size()];
-			int index = 0;
-			for(Object value : courseObjects)
-			{
-				array[index] = (String) ((ParseObject) value).getString(reqFieldName);
-				index++;
-			}
-					return array;
-			}
-	
-	public static String getElementsOffParse(String courseNo, String element)
-	{
-		String value = null;
-		
-		for(Object value1 : courseObjects)
-		{
-			if(value1.equals(courseNo))
-			value = (String) ((ParseObject) value1).getString(element);
+		if (schoolName == null || courseName == null) {
+			return new ArrayList<Course>();
 		}
-		return value;
+
+		courseQuery.whereEqualTo(Course.COURSE_SCHOOL, schoolName);
+		courseQuery.whereEqualTo(Course.COURSE_SEMESTER, semester);
+		courseQuery.whereStartsWith(Course.COURSE_NAME, courseName);
+
+		if (courseSection != null) {
+			courseQuery.whereEqualTo(Course.COURSE_SECTION, courseSection);
+		}
 			
-		
+		List<ParseObject> parseList;
+		try {
+			parseList = courseQuery.find();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return new ArrayList<Course>();
+		}
+					
+		ArrayList<Course> courseList = new ArrayList<Course>();
+		for (ParseObject parseCourse : parseList) {
+			courseList.add(parseToCourse(parseCourse));
+		}
+		return courseList;
 	}
 	
-	}
+}
 
