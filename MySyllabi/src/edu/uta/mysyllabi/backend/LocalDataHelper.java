@@ -16,7 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocalDataHelper extends SQLiteOpenHelper {
 	// Version must be incremented upon schema change!
-	public static final int DATABASE_VERSION = 16;
+	public static final int DATABASE_VERSION = 17;
     public static final String DATABASE_NAME = "MyCourses.db";
 	
     /* Query details */
@@ -26,6 +26,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     
     public static final String CREATE_TABLE_Course = "CREATE TABLE " + DataContract.Course.TABLE_NAME + "(" +
     		DataContract.Course.COLUMN_ID + INT_TYPE + " PRIMARY KEY" + DELIMITER +
+    		DataContract.Course.COLUMN_CLOUD_ID + TEXT_TYPE + DELIMITER +
     		DataContract.Course.COLUMN_NAME + TEXT_TYPE + DELIMITER +
     		DataContract.Course.COLUMN_SECTION + TEXT_TYPE + DELIMITER +
     		DataContract.Course.COLUMN_TITLE + TEXT_TYPE + DELIMITER +
@@ -47,6 +48,14 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     
 	public LocalDataHelper() {
 		super(MySyllabi.getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
+	}
+	
+	public void addCloudId(String localId, String cloudId) {
+		ContentValues values = new ContentValues();
+	    values.put(DataContract.Course.COLUMN_CLOUD_ID, cloudId);
+	    SQLiteDatabase database = this.getWritableDatabase();
+	    database.update(DataContract.Course.TABLE_NAME, values, 
+	    		DataContract.Course.COLUMN_ID + " = " + localId, null);
 	}
 
 	@Override
@@ -82,7 +91,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    if (meeting != null && meeting.getStartTime() != null) {
 		    values.put(DataContract.Meeting.COLUMN_START_TIME, meeting.getStartTime().getTotalMinutes());
 		    values.put(DataContract.Meeting.COLUMN_DURATION, meeting.getDuration());
-		    values.put(DataContract.Meeting.COLUMN_DAYS, meeting.getDaysString());
+		    values.put(DataContract.Meeting.COLUMN_DAYS, meeting.getDaysData());
 		    values.put(DataContract.Meeting.COLUMN_LOCATION, meeting.getLocation());
 	    }
 	    
@@ -123,12 +132,17 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		}
 		
 		Course localCourse = new Course(localId, null);
+		try {
+			localCourse.setCloudId(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_CLOUD_ID)));
+		} catch (Exception exception) {
+			// Forget the cloud id.
+		}
 		
 		/* Add basic course information. */
 		localCourse.setName(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_NAME)));
 		localCourse.setTitle(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_TITLE)));
 		localCourse.setSection(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_SECTION)));
-		localCourse.setSchool(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_NAME)));
+		localCourse.setSchool(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_SCHOOL)));
 		localCourse.setSemester(new SchoolSemester(tableCursor.getString(tableCursor.getColumnIndex(DataContract.Course.COLUMN_SEMESTER))));
 		
 		/* Build the course meeting. */

@@ -36,6 +36,7 @@ public final class DataContract {
 		public static final String TABLE_NAME = "course_table";
 		
 		public static final String COLUMN_ID = "id"; // Internal use only.
+		public static final String COLUMN_CLOUD_ID = "cloud_id";
 		public static final String COLUMN_NAME = "name";
 		public static final String COLUMN_SECTION = "section";
 		public static final String COLUMN_TITLE = "title";

@@ -15,6 +15,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,6 +41,7 @@ public class CreateCourseController extends ActionBarActivity
 	private EditText courseSection;
 	private ListView courseList;
 	private Controller controller;
+	private ArrayList<Course> cloudList;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +128,9 @@ public class CreateCourseController extends ActionBarActivity
 		course.setSemester((SchoolSemester) semesterSpinner.getSelectedItem());
 		
 		/* Create new course. */
-		String courseId = controller.createCourse(course, false);
+		String courseId = controller.createCourse(course, true);
+		Toast error = Toast.makeText(this, courseId, Toast.LENGTH_SHORT);
+		error.show();
 		
 		/* Start the view course activity, telling it to forward to the modify course activity. */
 		Intent intent = new Intent(this, ViewCourseController.class);
@@ -137,29 +141,44 @@ public class CreateCourseController extends ActionBarActivity
 		this.finish();
 	}
 	
-	public void updateCourseSearch() {
-		
-		/* Retrieve course list from the cloud. */
-		ArrayList<Course> cloudList = controller.findCourses(courseName.getText().toString(),
-				courseSection.getText().toString(), schoolButton.getText().toString(),
+	private void updateCourseSearch() {
+		new CourseSearchUpdater().execute(
+				courseName.getText().toString(),
+				courseSection.getText().toString(),
+				schoolButton.getText().toString(), 
 				semesterSpinner.getSelectedItem().toString());
-		ArrayList<HashMap<String,String>> mapList = new ArrayList<HashMap<String,String>>();
-		
-		/* Get hash maps from course objects. */
-		for (Course nextCourse : cloudList) {
-			mapList.add(nextCourse.getPreviewMap());
+	}
+	
+	private class CourseSearchUpdater extends AsyncTask<String, Void, ArrayList<Course>> {
+
+		@Override
+		protected ArrayList<Course> doInBackground(String... params) {
+			if (params.length != 4) {
+				throw new IllegalArgumentException();
+			}
+			ArrayList<Course> cloudList = controller.findCourses(
+					params[0], params[1], params[2], params[3]);
+			return cloudList;
 		}
 		
-		/* Identify layout views with Course components. */
-		String[] courseElements = {Course.MAP_KEY_NAME, Course.MAP_KEY_MEETING, 
-				Course.MAP_KEY_INSTRUCTOR};
-		int[] viewElements = {R.id.course_item_name, R.id.course_item_meeting, 
-				R.id.course_item_instructor};
-		
-		/* Finish setting up adapter. */
-		SimpleAdapter listViewAdapter = new SimpleAdapter(this, mapList, 
-				R.layout.course_item, courseElements, viewElements);
-		this.courseList.setAdapter(listViewAdapter);
+		protected void onPostExecute(ArrayList<Course> cloudList) {
+			CreateCourseController.this.cloudList = cloudList;
+			ArrayList<HashMap<String, String>> mapList = new ArrayList<HashMap<String, String>>();
+			for (Course nextCourse : cloudList) {
+				mapList.add(nextCourse.getPreviewMap());
+			}
+			String[] courseElements = { 
+					Course.MAP_KEY_NAME,
+					Course.MAP_KEY_MEETING, 
+					Course.MAP_KEY_INSTRUCTOR };
+			int[] viewElements = { 
+					R.id.course_item_name, 
+					R.id.course_item_meeting,
+					R.id.course_item_instructor};
+			SimpleAdapter listViewAdapter = new SimpleAdapter(CreateCourseController.this, mapList,
+					R.layout.course_item, courseElements, viewElements);
+			CreateCourseController.this.courseList.setAdapter(listViewAdapter);
+	    }
 		
 	}
 	
