@@ -42,6 +42,7 @@ public final class DataContract {
 		public static final String COLUMN_TITLE = "title";
 		public static final String COLUMN_SCHOOL = "school";
 		public static final String COLUMN_SEMESTER = "semester";
+		public static final String COLUMN_ON_CLOUD= "onCloud"; 
 		
 	}
 	

@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -33,7 +34,7 @@ import android.text.TextWatcher;
 import android.widget.Toast;
 
 public class CreateCourseController extends ActionBarActivity 
-									implements TextWatcher, OnItemSelectedListener {
+									implements TextWatcher, OnItemSelectedListener, OnItemClickListener {
 	/* Create fields for all view objects. */
 	private TextView schoolButton;
 	private Spinner semesterSpinner;
@@ -60,6 +61,7 @@ public class CreateCourseController extends ActionBarActivity
 		this.courseName.addTextChangedListener(this);
 		this.courseSection.addTextChangedListener(this);
 		this.semesterSpinner.setOnItemSelectedListener(this);
+		this.courseList.setOnItemClickListener(this);
 		
 		/* Create an new ArrayAdapter for semester spinner. */
 		ArrayAdapter<SchoolSemester> spinnerAdapter = 
@@ -79,6 +81,18 @@ public class CreateCourseController extends ActionBarActivity
 		
 	}
 
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		addCourse(this.cloudList.get(position));
+	}
+	
+	public void addCourse(Course course) {
+		String courseId = controller.createCourse(course, true);
+		Intent intent = new Intent(this, ViewCourseController.class);
+		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
+		startActivity(intent);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		/* Inflate the menu; this adds items to the action bar if it is present. */
@@ -294,6 +308,7 @@ public class CreateCourseController extends ActionBarActivity
             public void onClick(DialogInterface dialog, int id) {
                 String schoolName = schoolSpinner.getSelectedItem().toString();
                 activity.setSchool(schoolName);
+                updateCourseSearch();
             }
         }
 		

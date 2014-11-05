@@ -25,15 +25,28 @@ public class CloudDataHelper {
 				"ZtXxrCSSp90ca4pmWGbLGanXEarRFR6BtPIwSVXM");
 	}
 	
+	/* Creates new course on the cloud or updates an existing course. */
 	public void saveCourse(Course course) {
-		if (course.getCloudId() == null) {
-			new CourseSaver().execute(course);  
+		if (course.getCloudId() == null) { // Check whether a cloud ID is available.
+			if (course.isOnCloud()) { // Check if there should be a cloud ID.
+				/* Update course object from local database. */
+				LocalDataHelper reCheckHelper = new LocalDataHelper();
+				Course refreshedCourse = reCheckHelper.getCourse(course.getLocalId());
+				if (refreshedCourse.getCloudId() != null) {
+					saveCourse(refreshedCourse);
+				}
+				return;
+			}
+			new CourseSaver().execute(course); // Create new course on cloud with custom save behavior.
 		} else {
+			/* Update course on cloud with Parse-provided method. */
 			ParseObject cloudCourse = courseToParse(course);
 			cloudCourse.saveInBackground();
 		}
 	}
 	
+	/* Saves a new course to the cloud in a background thread. This is necessary in order to
+	 * return the cloud ID to the local database afterwards. */
 	protected class CourseSaver extends AsyncTask<Course, Void, Void> {
 		
 		@Override
@@ -43,20 +56,23 @@ public class CloudDataHelper {
 			}
 			Course course = params[0];
 			
+			/* Save the course to the cloud. */
 			ParseObject cloudCourse = courseToParse(course);
 			try {
 				cloudCourse.save();
 			} catch (ParseException e) {
 				return null;
 			}
+			/* Save the automatically returned ID to the local database for later reference. */
 		    LocalDataHelper localHelper = new LocalDataHelper();
-		    localHelper.addCloudId(course.getLocalId(), cloudCourse.getObjectId());
+		    localHelper.addCloudId(course.getLocalId(), cloudCourse.getObjectId()); 
 		    
 			return null;
 		}
 		
 	}
 	
+	/* Convert a Course object to a ParseObject object. */
 	private static ParseObject courseToParse(Course courseObject) {
 		final ParseObject parseObject = new ParseObject(COURSE_TABLE);
 		
@@ -65,7 +81,7 @@ public class CloudDataHelper {
 		}
 		
 		HashMap<String, String> courseMap = courseObject.getContentMap();
-		String[] keys = courseObject.getContentKeys();
+		String[] keys = Course.getContentKeys();
 		String nextValue;
 		for (int i = 0; i < keys.length; i++) {
 			nextValue = courseMap.get(keys[i]);
@@ -77,10 +93,12 @@ public class CloudDataHelper {
 	    return parseObject;
 	}
 	
+	/* Convert a ParseObject object to a Course object. */
 	private Course parseToCourse(ParseObject parseObject) {
 		
 		Set<String> keys = parseObject.keySet();
 		
+		/* Build a hash map with course contents. */
 		HashMap<String, String> courseMap = new HashMap<String, String>();
 		String nextValue;
 		for (String nextKey : keys) {
@@ -90,6 +108,7 @@ public class CloudDataHelper {
 			}
 		}
 		
+		/* Use hash map to create new Course object. */
 	    Course courseObject = new Course(courseMap);
 	    courseObject.setCloudId(parseObject.getObjectId());
 		
@@ -102,6 +121,7 @@ public class CloudDataHelper {
 		return cloudCourse;
 	}
 	
+	/* Dummy method. */
 	public static String[] getSchoolList(String state) {
 		if (state.equals(new String("Texas"))) {
 			String[] schools = {"University of Texas at Arlington", 
@@ -116,12 +136,15 @@ public class CloudDataHelper {
 	
 	public ArrayList<Course> getCourseList(String schoolName, String semester, 
 			String courseName, String courseSection) {
+		
+		/* Set up ParseQuery object. */
 		ParseQuery<ParseObject> courseQuery = ParseQuery.getQuery(COURSE_TABLE);
 			
 		if (schoolName == null || courseName == null) {
 			return new ArrayList<Course>();
 		}
 
+		/* Set query parameters. */
 		courseQuery.whereEqualTo(Course.COURSE_SCHOOL, schoolName);
 		courseQuery.whereEqualTo(Course.COURSE_SEMESTER, semester);
 		courseQuery.whereStartsWith(Course.COURSE_NAME, courseName);
@@ -129,7 +152,8 @@ public class CloudDataHelper {
 		if (courseSection != null) {
 			courseQuery.whereEqualTo(Course.COURSE_SECTION, courseSection);
 		}
-			
+		
+		/* Send query to Parse. */
 		List<ParseObject> parseList;
 		try {
 			parseList = courseQuery.find();
@@ -137,7 +161,8 @@ public class CloudDataHelper {
 			e.printStackTrace();
 			return new ArrayList<Course>();
 		}
-					
+				
+		/* Populate list by converting ParseObject objects to Course objects. */
 		ArrayList<Course> courseList = new ArrayList<Course>();
 		for (ParseObject parseCourse : parseList) {
 			courseList.add(parseToCourse(parseCourse));

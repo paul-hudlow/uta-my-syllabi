@@ -14,9 +14,10 @@ public class Course {
 	private String title;
 	private String section;
 	private String school;
-	private SchoolSemester semester;
+	private SchoolSemester semester = SchoolSemester.getCurrent();
 	private WeeklyMeeting meeting = new WeeklyMeeting();
 	private Instructor instructor = new Instructor();
+	private boolean onCloud = false;
 	//private ArrayList<Instructor> teachingAssistantList;
 	//private ArrayList<String> websiteList;
 	
@@ -41,6 +42,15 @@ public class Course {
 	public static final String MEETING_START = "meeting_start";
 	public static final String MEETING_DURATION = "meeting_duration";
 	public static final String MEETING_DAYS = "meeting_days";
+	
+	
+	public boolean isOnCloud() {
+		return onCloud;
+	}
+	
+	public void setOnCloud(boolean onCloud) {
+		this.onCloud = onCloud;	
+	}
 	
 	public Course(String localId, String cloudId) {
 		this.localId = localId;
@@ -195,7 +205,7 @@ public class Course {
 		return previewMap;
 	}
 
-	public String[] getContentKeys() {
+	public static String[] getContentKeys() {
 		return new String[] {
 				COURSE_NAME,
 				COURSE_TITLE,

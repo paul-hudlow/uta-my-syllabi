@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import edu.uta.mysyllabi.backend.CloudDataHelper;
 import edu.uta.mysyllabi.backend.LocalDataHelper;
-import edu.uta.mysyllabi.datatypes.Instructor;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class Controller {
 	
@@ -18,17 +16,22 @@ public class Controller {
 	public void updateCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
 		CloudDataHelper cloudData = new CloudDataHelper();
-		cloudData.saveCourse(course);
 		localData.saveCourse(course);
+		cloudData.saveCourse(course);
 	}
 	
 	public String createCourse(Course course, boolean onCloud) {
+		if (onCloud) {
+			course.setOnCloud(true);
+		}
+		
 		LocalDataHelper localData = new LocalDataHelper();
 		String localId = localData.saveCourse(course);
 		course.setLocalId(localId);
 		
 		CloudDataHelper cloudHelper = new CloudDataHelper();
 		if (onCloud) {
+			course.setOnCloud(false);
 			cloudHelper.saveCourse(course);
 		}
 		
