@@ -18,27 +18,26 @@ public class SetTimeDialogFragment extends DialogFragment
 		implements TimePickerDialog.OnTimeSetListener, View.OnClickListener {
 	public static final String TAG_STRING = "set_time";
 	private Activity activity;
-	private TimeOfDay startTime;
+	private TimeOfDay time;
 	private TextView hostView;
 	private WeeklyMeeting meeting;
-	private boolean isDuration;
+	private boolean isEnd;
 	private boolean is24HourFormat;
 	
-	public SetTimeDialogFragment(Activity activity, WeeklyMeeting meeting, boolean isDuration) {
+	public SetTimeDialogFragment(Activity activity, WeeklyMeeting meeting, boolean isEnd) {
 		super();
 		if (activity == null) {
 			throw new NullPointerException();
 		}
 		this.activity = activity;
 		this.meeting = meeting;
+		this.isEnd = isEnd;
 		
-		if (isDuration) {
-			this.startTime = new TimeOfDay(meeting.getDuration());
+		if (isEnd) {
+			this.time = new TimeOfDay(meeting.getEndTime().getTotalMinutes());
 		} else {
-			this.startTime = meeting.getStartTime();
+			this.time = meeting.getStartTime();
 		}
-		
-		this.isDuration = isDuration;
 	}
 	
 	@Override
@@ -52,18 +51,12 @@ public class SetTimeDialogFragment extends DialogFragment
 		// Use the start time as the default values for the picker
 		int hour = 12;
 		int minute = 0;
-		if (startTime != null) {
-			hour = startTime.getHour();
-			minute = startTime.getMinute();
-		} else if (isDuration) {
-			hour = 0;
+		if (time != null) {
+			hour = time.getHour();
+			minute = time.getMinute();
 		}
 		
-		if (!isDuration) {
-			is24HourFormat = DateFormat.is24HourFormat(getActivity());
-		} else {
-			is24HourFormat = true;
-		}
+		is24HourFormat = DateFormat.is24HourFormat(getActivity());
 		
 		// Create a new instance of TimePickerDialog and return it
 		return new TimePickerDialog(getActivity(), this, hour, minute, is24HourFormat);
@@ -73,17 +66,12 @@ public class SetTimeDialogFragment extends DialogFragment
 	public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 		TimeOfDay time = new TimeOfDay(hourOfDay, minute);
 		
-		boolean is24HourFormat = true;
-		if (!isDuration) {
-			is24HourFormat = DateFormat.is24HourFormat(getActivity());
-		}
-		
 		hostView.setText(time.toString(is24HourFormat));
 		hostView.setTextColor(getResources().getColor(R.color.black));
 		
 		if (meeting != null) {
-			if (isDuration) {
-				meeting.setDuration(time.getTotalMinutes());
+			if (isEnd) {
+				meeting.setEndTime(time);
 			} else {
 				meeting.setStartTime(time);
 			}

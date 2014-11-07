@@ -140,13 +140,6 @@ public class Instructor {
 		return officeHours.getStartTime().toString();
 	}
 	
-	public int getOfficeHoursDuration() {
-		if (officeHours == null) {
-			return 0;
-		}
-		return officeHours.getDuration();
-	}
-	
 	public WeeklyMeeting getOfficeHours() {
 		return this.officeHours;
 	}

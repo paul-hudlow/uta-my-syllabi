@@ -29,7 +29,7 @@ public class ModifyCourseController extends Activity {
 	private EditText courseTitleView;
 	private EditText courseClassroomView;
 	private TextView courseMeetingStartView;
-	private TextView courseMeetingDurationView;
+	private TextView courseMeetingEndView;
 	private TextView courseMeetingDaysView;
 	private EditText instructorFirstNameView;
 	private EditText instructorLastNameView;
@@ -50,7 +50,7 @@ public class ModifyCourseController extends Activity {
 		courseSectionView = (EditText) findViewById(R.id.create_course_section);
 		courseClassroomView = (EditText) findViewById(R.id.modify_classroom);
 		courseMeetingStartView = (TextView) findViewById(R.id.modify_meeting_start);
-		courseMeetingDurationView = (TextView) findViewById(R.id.modify_meeting_duration);
+		courseMeetingEndView = (TextView) findViewById(R.id.modify_meeting_end);
 		courseMeetingDaysView = (TextView) findViewById(R.id.modify_meeting_days);
 		instructorFirstNameView = (EditText) findViewById(R.id.modify_instructor_first_name);
 		instructorLastNameView = (EditText) findViewById(R.id.modify_instructor_last_name);
@@ -83,15 +83,15 @@ public class ModifyCourseController extends Activity {
 		if (course.getMeeting().isValid()) {
 			courseMeetingStartView.setText(course.getMeeting().getStartTime().toString(DateFormat.is24HourFormat(this)));
 			courseMeetingStartView.setTextColor(getResources().getColor(R.color.black));
-			courseMeetingDurationView.setText("change");
-			courseMeetingDurationView.setTextColor(getResources().getColor(R.color.black));
+			courseMeetingEndView.setText(course.getMeeting().getEndTime().toString(DateFormat.is24HourFormat(this)));
+			courseMeetingEndView.setTextColor(getResources().getColor(R.color.black));
 			courseMeetingDaysView.setText(course.getMeeting().getDaysOfWeek());
 			courseMeetingDaysView.setTextColor(getResources().getColor(R.color.black));
 		} else {
 			course.setMeeting(new WeeklyMeeting());
 		}
 		courseMeetingStartView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), false));
-		courseMeetingDurationView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), true));
+		courseMeetingEndView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), false));
 		courseMeetingDaysView.setOnClickListener(new SelectDaysDialogFragment(this, course.getMeeting()));
 		
 		/* Instructor Information */

@@ -1156,7 +1156,7 @@ containing a value of this type.
         public static final int modify_instructor_office=0x7f06004b;
         public static final int modify_instructor_phone=0x7f060049;
         public static final int modify_meeting_days=0x7f060046;
-        public static final int modify_meeting_duration=0x7f060045;
+        public static final int modify_meeting_end=0x7f060045;
         public static final int modify_meeting_start=0x7f060044;
         public static final int never=0x7f060009;
         public static final int none=0x7f060010;
@@ -1310,13 +1310,13 @@ containing a value of this type.
         public static final int course_item_close_parenthetical=0x7f0b0018;
         public static final int course_item_open_parenthetical=0x7f0b0017;
         public static final int create_course_submit=0x7f0b0016;
-        public static final int day_fri=0x7f0b002f;
-        public static final int day_mon=0x7f0b002b;
-        public static final int day_sat=0x7f0b0030;
-        public static final int day_sun=0x7f0b0031;
-        public static final int day_thu=0x7f0b002e;
-        public static final int day_tue=0x7f0b002c;
-        public static final int day_wed=0x7f0b002d;
+        public static final int day_fri=0x7f0b0030;
+        public static final int day_mon=0x7f0b002c;
+        public static final int day_sat=0x7f0b0031;
+        public static final int day_sun=0x7f0b0032;
+        public static final int day_thu=0x7f0b002f;
+        public static final int day_tue=0x7f0b002d;
+        public static final int day_wed=0x7f0b002e;
         public static final int heading_course_meeting=0x7f0b001d;
         public static final int heading_grade_composition=0x7f0b0020;
         public static final int heading_instructor_contact=0x7f0b001e;
@@ -1331,7 +1331,7 @@ containing a value of this type.
         public static final int hint_first_name=0x7f0b0021;
         public static final int hint_last_name=0x7f0b0022;
         public static final int hint_meeting_days=0x7f0b0029;
-        public static final int hint_meeting_duration=0x7f0b001c;
+        public static final int hint_meeting_end=0x7f0b001c;
         public static final int hint_meeting_start=0x7f0b001b;
         public static final int hint_office=0x7f0b0025;
         public static final int hint_office_hours=0x7f0b0026;
@@ -1339,6 +1339,7 @@ containing a value of this type.
         public static final int menu_item_delete_course=0x7f0b0011;
         public static final int modify_course_submit=0x7f0b001a;
         public static final int okay=0x7f0b000e;
+        public static final int time_delimiter=0x7f0b002b;
         /**  Create New Course 
          */
         public static final int title_activity_create_course=0x7f0b0012;

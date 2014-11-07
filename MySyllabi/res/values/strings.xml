@@ -75,7 +75,7 @@
     <string name="title_activity_modify_course">Edit Course</string>
     <string name="modify_course_submit">Save Course</string>
     <string name="hint_meeting_start">Start Time</string>
-    <string name="hint_meeting_duration">Length</string>
+    <string name="hint_meeting_end">End Time</string>
     <string name="heading_course_meeting">Class Meetings</string>
     <string name="heading_instructor_contact">Instructor Information</string>
     <string name="heading_teaching_assistant">Add Teaching Assistant</string>
@@ -90,6 +90,7 @@
     <string name="hint_classroom">Classroom</string>
     <string name="hint_meeting_days">Days of Week</string>
     <string name="hint_course_title">Title of Course</string>
+    <string name="time_delimiter"> - </string>
      
     <string name="day_mon">M</string>
     <string name="day_tue">T</string>

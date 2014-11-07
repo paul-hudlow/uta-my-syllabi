@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class WeeklyMeeting {
 	private TimeOfDay startTime; // in minutes from midnight
-	private int duration = 0; // in minutes
+	private TimeOfDay endTime = new TimeOfDay(0);
 	private char[] daysOfWeek = {'n','n','n','n','n','n','n'}; // Array has length 7 and indicates each meeting day with the character 'y'.
 	private String location;
 	
@@ -47,16 +47,6 @@ public class WeeklyMeeting {
 		}
 	}
 	
-	public WeeklyMeeting(int startTime, int duration, String daysOfWeek, String location) throws IllegalArgumentException {
-		if (daysOfWeek == null || location == null || startTime + duration > MAX_TIME) {
-			throw new IllegalArgumentException();
-		}
-		this.startTime = new TimeOfDay(startTime);
-		this.daysOfWeek = daysOfWeek.toCharArray();
-		this.duration = duration;
-		this.location = location;
-	}
-	
 	public List<String> getContentKeys(String keyPrefix) {
 		LinkedList<String> keyList = new LinkedList<String>();
 		for (int i = 0; i < contentKeys.length; i++) {
@@ -72,9 +62,9 @@ public class WeeklyMeeting {
 			this.startTime = null;
 		}
 		try {
-			this.duration = Integer.parseInt(map.get(keyPrefix + DURATION));
+			this.endTime = new TimeOfDay(Integer.parseInt(map.get(keyPrefix + DURATION)));
 		} catch (NumberFormatException exception) {
-			this.duration = 0;
+			this.startTime = null;
 		}
 		if (map.get(keyPrefix + DAYS_OF_WEEK) != null) {
 			this.daysOfWeek = map.get(keyPrefix + DAYS_OF_WEEK).toCharArray();
@@ -88,7 +78,7 @@ public class WeeklyMeeting {
 		if (this.startTime != null) {
 			map.put(keyPrefix + START_TIME, Integer.toString(this.startTime.getTotalMinutes()));
 		}
-		map.put(keyPrefix + DURATION, Integer.toString(this.duration));
+		map.put(keyPrefix + DURATION, Integer.toString(this.startTime.getTotalMinutes()));
 		map.put(keyPrefix + DAYS_OF_WEEK, new String(this.daysOfWeek));
 		map.put(keyPrefix + LOCATION, this.location);
 		
@@ -98,8 +88,7 @@ public class WeeklyMeeting {
 	public String getOccurrence(){
 		String days = getDaysOfWeek();
 		String occurrence;
-		if (startTime != null && duration > 0) {
-			TimeOfDay endTime = new TimeOfDay(startTime.getTotalMinutes() + duration);
+		if (startTime != null && this.endTime != null) {
 			occurrence = days + " " + startTime.toString(false) + "-" + endTime.toString(false);
 		} else if (startTime != null) {
 			occurrence = days + " " + startTime.toString(false);
@@ -107,6 +96,12 @@ public class WeeklyMeeting {
 			occurrence = days;
 		}
 		return occurrence;
+		
+	}
+	
+	public String getOccurence(){
+		String days = getDaysOfWeek();
+		return days + " " + startTime.toString(false) + "-" + endTime.toString(false);
 	}
 	
 	public boolean isMeetingDay(int day) {
@@ -139,6 +134,14 @@ public class WeeklyMeeting {
 		return days.toString();
 	}
 
+	public TimeOfDay getEndTime() {
+		return endTime;
+	}
+	
+	public void setEndTime(TimeOfDay time) {
+		endTime = time;
+	}
+	
 	public TimeOfDay getStartTime() {
 		return startTime;
 	}
@@ -149,14 +152,6 @@ public class WeeklyMeeting {
 	
 	public void setStartTime(int minutes) {
 		startTime = new TimeOfDay(minutes);
-	}
-	
-	public int getDuration() {
-		return this.duration;
-	}
-	
-	public void setDuration(int minutes) {
-		this.duration = minutes;
 	}
 	
 	public String getLocation() {
