@@ -64,4 +64,11 @@ public class TimeOfDay {
 	public int getTotalMinutes() {
 		return hour*60 + minute;
 	}
+
+	public boolean isBefore(TimeOfDay otherTime) {
+		if (this.getTotalMinutes() < otherTime.getTotalMinutes()) {
+			return true;
+		}
+		return false;
+	}
 }

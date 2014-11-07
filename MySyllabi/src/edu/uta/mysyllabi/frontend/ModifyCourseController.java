@@ -91,7 +91,7 @@ public class ModifyCourseController extends Activity {
 			course.setMeeting(new WeeklyMeeting());
 		}
 		courseMeetingStartView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), false));
-		courseMeetingEndView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), false));
+		courseMeetingEndView.setOnClickListener(new SetTimeDialogFragment(this, course.getMeeting(), true));
 		courseMeetingDaysView.setOnClickListener(new SelectDaysDialogFragment(this, course.getMeeting()));
 		
 		/* Instructor Information */
@@ -129,15 +129,16 @@ public class ModifyCourseController extends Activity {
 	}
 	
 	public void modifyCourse(View view) {
-		/* Validate course name. */
-		if (courseNameView.getText().toString().length() < 1) {
-			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
-			error.show();
-			return;
-		} 
-
 		/* Set course name, section, title, and classroom. */
 		course.setName(courseNameView.getText().toString());
+		
+		/* Validate course name. */
+		if (!course.nameIsValid()) {
+			Toast error = Toast.makeText(this, "Course ID must consist of letters followed by numbers.", Toast.LENGTH_SHORT);
+			error.show();
+			return;
+		}
+		
 		String section = courseSectionView.getText().toString();
 		if (section.length() != 0) {
 			course.setSection(section);

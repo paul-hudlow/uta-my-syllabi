@@ -33,15 +33,15 @@ public class MySyllabi extends Application {
         super.onCreate();
         MySyllabi.context = getApplicationContext();
         
-        account = CreateSyncAccount(this);
+        //account = CreateSyncAccount(this);
         
-        mResolver = getContentResolver();
+        //mResolver = getContentResolver();
         
-        ContentResolver.addPeriodicSync(
-                account,
-                AUTHORITY,
-                null,
-                SYNC_INTERVAL);
+        //ContentResolver.addPeriodicSync(
+        //        account,
+        //        AUTHORITY,
+        //        null,
+        //        SYNC_INTERVAL);
     }
     
     public static Account CreateSyncAccount(Context context) {

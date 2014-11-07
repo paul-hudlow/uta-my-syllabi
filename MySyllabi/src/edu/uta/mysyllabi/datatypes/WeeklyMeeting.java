@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class WeeklyMeeting {
 	private TimeOfDay startTime; // in minutes from midnight
-	private TimeOfDay endTime = new TimeOfDay(0);
+	private TimeOfDay endTime;
 	private char[] daysOfWeek = {'n','n','n','n','n','n','n'}; // Array has length 7 and indicates each meeting day with the character 'y'.
 	private String location;
 	
@@ -24,14 +24,14 @@ public class WeeklyMeeting {
 	public static final int SUNDAY = 6;
 	
 	private final String START_TIME = "start_time";
-	private final String DURATION = "duration";
+	private final String END_TIME = "end_time";
 	private final String DAYS_OF_WEEK = "days_of_week";
 	private final String LOCATION = "location";
 	
 	protected final String[] contentKeys = {
 			LOCATION,
 			START_TIME,
-			DURATION,
+			END_TIME,
 			DAYS_OF_WEEK
 	};
 	
@@ -40,7 +40,10 @@ public class WeeklyMeeting {
 	}
 	
 	public boolean isValid() {
-		if (startTime != null) {
+		if (startTime != null && 
+			endTime != null &&
+			startTime.isBefore(endTime) &&
+			!new String(daysOfWeek).equals("nnnnnnn")) {
 			return true;
 		} else {
 			return false;
@@ -62,7 +65,7 @@ public class WeeklyMeeting {
 			this.startTime = null;
 		}
 		try {
-			this.endTime = new TimeOfDay(Integer.parseInt(map.get(keyPrefix + DURATION)));
+			this.endTime = new TimeOfDay(Integer.parseInt(map.get(keyPrefix + END_TIME)));
 		} catch (NumberFormatException exception) {
 			this.startTime = null;
 		}
@@ -78,7 +81,9 @@ public class WeeklyMeeting {
 		if (this.startTime != null) {
 			map.put(keyPrefix + START_TIME, Integer.toString(this.startTime.getTotalMinutes()));
 		}
-		map.put(keyPrefix + DURATION, Integer.toString(this.startTime.getTotalMinutes()));
+		if (this.endTime != null) {
+			map.put(keyPrefix + END_TIME, Integer.toString(this.endTime.getTotalMinutes()));
+		}
 		map.put(keyPrefix + DAYS_OF_WEEK, new String(this.daysOfWeek));
 		map.put(keyPrefix + LOCATION, this.location);
 		

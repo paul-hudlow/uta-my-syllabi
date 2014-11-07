@@ -34,7 +34,7 @@ public class SetTimeDialogFragment extends DialogFragment
 		this.isEnd = isEnd;
 		
 		if (isEnd) {
-			this.time = new TimeOfDay(meeting.getEndTime().getTotalMinutes());
+			this.time = meeting.getEndTime();
 		} else {
 			this.time = meeting.getStartTime();
 		}
