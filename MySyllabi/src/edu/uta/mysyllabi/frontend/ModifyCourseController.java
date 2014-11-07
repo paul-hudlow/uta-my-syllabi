@@ -80,12 +80,12 @@ public class ModifyCourseController extends Activity {
 		
 		/* Class Meetings */
 		courseClassroomView.setText(course.getClassroom());
-		if (course.getMeeting() != null) {
-			courseMeetingStartView.setText(course.getMeetingStart().toString(DateFormat.is24HourFormat(this)));
+		if (course.getMeeting().isValid()) {
+			courseMeetingStartView.setText(course.getMeeting().getStartTime().toString(DateFormat.is24HourFormat(this)));
 			courseMeetingStartView.setTextColor(getResources().getColor(R.color.black));
-			courseMeetingDurationView.setText(course.getMeetingDuration().toString(true));
+			courseMeetingDurationView.setText("change");
 			courseMeetingDurationView.setTextColor(getResources().getColor(R.color.black));
-			courseMeetingDaysView.setText(course.getMeetingDays());
+			courseMeetingDaysView.setText(course.getMeeting().getDaysOfWeek());
 			courseMeetingDaysView.setTextColor(getResources().getColor(R.color.black));
 		} else {
 			course.setMeeting(new WeeklyMeeting());
@@ -96,7 +96,7 @@ public class ModifyCourseController extends Activity {
 		
 		/* Instructor Information */
 		Instructor instructor = course.getInstructor();
-		if (instructor != null) {
+		if (instructor.isValid()) {
 			instructorFirstNameView.setText(instructor.getFirstName());
 			instructorLastNameView.setText(instructor.getLastName());
 			instructorPhoneView.setText(instructor.getPhoneNumber());

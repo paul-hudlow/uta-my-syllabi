@@ -36,7 +36,7 @@ import android.widget.Toast;
 public class CreateCourseController extends ActionBarActivity 
 									implements TextWatcher, OnItemSelectedListener, OnItemClickListener {
 	/* Create fields for all view objects. */
-	private TextView schoolButton;
+	private TextView schoolText;
 	private Spinner semesterSpinner;
 	private EditText courseName;
 	private EditText courseSection;
@@ -50,7 +50,7 @@ public class CreateCourseController extends ActionBarActivity
 		setContentView(R.layout.activity_create_course);
 		
 		/* Initialize object fields. */
-		this.schoolButton = (TextView) findViewById(R.id.create_course_school);
+		this.schoolText = (TextView) findViewById(R.id.create_course_school);
 		this.semesterSpinner = (Spinner) findViewById(R.id.create_course_semester);
 		this.courseName = (EditText) findViewById(R.id.create_course_name);
 		this.courseSection = (EditText) findViewById(R.id.create_course_section);
@@ -62,6 +62,11 @@ public class CreateCourseController extends ActionBarActivity
 		this.courseSection.addTextChangedListener(this);
 		this.semesterSpinner.setOnItemSelectedListener(this);
 		this.courseList.setOnItemClickListener(this);
+		
+		String previousSchool = controller.getLatestSchool();
+		if (previousSchool != null) {
+			setSchool(previousSchool);
+		}
 		
 		/* Create an new ArrayAdapter for semester spinner. */
 		ArrayAdapter<SchoolSemester> spinnerAdapter = 
@@ -87,7 +92,7 @@ public class CreateCourseController extends ActionBarActivity
 	}
 	
 	public void addCourse(Course course) {
-		String courseId = controller.createCourse(course, true);
+		String courseId = controller.createCourse(course);
 		Intent intent = new Intent(this, ViewCourseController.class);
 		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
 		startActivity(intent);
@@ -116,15 +121,8 @@ public class CreateCourseController extends ActionBarActivity
 	/* Called when create course button is touched. */
 	public void createCourse(View view) {
 		
-		/* Validate course name. */
-		if (courseName.getText().toString().length() < 1) {
-			Toast error = Toast.makeText(this, "Please enter valid Course ID", Toast.LENGTH_SHORT);
-			error.show();
-			return;
-		} 
-		
 		/* Validate selected school. */
-		String school = schoolButton.getText().toString();
+		String school = schoolText.getText().toString();
 		if (school.equals(getResources().getString(R.string.hint_course_school))) {
 			Toast error = Toast.makeText(this, "Please select a school", Toast.LENGTH_SHORT);
 			error.show();
@@ -138,11 +136,18 @@ public class CreateCourseController extends ActionBarActivity
 		if (section.length() != 0) {
 			course.setSection(section);
 		}
-		course.setSchool(schoolButton.getText().toString());
+		course.setSchool(schoolText.getText().toString());
 		course.setSemester((SchoolSemester) semesterSpinner.getSelectedItem());
 		
+		/* Validate course name. */
+		if (!course.nameIsValid()) {
+			Toast error = Toast.makeText(this, "Course ID must consist of letters followed by numbers.", Toast.LENGTH_SHORT);
+			error.show();
+			return;
+		}
+		
 		/* Create new course. */
-		String courseId = controller.createCourse(course, true);
+		String courseId = controller.createCourse(course);
 		Toast error = Toast.makeText(this, courseId, Toast.LENGTH_SHORT);
 		error.show();
 		
@@ -159,7 +164,7 @@ public class CreateCourseController extends ActionBarActivity
 		new CourseSearchUpdater().execute(
 				courseName.getText().toString(),
 				courseSection.getText().toString(),
-				schoolButton.getText().toString(), 
+				schoolText.getText().toString(), 
 				semesterSpinner.getSelectedItem().toString());
 	}
 	
@@ -197,8 +202,8 @@ public class CreateCourseController extends ActionBarActivity
 	}
 	
 	protected void setSchool(String school) {
-		this.schoolButton.setText(school);
-		this.schoolButton.setTextColor(getResources().getColor(R.color.black));
+		this.schoolText.setText(school);
+		this.schoolText.setTextColor(getResources().getColor(R.color.black));
 	}
 	
 	/* Update search when text is changed. */

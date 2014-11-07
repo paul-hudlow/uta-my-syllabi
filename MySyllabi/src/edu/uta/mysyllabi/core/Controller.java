@@ -7,6 +7,10 @@ import edu.uta.mysyllabi.backend.LocalDataHelper;
 
 public class Controller {
 	
+	public String getLatestSchool() {
+		return new LocalDataHelper().getLatestSchool();
+	}
+	
 	public void addCourse(String cloudId) {
 		Course cloudCourse = CloudDataHelper.getCourse(cloudId);
 		LocalDataHelper localData = new LocalDataHelper();
@@ -15,24 +19,27 @@ public class Controller {
 	
 	public void updateCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
-		CloudDataHelper cloudData = new CloudDataHelper();
 		localData.saveCourse(course);
-		cloudData.saveCourse(course);
+		if (!course.isLocked()) {
+			if (course.getCloudId() == null) {
+				course.setCloudId(localData.getCloudId(course.getLocalId()));
+			}
+			if (course.getCloudId() == null) {
+				return;
+			}
+			CloudDataHelper cloudData = new CloudDataHelper();
+			cloudData.updateCourse(course);
+		}
 	}
 	
-	public String createCourse(Course course, boolean onCloud) {
-		if (onCloud) {
-			course.setOnCloud(true);
-		}
-		
+	public String createCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
 		String localId = localData.saveCourse(course);
 		course.setLocalId(localId);
 		
-		CloudDataHelper cloudHelper = new CloudDataHelper();
-		if (onCloud) {
-			course.setOnCloud(false);
-			cloudHelper.saveCourse(course);
+		if (!course.isLocked()) {
+			CloudDataHelper cloudHelper = new CloudDataHelper();
+			cloudHelper.createCourse(course);
 		}
 		
 		return localId;
@@ -67,51 +74,6 @@ public class Controller {
 		}
 		CloudDataHelper cloudHelper = new CloudDataHelper();
 		ArrayList<Course> courseList = cloudHelper.getCourseList(school, semester, courseName, courseSection);
-		
-		
-		/*Course nextCourse;
-		
-		nextCourse = new Course(null,null);
-		nextCourse.setName("CSE 5324");
-		nextCourse.setInstructor(new Instructor("Jeff", "Lei"));
-		nextCourse.setMeeting(new WeeklyMeeting(60*11, 80, "nynynnn", "ERB 129"));
-		nextCourse.setSection("002");
-		courseList.add(nextCourse);
-		
-		nextCourse = new Course(null,null);
-		nextCourse.setName("CSE 5320");
-		nextCourse.setInstructor(new Instructor("Dennis", "Frailey"));
-		nextCourse.setMeeting(new WeeklyMeeting(60*13, 180, "nnnnynn", "WH 209"));
-		nextCourse.setSection("001");
-		courseList.add(nextCourse);
-		
-		nextCourse = new Course(null,null);
-		nextCourse.setName("CSE 2311");
-		nextCourse.setInstructor(new Instructor("Bob", "Weems"));
-		nextCourse.setMeeting(new WeeklyMeeting(60*10, 50, "ynynynn", "NH 106"));
-		nextCourse.setSection("001");
-		courseList.add(nextCourse);
-		
-		nextCourse = new Course(null,null);
-		nextCourse.setName("CSE 5324");
-		nextCourse.setInstructor(new Instructor("Jeff", "Lei"));
-		nextCourse.setMeeting(new WeeklyMeeting(60*11, 80, "nynynnn", "ERB 129"));
-		nextCourse.setSection("002");
-		courseList.add(nextCourse);
-		
-		nextCourse = new Course(null,null);
-		nextCourse.setName("CSE 5320");
-		nextCourse.setInstructor(new Instructor("Dennis", "Frailey"));
-		nextCourse.setMeeting(new WeeklyMeeting(60*13, 180, "nnnnynn", "WH 209"));
-		nextCourse.setSection("001");
-		courseList.add(nextCourse);
-		
-		nextCourse = new Course(null,null);
-		nextCourse.setName("CSE 2311");
-		nextCourse.setInstructor(new Instructor("Bob", "Weems"));
-		nextCourse.setMeeting(new WeeklyMeeting(60*10, 50, "ynynynn", "NH 106"));
-		nextCourse.setSection("001");
-		courseList.add(nextCourse);*/
 		
 		return courseList;
 	}

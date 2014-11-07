@@ -206,7 +206,7 @@ public class ViewCourseController extends ActionBarActivity {
             if (meeting != null && meeting.getStartTime() != null) {
             	
             	setText(R.id.view_classroom, meeting.getLocation());
-            	setText(R.id.view_meeting_time, meeting.getOccurence());
+            	setText(R.id.view_meeting_time, meeting.getOccurrence());
             	
             } else {
             	

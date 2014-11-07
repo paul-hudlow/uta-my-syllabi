@@ -2,6 +2,8 @@ package edu.uta.mysyllabi.backend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.core.Course;
@@ -13,7 +15,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocalDataHelper extends SQLiteOpenHelper {
 	// Version must be incremented upon schema change!
-	public static final int DATABASE_VERSION = 23;
+	public static final int DATABASE_VERSION = 37;
     public static final String DATABASE_NAME = "MyCourses.db";
 	
     /* Query details */
@@ -21,24 +23,32 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     public static final String INT_TYPE = " INTEGER";
     public static final String DELIMITER = ",";
     
-    public String getCreationString() {
+    public void createCourseTable(SQLiteDatabase database) {
     	String firstSegment = "CREATE TABLE " + DataContract.Course.TABLE_NAME + "(" +
         		DataContract.Course.COLUMN_ID + INT_TYPE + " PRIMARY KEY" + DELIMITER +
         		DataContract.Course.COLUMN_CLOUD_ID + TEXT_TYPE + DELIMITER;
     	
     	StringBuilder middleSegment = new StringBuilder();
-    	String[] middleColumns = Course.getContentKeys();
+    	String[] middleColumns = new Course(null, null).getContentKeys().toArray(new String[]{});
     	
     	for (int i = 0; i < middleColumns.length; i++) {
     		middleSegment.append(middleColumns[i] + TEXT_TYPE + DELIMITER);
     	}
     	
-    	String lastSegment = DataContract.Course.COLUMN_ON_CLOUD + INT_TYPE + ")";
+    	String lastSegment = DataContract.Course.COLUMN_LOCKED + INT_TYPE + ")";
     	
-    	return firstSegment + middleSegment.toString() + lastSegment;
+    	database.execSQL(firstSegment + middleSegment.toString() + lastSegment);
+    }
+    
+    public void createSettingsTable(SQLiteDatabase database) {
+    	database.execSQL("CREATE TABLE " + DataContract.Settings.TABLE_NAME + "(" +
+        		DataContract.Settings.COLUMN_SETTING + TEXT_TYPE + " PRIMARY KEY" + DELIMITER +
+        		DataContract.Settings.COLUMN_VALUE + TEXT_TYPE + ")");
     }
     
     public static final String DROP_TABLE_COURSE = "DROP TABLE IF EXISTS " + DataContract.Course.TABLE_NAME;
+    
+    public static final String DROP_TABLE_SETTINGS = "DROP TABLE IF EXISTS " + DataContract.Settings.TABLE_NAME;
     
     
 	public LocalDataHelper() {
@@ -51,16 +61,62 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    SQLiteDatabase database = this.getWritableDatabase();
 	    database.update(DataContract.Course.TABLE_NAME, values, 
 	    		DataContract.Course.COLUMN_ID + " = " + localId, null);
+	    database.close();
+	}
+	
+	public String getCloudId(String localId) {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		String[] column = {DataContract.Course.COLUMN_CLOUD_ID};
+		
+		/* Select all data from the entire table and sort by course name. */
+		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, column, 
+				DataContract.Course.COLUMN_ID + " = " + localId, null, null, null, null);
+		
+		if (!tableCursor.moveToFirst()) {
+			return null; // Return null if cursor is empty.
+		}
+		
+		int cloudIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_CLOUD_ID);
+		if (tableCursor.isNull(cloudIdIndex)) {
+			return null;
+		}
+		
+		database.close();
+		return tableCursor.getString(cloudIdIndex);
+	}
+	
+	public String getLatestSchool() {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		/* Select all data from the entire table and sort by course name. */
+		Cursor tableCursor;
+		tableCursor = database.query(DataContract.Settings.TABLE_NAME, null, 
+				DataContract.Settings.COLUMN_SETTING + " = ?", new String[]{DataContract.Settings.KEY_SCHOOL}, null, null, null);
+		
+		if (!tableCursor.moveToFirst()) {
+			return null; // Return null if cursor is empty.
+		}
+		
+		int schoolIndex = tableCursor.getColumnIndex(DataContract.Settings.COLUMN_VALUE);
+		if (tableCursor.isNull(schoolIndex)) {
+			return null;
+		}
+		
+		database.close();
+		return tableCursor.getString(schoolIndex);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase database) {
-		database.execSQL(getCreationString());
+		createCourseTable(database);
+		createSettingsTable(database);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
 		database.execSQL(DROP_TABLE_COURSE);
+		database.execSQL(DROP_TABLE_SETTINGS);
 		onCreate(database);
 	}
 	
@@ -71,19 +127,19 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			values.put(DataContract.Course.COLUMN_CLOUD_ID, course.getCloudId());
 		}
 		
-	    if(course.isOnCloud()) {
-	    	values.put(DataContract.Course.COLUMN_ON_CLOUD, 1);
+	    if(course.isLocked()) {
+	    	values.put(DataContract.Course.COLUMN_LOCKED, DataContract.Course.LOCKED_TRUE);
 	    } else {
-	    	values.put(DataContract.Course.COLUMN_ON_CLOUD, 0);
+	    	values.put(DataContract.Course.COLUMN_LOCKED, DataContract.Course.LOCKED_FALSE);
 	    }
 	    
-		HashMap<String, String> courseMap = course.getContentMap();
-		String[] keys = Course.getContentKeys();
+		Map<String, String> courseMap = course.getContentMap();
+		List<String> keys = course.getContentKeys();
 		String nextValue;
-		for (int i = 0; i < keys.length; i++) {
-			nextValue = courseMap.get(keys[i]);
+		for (String nextKey : keys) {
+			nextValue = courseMap.get(nextKey);
 			if (nextValue != null) {
-				values.put(keys[i], nextValue);
+				values.put(nextKey, nextValue);
 			}
 		}
 	    
@@ -102,7 +158,13 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    		throw new SQLException("Duplicate courses exist in table!");
 	    	}
 	    }
+	    
+		values = new ContentValues();
+		values.put(DataContract.Settings.COLUMN_SETTING, DataContract.Settings.KEY_SCHOOL);
+		values.put(DataContract.Settings.COLUMN_VALUE, course.getSchool());
+		database.replace(DataContract.Settings.TABLE_NAME, null, values);
 
+		database.close();
 	    return courseId;
 	}
 	
@@ -111,6 +173,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		
 		/* Select all data from the entire table and sort by course name. */
 		database.delete(DataContract.Course.TABLE_NAME, DataContract.Course.COLUMN_ID + " = " + localId, null);
+		database.close();
 	}
 	
 	public Course getCourse(String localId) {
@@ -132,19 +195,20 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			}
 		}
 		
-		Course localCourse = new Course(courseMap);
-		localCourse.setLocalId(localId);
+		Course localCourse = new Course(localId, null);
+		localCourse.addContentFromMap(courseMap);
 		
 		int cloudIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_CLOUD_ID);
 		if (!tableCursor.isNull(cloudIdIndex)) {
 			localCourse.setCloudId(tableCursor.getString(cloudIdIndex));
 		}
 
-		int cloudCheckIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_ON_CLOUD);
-		if (tableCursor.getInt(cloudCheckIndex) == 1) {
-			localCourse.setOnCloud(true);
+		int cloudCheckIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_LOCKED);
+		if (tableCursor.getInt(cloudCheckIndex) == DataContract.Course.LOCKED_TRUE) {
+			localCourse.setLocked(true);
 		}
 		
+		database.close();
 		return localCourse;
 	}
 	
@@ -166,6 +230,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			courseKeys.add(Integer.toString(nextKey));
 		} while (tableCursor.moveToNext());
 		
+		database.close();
 		return courseKeys;
 	}
 

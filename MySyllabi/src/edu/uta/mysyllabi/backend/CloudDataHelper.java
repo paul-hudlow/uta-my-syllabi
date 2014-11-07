@@ -3,6 +3,7 @@ package edu.uta.mysyllabi.backend;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import android.os.AsyncTask;
@@ -17,7 +18,7 @@ import edu.uta.mysyllabi.core.Course;
 
 public class CloudDataHelper {
 	
-	private static final String COURSE_TABLE = "Course";
+	private static final String COURSE_TABLE = "course_table";
 	
 	public CloudDataHelper() {
 		Parse.initialize(MySyllabi.getAppContext(), 
@@ -26,28 +27,23 @@ public class CloudDataHelper {
 	}
 	
 	/* Creates new course on the cloud or updates an existing course. */
-	public void saveCourse(Course course) {
+	public void updateCourse(Course course) {
 		if (course.getCloudId() == null) { // Check whether a cloud ID is available.
-			if (course.isOnCloud()) { // Check if there should be a cloud ID.
-				/* Update course object from local database. */
-				LocalDataHelper reCheckHelper = new LocalDataHelper();
-				Course refreshedCourse = reCheckHelper.getCourse(course.getLocalId());
-				if (refreshedCourse.getCloudId() != null) {
-					saveCourse(refreshedCourse);
-				}
-				return;
-			}
-			new CourseSaver().execute(course); // Create new course on cloud with custom save behavior.
-		} else {
-			/* Update course on cloud with Parse-provided method. */
-			ParseObject cloudCourse = courseToParse(course);
-			cloudCourse.saveInBackground();
+			throw new IllegalArgumentException("Course object is missing cloud ID!");
 		}
+		/* Update course on cloud with Parse-provided method. */
+		ParseObject cloudCourse = courseToParse(course);
+		cloudCourse.saveInBackground();
+	}
+	
+	// Create new course on cloud with custom save behavior.
+	public void createCourse(Course course) {
+		new CourseCreator().execute(course); 
 	}
 	
 	/* Saves a new course to the cloud in a background thread. This is necessary in order to
 	 * return the cloud ID to the local database afterwards. */
-	protected class CourseSaver extends AsyncTask<Course, Void, Void> {
+	protected class CourseCreator extends AsyncTask<Course, Void, Void> {
 		
 		@Override
 		protected Void doInBackground(Course... params) {
@@ -80,13 +76,13 @@ public class CloudDataHelper {
 			parseObject.setObjectId(courseObject.getCloudId());
 		}
 		
-		HashMap<String, String> courseMap = courseObject.getContentMap();
-		String[] keys = Course.getContentKeys();
+		Map<String, String> courseMap = courseObject.getContentMap();
+		List<String> keys = courseObject.getContentKeys();
 		String nextValue;
-		for (int i = 0; i < keys.length; i++) {
-			nextValue = courseMap.get(keys[i]);
+		for (String nextKey : keys) {
+			nextValue = courseMap.get(nextKey);
 			if (nextValue != null) {
-				parseObject.put(keys[i], nextValue);
+				parseObject.put(nextKey, nextValue);
 			}
 		}
 	    
@@ -109,8 +105,8 @@ public class CloudDataHelper {
 		}
 		
 		/* Use hash map to create new Course object. */
-	    Course courseObject = new Course(courseMap);
-	    courseObject.setCloudId(parseObject.getObjectId());
+	    Course courseObject = new Course(null, parseObject.getObjectId());
+	    courseObject.addContentFromMap(courseMap);
 		
 	    return courseObject;
 	}

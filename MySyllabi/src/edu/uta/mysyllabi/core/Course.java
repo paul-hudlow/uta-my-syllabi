@@ -1,25 +1,29 @@
 package edu.uta.mysyllabi.core;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import edu.uta.mysyllabi.datatypes.Instructor;
 import edu.uta.mysyllabi.datatypes.SchoolSemester;
-import edu.uta.mysyllabi.datatypes.TimeOfDay;
 import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class Course {
 	private String localId;
 	private String cloudId;
-	private String name;
+	private String nameLetters;
+	private String nameNumber;
+	private boolean nameValidity = false;
 	private String title;
 	private String section;
 	private String school;
+	private String website;
 	private SchoolSemester semester = SchoolSemester.getCurrent();
 	private WeeklyMeeting meeting = new WeeklyMeeting();
 	private Instructor instructor = new Instructor();
-	private boolean onCloud = false;
-	//private ArrayList<Instructor> teachingAssistantList;
-	//private ArrayList<String> websiteList;
+	private Instructor teachingAssistant = new Instructor();
+	private boolean locked = false;
 	
 	public static final String MAP_KEY_NAME = "name";
 	public static final String MAP_KEY_SECTION = "section";
@@ -28,56 +32,76 @@ public class Course {
 	
 	public static final String COURSE_NAME = "name";
 	public static final String COURSE_SECTION = "section";
-	public static final String COURSE_TITLE = "title";
 	public static final String COURSE_SCHOOL = "school";
 	public static final String COURSE_SEMESTER = "semester";
+	private final String COURSE_TITLE = "title";
+	private final String COURSE_WEBSITE = "website";
 	
-	public static final String INSTRUCTOR_FIRST_NAME = "first_name";
-	public static final String INSTRUCTOR_LAST_NAME = "last_name";
-	public static final String INSTRUCTOR_EMAIL = "email";
-	public static final String INSTRUCTOR_PHONE = "phone";
-	public static final String INSTRUCTOR_OFFICE = "office";
+	private final String INSTRUCTOR_PREFIX = "instructor_";
+	private final String TEACHING_ASSISTANT_PREFIX = "ta_";
+	private final String MEETING_PREFIX = "meeting_";
 	
-	public static final String MEETING_LOCATION = "location";
-	public static final String MEETING_START = "meeting_start";
-	public static final String MEETING_DURATION = "meeting_duration";
-	public static final String MEETING_DAYS = "meeting_days";
-	
-	
-	public boolean isOnCloud() {
-		return onCloud;
-	}
-	
-	public void setOnCloud(boolean onCloud) {
-		this.onCloud = onCloud;	
-	}
+	private final String[] contentKeys = {
+		COURSE_NAME,
+		COURSE_SECTION,
+		COURSE_TITLE,
+		COURSE_SCHOOL,
+		COURSE_SEMESTER,
+		COURSE_WEBSITE
+	};
 	
 	public Course(String localId, String cloudId) {
 		this.localId = localId;
 		this.cloudId = cloudId;
 	}
 	
-	public Course(HashMap<String, String> map) {
-		this.name = map.get(COURSE_NAME);
+	public void addContentFromMap(Map<String, String> map) {
+		this.setName(map.get(COURSE_NAME));
 		this.section = map.get(COURSE_SECTION);
 		this.title = map.get(COURSE_TITLE);
 		this.school = map.get(COURSE_SCHOOL);
+		this.website = map.get(COURSE_WEBSITE);
 		this.semester = new SchoolSemester(map.get(COURSE_SEMESTER));
 		
-		this.instructor.setFirstName(map.get(INSTRUCTOR_FIRST_NAME));
-		this.instructor.setLastName(map.get(INSTRUCTOR_LAST_NAME));
-		this.instructor.setEmailAddress(map.get(INSTRUCTOR_EMAIL));
-		this.instructor.setPhoneNumber(map.get(INSTRUCTOR_PHONE));
-		this.instructor.setOfficeId(map.get(INSTRUCTOR_OFFICE));
+		this.instructor.addContentFromMap(map, INSTRUCTOR_PREFIX);
+		this.teachingAssistant.addContentFromMap(map, TEACHING_ASSISTANT_PREFIX);
+		this.meeting.addContentFromMap(map, MEETING_PREFIX);
+	}
+
+	public Map<String, String> getContentMap() {
+		HashMap<String, String> map = new HashMap<String, String>();
 		
-		try {
-			this.meeting.setStartTime(Integer.parseInt(map.get(MEETING_START)));
-			this.meeting.setDuration(Integer.parseInt(map.get(MEETING_DURATION)));
-			this.meeting.setDaysOfWeek(map.get(MEETING_DAYS));
-			this.meeting.setLocation(map.get(MEETING_LOCATION));
-		} catch (NumberFormatException exception) {
-			// Ignore meeting.
+		map.put(COURSE_NAME, this.getName());
+		map.put(COURSE_TITLE, this.title);
+		map.put(COURSE_SECTION, this.section);
+		map.put(COURSE_SCHOOL, this.school);
+		map.put(COURSE_WEBSITE, this.website);
+		map.put(COURSE_SEMESTER, this.semester.toString());
+
+		map.putAll(instructor.getContentMap(INSTRUCTOR_PREFIX));
+		map.putAll(teachingAssistant.getContentMap(TEACHING_ASSISTANT_PREFIX));
+		map.putAll(meeting.getContentMap(MEETING_PREFIX));
+		
+		return map;
+	}
+	
+	public List<String> getContentKeys() {
+		LinkedList<String> keyList = new LinkedList<String>();
+		for (int i = 0; i < contentKeys.length; i++) {
+			keyList.add(contentKeys[i]);
 		}
+		keyList.addAll(this.meeting.getContentKeys(MEETING_PREFIX));
+		keyList.addAll(this.instructor.getContentKeys(INSTRUCTOR_PREFIX));
+		return keyList;
+	}
+	
+	public HashMap<String,String> getPreviewMap() {
+		HashMap<String,String> previewMap = new HashMap<String,String>();
+		previewMap.put(MAP_KEY_NAME, this.getName());
+		previewMap.put(MAP_KEY_SECTION, this.section);
+		previewMap.put(MAP_KEY_INSTRUCTOR, this.instructor.getName());
+		previewMap.put(MAP_KEY_MEETING, this.meeting.getOccurrence());
+		return previewMap;
 	}
 	
 	public String getLocalId() {
@@ -105,11 +129,36 @@ public class Course {
 	}
 	
 	public String getName() {
-		return name;
+		return nameLetters + " " + nameNumber;
 	}
 	
 	public void setName(String name) {
-		this.name = name;
+		this.nameValidity = true;
+		name = name.replace(" ", "");
+		StringBuilder letters = new StringBuilder();
+		int i = 0;
+		while (i < name.length() && Character.isLetter(name.charAt(i))) {
+			letters.append(name.charAt(i));
+			i++;
+		}
+		if (i == name.length() || i == 0) {
+			this.nameValidity = false;
+		}
+		this.nameLetters = letters.toString();
+		
+		StringBuilder number = new StringBuilder();
+		while (i < name.length() && Character.isDigit(name.charAt(i))) {
+			number.append(name.charAt(i));
+			i++;
+		}
+		if (i < name.length()) {
+			this.nameValidity = false;
+		}
+		this.nameNumber = number.toString();
+	}
+	
+	public boolean nameIsValid() {
+		return nameValidity;
 	}
 	
 	public String getTitle() {
@@ -156,6 +205,14 @@ public class Course {
 		this.instructor = instructor;
 	}
 	
+	public Instructor getTeachingAssistant() {
+		return teachingAssistant;
+	}
+	
+	public void setTeachingAssistant(Instructor teachingAssistant) {
+		this.teachingAssistant = teachingAssistant;
+	}
+	
 	public String getClassroom() {
 		if (meeting == null) {
 			return null;
@@ -167,27 +224,6 @@ public class Course {
 		meeting.setLocation(classroom);
 	}
 	
-	public TimeOfDay getMeetingStart() {
-		if (meeting == null || meeting.getStartTime() == null) {
-			return null;
-		}
-		return meeting.getStartTime();
-	}
-	
-	public TimeOfDay getMeetingDuration() {
-		if (meeting == null) {
-			return null;
-		}
-		return new TimeOfDay(meeting.getDuration());
-	}
-	
-	public String getMeetingDays() {
-		if (meeting == null) {
-			return null;
-		}
-		return meeting.getDaysOfWeek();
-	}
-	
 	public WeeklyMeeting getMeeting() {
 		return meeting;
 	}
@@ -196,57 +232,12 @@ public class Course {
 		this.meeting = meeting;
 	}
 	
-	public HashMap<String,String> getPreviewMap() {
-		HashMap<String,String> previewMap = new HashMap<String,String>();
-		previewMap.put(MAP_KEY_NAME, this.name);
-		previewMap.put(MAP_KEY_SECTION, this.section);
-		previewMap.put(MAP_KEY_INSTRUCTOR, this.instructor.getName());
-		previewMap.put(MAP_KEY_MEETING, this.meeting.getOccurence());
-		return previewMap;
+	public boolean isLocked() {
+		return locked;
 	}
-
-	public static String[] getContentKeys() {
-		return new String[] {
-				COURSE_NAME,
-				COURSE_TITLE,
-				COURSE_SECTION,
-				COURSE_SCHOOL,
-				COURSE_SEMESTER,
-				INSTRUCTOR_FIRST_NAME,
-				INSTRUCTOR_LAST_NAME,
-				INSTRUCTOR_PHONE,
-				INSTRUCTOR_EMAIL,
-				INSTRUCTOR_OFFICE,
-				MEETING_START,
-				MEETING_DURATION,
-				MEETING_DAYS,
-				MEETING_LOCATION
-		};
-	}
-
-	public HashMap<String, String> getContentMap() {
-		HashMap<String, String> map = new HashMap<String, String>();
-		
-		map.put(COURSE_NAME, this.name);
-		map.put(COURSE_TITLE, this.title);
-		map.put(COURSE_SECTION, this.section);
-		map.put(COURSE_SCHOOL, this.school);
-		map.put(COURSE_SEMESTER, this.semester.toString());
-		
-		map.put(INSTRUCTOR_FIRST_NAME, this.instructor.getFirstName());
-		map.put(INSTRUCTOR_LAST_NAME, this.instructor.getLastName());
-		map.put(INSTRUCTOR_EMAIL, this.instructor.getEmailAddress());
-		map.put(INSTRUCTOR_PHONE, this.instructor.getPhoneNumber());
-		map.put(INSTRUCTOR_OFFICE, this.instructor.getOfficeId());
-		
-		if (this.meeting.getStartTime() != null) {
-			map.put(MEETING_START, Integer.toString(this.meeting.getStartTime().getTotalMinutes()));
-		}
-		map.put(MEETING_DURATION, Integer.toString(this.meeting.getDuration()));
-		map.put(MEETING_DAYS, this.meeting.getDaysData());
-		map.put(MEETING_LOCATION, this.meeting.getLocation());
-		
-		return map;
+	
+	public void setLocked(boolean locked) {
+		this.locked = locked;	
 	}
 	
 }

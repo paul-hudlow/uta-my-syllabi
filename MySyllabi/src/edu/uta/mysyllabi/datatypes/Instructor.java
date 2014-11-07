@@ -1,17 +1,44 @@
 package edu.uta.mysyllabi.datatypes;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 
 public class Instructor {
-	private String prefix;
 	private String firstName;
 	private String lastName;
 	private String office;
 	private String phoneNumber;
 	private String emailAddress;
-	protected WeeklyMeeting officeHours;
+	protected WeeklyMeeting officeHours = new WeeklyMeeting();
+	
+	private final String FIRST_NAME = "first_name";
+	private final String LAST_NAME = "last_name";
+	private final String EMAIL = "email";
+	private final String PHONE = "phone";
+	private final String OFFICE = "office";
+	private final String OFFICE_HOURS_PREFIX = "office_hours_";
+	
+	private final String[] contentKeys = {
+		FIRST_NAME,
+		LAST_NAME,
+		EMAIL,
+		PHONE,
+		OFFICE
+	};
 	
 	public Instructor() {
 		super();
+	}
+	
+	public boolean isValid() {
+		if (lastName != null) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public Instructor(String firstName, String lastName) {
@@ -19,28 +46,46 @@ public class Instructor {
 		this.lastName = lastName;
 	}
 	
-	/*public Instructor(String instructorName) {
-		String[] nameParts = instructorName.split(" ");
-		switch (nameParts.length) {
-		case 1:
-			this.lastName = nameParts[0];
-			break;
-		case 2:
-			this.firstName = nameParts[0];
-			this.lastName = nameParts[1];
-			break;
-		case 3:
-			this.prefix = nameParts[0];
-			this.firstName = nameParts[1];
-			this.lastName = nameParts[2];
+	public Instructor(HashMap<String, String> map, String keyPrefix) {
+		this.firstName = map.get(keyPrefix + FIRST_NAME);
+		this.lastName = map.get(keyPrefix + LAST_NAME);
+	}
+	
+	public Map<String, String> getContentMap(String keyPrefix) {
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		map.put(keyPrefix + FIRST_NAME, this.firstName);
+		map.put(keyPrefix + LAST_NAME, this.lastName);
+		map.put(keyPrefix + EMAIL, this.emailAddress);
+		map.put(keyPrefix + PHONE, this.phoneNumber);
+		map.put(keyPrefix + OFFICE, this.office);
+		
+		map.putAll(officeHours.getContentMap(keyPrefix + OFFICE_HOURS_PREFIX));
+		
+		return map;
+	}
+	
+	public List<String> getContentKeys(String keyPrefix) {
+		LinkedList<String> keyList = new LinkedList<String>();
+		for (int i = 0; i < contentKeys.length; i++) {
+			keyList.add(keyPrefix + contentKeys[i]);
 		}
-	}*/
+		keyList.addAll(this.officeHours.getContentKeys(keyPrefix + OFFICE_HOURS_PREFIX));
+		return keyList;
+	}
+
+	public void addContentFromMap(Map<String, String> map, String keyPrefix) {
+		this.firstName = map.get(keyPrefix + FIRST_NAME);
+		this.lastName = map.get(keyPrefix + LAST_NAME);
+		this.emailAddress = map.get(keyPrefix + EMAIL);
+		this.phoneNumber = map.get(keyPrefix + PHONE);
+		this.office = map.get(keyPrefix + OFFICE);
+		
+		this.officeHours.addContentFromMap(map, keyPrefix + OFFICE_HOURS_PREFIX);
+	}
 	
 	public String getName() {
 		String fullName = "";
-		if (prefix != null) {
-			fullName += prefix + " "; // Add prefix only if it exists.
-		}
 		if (firstName != null) {
 			fullName += firstName + " "; // Add first name only if it exists.
 		}
@@ -53,11 +98,11 @@ public class Instructor {
 	}
 	
 	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+		this.firstName = firstName.replace(" ", "");
 	}
 	
 	public void setLastName(String lastName) {
-		this.lastName = lastName;
+		this.lastName = lastName.replace(" ", "");
 	}
 	
 	public String getLastName() {
@@ -109,4 +154,5 @@ public class Instructor {
 	public void setOfficeHours(WeeklyMeeting officeHours) {
 		this.officeHours = officeHours;
 	}
+	
 }

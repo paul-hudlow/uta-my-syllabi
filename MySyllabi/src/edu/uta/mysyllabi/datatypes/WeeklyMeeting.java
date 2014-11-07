@@ -1,10 +1,13 @@
 package edu.uta.mysyllabi.datatypes;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 public class WeeklyMeeting {
-	private TimeOfDay startTime = new TimeOfDay(0); // in minutes from midnight
+	private TimeOfDay startTime; // in minutes from midnight
 	private int duration = 0; // in minutes
 	private char[] daysOfWeek = {'n','n','n','n','n','n','n'}; // Array has length 7 and indicates each meeting day with the character 'y'.
 	private String location;
@@ -20,8 +23,28 @@ public class WeeklyMeeting {
 	public static final int SATURDAY = 5;
 	public static final int SUNDAY = 6;
 	
+	private final String START_TIME = "start_time";
+	private final String DURATION = "duration";
+	private final String DAYS_OF_WEEK = "days_of_week";
+	private final String LOCATION = "location";
+	
+	protected final String[] contentKeys = {
+			LOCATION,
+			START_TIME,
+			DURATION,
+			DAYS_OF_WEEK
+	};
+	
 	public WeeklyMeeting() {
 		daysOfWeek = new String("nnnnnnn").toCharArray();
+	}
+	
+	public boolean isValid() {
+		if (startTime != null) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public WeeklyMeeting(int startTime, int duration, String daysOfWeek, String location) throws IllegalArgumentException {
@@ -34,10 +57,56 @@ public class WeeklyMeeting {
 		this.location = location;
 	}
 	
-	public String getOccurence(){
+	public List<String> getContentKeys(String keyPrefix) {
+		LinkedList<String> keyList = new LinkedList<String>();
+		for (int i = 0; i < contentKeys.length; i++) {
+			keyList.add(keyPrefix + contentKeys[i]);
+		}
+		return keyList;
+	}
+	
+	public void addContentFromMap(Map<String, String> map, String keyPrefix) {
+		try {
+			this.startTime = new TimeOfDay(Integer.parseInt(map.get(keyPrefix + START_TIME)));
+		} catch (NumberFormatException exception) {
+			this.startTime = null;
+		}
+		try {
+			this.duration = Integer.parseInt(map.get(keyPrefix + DURATION));
+		} catch (NumberFormatException exception) {
+			this.duration = 0;
+		}
+		if (map.get(keyPrefix + DAYS_OF_WEEK) != null) {
+			this.daysOfWeek = map.get(keyPrefix + DAYS_OF_WEEK).toCharArray();
+		}
+		this.location = map.get(keyPrefix + LOCATION);
+	}
+	
+	public Map<String, String> getContentMap(String keyPrefix) {
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		if (this.startTime != null) {
+			map.put(keyPrefix + START_TIME, Integer.toString(this.startTime.getTotalMinutes()));
+		}
+		map.put(keyPrefix + DURATION, Integer.toString(this.duration));
+		map.put(keyPrefix + DAYS_OF_WEEK, new String(this.daysOfWeek));
+		map.put(keyPrefix + LOCATION, this.location);
+		
+		return map;
+	}
+	
+	public String getOccurrence(){
 		String days = getDaysOfWeek();
-		TimeOfDay endTime = new TimeOfDay(startTime.getTotalMinutes() + duration);
-		return days + " " + startTime.toString(false) + "-" + endTime.toString(false);
+		String occurrence;
+		if (startTime != null && duration > 0) {
+			TimeOfDay endTime = new TimeOfDay(startTime.getTotalMinutes() + duration);
+			occurrence = days + " " + startTime.toString(false) + "-" + endTime.toString(false);
+		} else if (startTime != null) {
+			occurrence = days + " " + startTime.toString(false);
+		} else {
+			occurrence = days;
+		}
+		return occurrence;
 	}
 	
 	public boolean isMeetingDay(int day) {
@@ -69,11 +138,7 @@ public class WeeklyMeeting {
 		}
 		return days.toString();
 	}
-	
-	public String getDaysData() {
-		return new String(daysOfWeek);
-	}
-	
+
 	public TimeOfDay getStartTime() {
 		return startTime;
 	}
