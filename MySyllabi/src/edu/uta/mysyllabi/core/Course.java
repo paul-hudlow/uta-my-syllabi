@@ -24,6 +24,7 @@ public class Course {
 	private Instructor instructor = new Instructor();
 	private Instructor teachingAssistant = new Instructor();
 	private boolean locked = false;
+	private long timeUpdated = 0L;
 	
 	public static final String MAP_KEY_NAME = "name";
 	public static final String MAP_KEY_SECTION = "section";
@@ -110,6 +111,14 @@ public class Course {
 	
 	public String getCloudId() {
 		return this.cloudId;
+	}
+	
+	public long getUpdateTime() {
+		return timeUpdated;
+	}
+	
+	public void setUpdateTime(long timeUpdated) {
+		this.timeUpdated = timeUpdated;
 	}
 	
 	public void setLocalId(String localId) {

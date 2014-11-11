@@ -148,8 +148,6 @@ public class CreateCourseController extends ActionBarActivity
 		
 		/* Create new course. */
 		String courseId = controller.createCourse(course);
-		Toast error = Toast.makeText(this, courseId, Toast.LENGTH_SHORT);
-		error.show();
 		
 		/* Start the view course activity, telling it to forward to the modify course activity. */
 		Intent intent = new Intent(this, ViewCourseController.class);

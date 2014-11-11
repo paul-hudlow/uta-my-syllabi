@@ -2,6 +2,7 @@ package edu.uta.mysyllabi.backend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocalDataHelper extends SQLiteOpenHelper {
 	// Version must be incremented upon schema change!
-	public static final int DATABASE_VERSION = 40;
+	public static final int DATABASE_VERSION = 43;
     public static final String DATABASE_NAME = "MyCourses.db";
 	
     /* Query details */
@@ -23,8 +24,8 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     public static final String INT_TYPE = " INTEGER";
     public static final String DELIMITER = ",";
     
-    public void createCourseTable(SQLiteDatabase database) {
-    	String firstSegment = "CREATE TABLE " + DataContract.Course.TABLE_NAME + "(" +
+    public void createCourseTable(String tableName, SQLiteDatabase database) {
+    	String firstSegment = "CREATE TABLE " + tableName + "(" +
         		DataContract.Course.COLUMN_ID + INT_TYPE + " PRIMARY KEY" + DELIMITER +
         		DataContract.Course.COLUMN_CLOUD_ID + TEXT_TYPE + DELIMITER;
     	
@@ -35,7 +36,8 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     		middleSegment.append(middleColumns[i] + TEXT_TYPE + DELIMITER);
     	}
     	
-    	String lastSegment = DataContract.Course.COLUMN_LOCKED + INT_TYPE + ")";
+    	String lastSegment = DataContract.Course.COLUMN_LOCKED + INT_TYPE + DELIMITER +
+    						 DataContract.Course.COLUMN_TIME_UPDATED + INT_TYPE + ")";
     	
     	database.execSQL(firstSegment + middleSegment.toString() + lastSegment);
     }
@@ -46,10 +48,9 @@ public class LocalDataHelper extends SQLiteOpenHelper {
         		DataContract.Settings.COLUMN_VALUE + TEXT_TYPE + ")");
     }
     
-    public static final String DROP_TABLE_COURSE = "DROP TABLE IF EXISTS " + DataContract.Course.TABLE_NAME;
-    
-    public static final String DROP_TABLE_SETTINGS = "DROP TABLE IF EXISTS " + DataContract.Settings.TABLE_NAME;
-    
+    private void dropTable(String tableName, SQLiteDatabase database) {
+    	database.execSQL("DROP TABLE IF EXISTS " + tableName);
+    }
     
 	public LocalDataHelper() {
 		super(MySyllabi.getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
@@ -86,6 +87,28 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		return tableCursor.getString(cloudIdIndex);
 	}
 	
+	public long getUpdateTime(String localId) {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		String[] column = {DataContract.Course.COLUMN_TIME_UPDATED};
+		
+		/* Select all data from the entire table and sort by course name. */
+		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, column, 
+				DataContract.Course.COLUMN_ID + " = " + localId, null, null, null, null);
+		
+		if (!tableCursor.moveToFirst()) {
+			return 0L; // Return null if cursor is empty.
+		}
+		
+		int timeIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_TIME_UPDATED);
+		if (tableCursor.isNull(timeIndex)) {
+			return 0L;
+		}
+		
+		database.close();
+		return tableCursor.getLong(timeIndex);
+	}
+	
 	public String getLatestSchool() {
 		SQLiteDatabase database = this.getReadableDatabase();
 		
@@ -109,18 +132,28 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase database) {
-		createCourseTable(database);
+		createCourseTable(DataContract.Course.TABLE_NAME, database);
+		createCourseTable(DataContract.Course.UPDATES_TABLE_NAME, database);
 		createSettingsTable(database);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-		database.execSQL(DROP_TABLE_COURSE);
-		database.execSQL(DROP_TABLE_SETTINGS);
+		dropTable(DataContract.Course.TABLE_NAME, database);
+		dropTable(DataContract.Course.UPDATES_TABLE_NAME, database);
+		dropTable(DataContract.Settings.TABLE_NAME, database);
 		onCreate(database);
 	}
 	
-	public String saveCourse(Course course) {
+	public String saveCourse(Course course, boolean fromCloud) {
+		if (fromCloud) {
+			return saveCourse(course, DataContract.Course.UPDATES_TABLE_NAME);
+		} else {
+			return saveCourse(course, DataContract.Course.TABLE_NAME);
+		}
+	}
+	
+	public String saveCourse(Course course, String tableName) {
 		ContentValues values = new ContentValues();
 		
 		if (course.getCloudId() != null) {
@@ -132,6 +165,13 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    } else {
 	    	values.put(DataContract.Course.COLUMN_LOCKED, DataContract.Course.LOCKED_FALSE);
 	    }
+	    
+	    long timeUpdated = course.getUpdateTime();
+	    long oldTimeUpdated = getUpdateTime(course.getLocalId());
+	    if (timeUpdated <= oldTimeUpdated) {
+	    	timeUpdated = System.currentTimeMillis();
+	    }
+	    values.put(DataContract.Course.COLUMN_TIME_UPDATED, timeUpdated);
 	    
 		Map<String, String> courseMap = course.getContentMap();
 		List<String> keys = course.getContentKeys();
@@ -147,10 +187,10 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    
 	    SQLiteDatabase database = this.getWritableDatabase();
 	    if (courseId == null) {
-	    	long id = database.insert(DataContract.Course.TABLE_NAME, null, values);
+	    	long id = database.insert(tableName, null, values);
 	    	courseId = Long.toString(id);
 	    } else {
-	    	int rowsUpdated = database.update(DataContract.Course.TABLE_NAME, values, 
+	    	int rowsUpdated = database.update(tableName, values, 
 	    			DataContract.Course.COLUMN_ID + " = " + courseId, null);
 	    	if (rowsUpdated < 1) {
 	    		throw new SQLException("Course could not be updated!");
@@ -187,6 +227,41 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			return null; // Return null if cursor is empty.
 		}
 		
+		Course course = courseFromCursor(tableCursor);
+		database.close();
+		return course;
+	}
+	
+	public List<Course> getAllCourses() {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		/* Select all data from the entire table and sort by course name. */
+		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, null, null, null, null, null, null);
+		
+		LinkedList<Course> courseList = new LinkedList<Course>();
+		if (!tableCursor.moveToFirst()) {
+			return courseList;
+		}
+		
+		do {
+			courseList.add(courseFromCursor(tableCursor));
+		} while (tableCursor.moveToNext());
+		
+		database.close();
+		
+		return courseList;
+	}
+	
+	private Course courseFromCursor(Cursor tableCursor) {
+		int localIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_ID);
+		String localId = tableCursor.getString(localIdIndex);
+		
+		String cloudId = null;
+		int cloudIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_CLOUD_ID);
+		if (!tableCursor.isNull(cloudIdIndex)) {
+			cloudId = tableCursor.getString(cloudIdIndex);
+		}
+		
 		HashMap<String, String> courseMap = new HashMap<String, String>();
 		String[] keys = tableCursor.getColumnNames();
 		for (int i = 0; i < keys.length; i++) {
@@ -195,24 +270,23 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			}
 		}
 		
-		Course localCourse = new Course(localId, null);
+		Course localCourse = new Course(localId, cloudId);
 		localCourse.addContentFromMap(courseMap);
-		
-		int cloudIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_CLOUD_ID);
-		if (!tableCursor.isNull(cloudIdIndex)) {
-			localCourse.setCloudId(tableCursor.getString(cloudIdIndex));
-		}
 
 		int cloudCheckIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_LOCKED);
 		if (tableCursor.getInt(cloudCheckIndex) == DataContract.Course.LOCKED_TRUE) {
 			localCourse.setLocked(true);
 		}
 		
-		database.close();
+		int updateTimeIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_TIME_UPDATED);
+		if (!tableCursor.isNull(updateTimeIndex)) {
+			localCourse.setUpdateTime(tableCursor.getLong(updateTimeIndex));
+		}
+		
 		return localCourse;
 	}
 	
-	public ArrayList<String> getCourseKeys() {
+	public List<String> getCourseKeys() {
 		SQLiteDatabase database = this.getReadableDatabase();
 		
 		String[] column = {DataContract.Course.COLUMN_ID};

@@ -50,33 +50,6 @@
             </intent-filter>
         </activity>
         
-        <service
-                android:name=".SyncService"
-                android:exported="true"
-                android:process=":sync">
-            <intent-filter>
-                <action android:name="edu.uta.mysyllabi.backend.SyncAdapter"/>
-            </intent-filter>
-            <meta-data android:name="edu.uta.mysyllabi.backend.SyncAdapter"
-                    android:resource="@xml/syncadapter" />
-		</service>
-		
-        <service android:name="com.example.android.common.accounts.GenericAccountService">
-            <!-- Required filter used by the system to launch our account service. -->
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <!-- This points to an XML file which describes our account service. -->
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-		
-        <provider
-        android:name=".backend.StubProvider"
-        android:authorities="edu.uta.mysyllabi.backend"
-        android:exported="false"
-        android:syncable="true"/>
-        
     </application>
 
 </manifest>

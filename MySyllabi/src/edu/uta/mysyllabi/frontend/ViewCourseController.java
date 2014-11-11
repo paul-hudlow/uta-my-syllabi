@@ -1,8 +1,9 @@
 package edu.uta.mysyllabi.frontend;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import edu.uta.mysyllabi.R;
+import edu.uta.mysyllabi.backend.SynchronizationHelper;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
 import edu.uta.mysyllabi.datatypes.Instructor;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 
 public class ViewCourseController extends ActionBarActivity {
 	private Controller controller;
+	private SynchronizationHelper synchronizer;
 	
 	public static final String KEY_COURSE_ID = "course_id";
 	public static final String KEY_PAGER_INDEX = "pager_index";
@@ -46,12 +48,15 @@ public class ViewCourseController extends ActionBarActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager pager;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_course);
         this.controller = new Controller();
+        this.synchronizer = new SynchronizationHelper();
+        
+        synchronizer.synchronize();
 
         // Create the adapter that will return a fragment for each of the
         // primary sections of the activity.
@@ -110,6 +115,12 @@ public class ViewCourseController extends ActionBarActivity {
     }
     
     @Override
+    protected void onStart() {
+    	super.onStart();
+    	synchronizer.synchronize();
+    }
+    
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_FINISH && resultCode == RESULT_OK) {
@@ -128,7 +139,7 @@ public class ViewCourseController extends ActionBarActivity {
      * one of the courses.
      */
     public class CoursePagerAdapter extends FragmentStatePagerAdapter {
-    	protected ArrayList<String> courseList;
+    	protected List<String> courseList;
     	
     	public CoursePagerAdapter(FragmentManager fm) {
     		super(fm);

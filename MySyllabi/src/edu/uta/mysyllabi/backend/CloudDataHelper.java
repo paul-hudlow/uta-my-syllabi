@@ -111,10 +111,23 @@ public class CloudDataHelper {
 	    return courseObject;
 	}
 
-	public static Course getCourse(String key) {
-		Course cloudCourse = new Course(null, null);
-		// TODO implement method
-		return cloudCourse;
+	public Course getCourse(String cloudId) throws ParseException {
+		ParseObject parseCourse = new ParseObject(COURSE_TABLE);
+		parseCourse.setObjectId(cloudId);
+		parseCourse.fetch();
+		return parseToCourse(parseCourse);
+	}
+	
+	public long getUpdateTime(String cloudId) throws ParseException {
+		/* Set up ParseQuery object. */
+		ParseQuery<ParseObject> courseQuery = ParseQuery.getQuery(COURSE_TABLE);
+
+		/* Set query parameters. */
+		ArrayList<String> empty = new ArrayList<String>();
+		courseQuery.selectKeys(empty);
+		ParseObject emptyCourse;
+		emptyCourse = courseQuery.get(cloudId);
+		return emptyCourse.getUpdatedAt().getTime();
 	}
 	
 	/* Dummy method. */

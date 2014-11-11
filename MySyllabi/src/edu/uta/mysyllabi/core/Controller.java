@@ -1,6 +1,7 @@
 package edu.uta.mysyllabi.core;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.uta.mysyllabi.backend.CloudDataHelper;
 import edu.uta.mysyllabi.backend.LocalDataHelper;
@@ -11,15 +12,16 @@ public class Controller {
 		return new LocalDataHelper().getLatestSchool();
 	}
 	
-	public void addCourse(String cloudId) {
-		Course cloudCourse = CloudDataHelper.getCourse(cloudId);
-		LocalDataHelper localData = new LocalDataHelper();
-		localData.saveCourse(cloudCourse);
-	}
+	//public void addCourse(String cloudId) {
+	//	CloudDataHelper cloudHelper = new CloudDataHelper();
+	//	Course cloudCourse = cloudHelper.getCourse(cloudId);
+	//	LocalDataHelper localData = new LocalDataHelper();
+	//	localData.saveCourse(cloudCourse);
+	//}
 	
 	public void updateCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
-		localData.saveCourse(course);
+		localData.saveCourse(course, false);
 		if (!course.isLocked()) {
 			if (course.getCloudId() == null) {
 				course.setCloudId(localData.getCloudId(course.getLocalId()));
@@ -34,7 +36,7 @@ public class Controller {
 	
 	public String createCourse(Course course) {
 		LocalDataHelper localData = new LocalDataHelper();
-		String localId = localData.saveCourse(course);
+		String localId = localData.saveCourse(course, false);
 		course.setLocalId(localId);
 		
 		if (!course.isLocked()) {
@@ -50,7 +52,7 @@ public class Controller {
 		return localData.getCourse(localId);
 	}
 	
-	public ArrayList<String> getCourseList() {
+	public List<String> getCourseList() {
 		LocalDataHelper localData = new LocalDataHelper();
 		return localData.getCourseKeys();
 	}
