@@ -75,11 +75,11 @@ public class Instructor {
 	}
 
 	public void addContentFromMap(Map<String, String> map, String keyPrefix) {
-		this.firstName = map.get(keyPrefix + FIRST_NAME);
-		this.lastName = map.get(keyPrefix + LAST_NAME);
-		this.emailAddress = map.get(keyPrefix + EMAIL);
-		this.phoneNumber = map.get(keyPrefix + PHONE);
-		this.office = map.get(keyPrefix + OFFICE);
+		setFirstName(map.get(keyPrefix + FIRST_NAME));
+		setLastName(map.get(keyPrefix + LAST_NAME));
+		setEmailAddress(map.get(keyPrefix + EMAIL));
+		setPhoneNumber(map.get(keyPrefix + PHONE));
+		setOfficeId(map.get(keyPrefix + OFFICE));
 		
 		this.officeHours.addContentFromMap(map, keyPrefix + OFFICE_HOURS_PREFIX);
 	}
@@ -98,11 +98,15 @@ public class Instructor {
 	}
 	
 	public void setFirstName(String firstName) {
-		this.firstName = firstName.replace(" ", "");
+		if (firstName != null) {
+			this.firstName = firstName.replace(" ", "");
+		}
 	}
 	
 	public void setLastName(String lastName) {
-		this.lastName = lastName.replace(" ", "");
+		if (lastName != null) {
+			this.lastName = lastName.replace(" ", "");
+		}
 	}
 	
 	public String getLastName() {
@@ -114,7 +118,9 @@ public class Instructor {
 	}
 	
 	public void setOfficeId(String officeId) {
-		this.office = officeId;
+		if (officeId != null) {
+			this.office = officeId;
+		}
 	}
 
 	public String getPhoneNumber() {
@@ -122,7 +128,9 @@ public class Instructor {
 	}
 	
 	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+		if (phoneNumber != null) {
+			this.phoneNumber = phoneNumber;
+		}
 	}
 	
 	public String getEmailAddress() {
@@ -130,7 +138,9 @@ public class Instructor {
 	}
 	
 	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
+		if (emailAddress != null) {
+			this.emailAddress = emailAddress;
+		}
 	}
 	
 	public String getOfficeHoursStart() {

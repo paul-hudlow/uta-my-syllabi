@@ -96,6 +96,8 @@ public class CreateCourseController extends ActionBarActivity
 		Intent intent = new Intent(this, ViewCourseController.class);
 		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
 		startActivity(intent);
+		this.setResult(RESULT_OK);
+		this.finish();
 	}
 	
 	@Override

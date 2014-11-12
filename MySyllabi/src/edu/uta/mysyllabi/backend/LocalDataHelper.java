@@ -10,13 +10,12 @@ import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.core.Course;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocalDataHelper extends SQLiteOpenHelper {
 	// Version must be incremented upon schema change!
-	public static final int DATABASE_VERSION = 43;
+	public static final int DATABASE_VERSION = 45;
     public static final String DATABASE_NAME = "MyCourses.db";
 	
     /* Query details */
@@ -24,6 +23,29 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     public static final String INT_TYPE = " INTEGER";
     public static final String DELIMITER = ",";
     
+    public LocalDataHelper() {
+		super(MySyllabi.getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
+	}
+    
+	@Override
+	public void onCreate(SQLiteDatabase database) {
+		createCourseTable(DataContract.Course.TABLE_MAIN, database);
+		createCourseTable(DataContract.Course.TABLE_OBSOLETED_BY_LOCAL, database);
+		createCourseTable(DataContract.Course.TABLE_OBSOLETED_BY_CLOUD, database);
+		createSettingsTable(database);
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+		dropTable(DataContract.Course.TABLE_MAIN, database);
+		dropTable(DataContract.Course.TABLE_OBSOLETED_BY_LOCAL, database);
+		dropTable(DataContract.Course.TABLE_OBSOLETED_BY_CLOUD, database);
+		dropTable(DataContract.Settings.TABLE_NAME, database);
+		onCreate(database);
+	}
+    
+    /* Uses predefined data in the DataContract class as well as the core Course class to
+     * initialize a database table for holding Course object data. */
     public void createCourseTable(String tableName, SQLiteDatabase database) {
     	String firstSegment = "CREATE TABLE " + tableName + "(" +
         		DataContract.Course.COLUMN_ID + INT_TYPE + " PRIMARY KEY" + DELIMITER +
@@ -42,114 +64,77 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     	database.execSQL(firstSegment + middleSegment.toString() + lastSegment);
     }
     
+    /* Uses predefined data from the DataContract class to create the local settings table. */
     public void createSettingsTable(SQLiteDatabase database) {
     	database.execSQL("CREATE TABLE " + DataContract.Settings.TABLE_NAME + "(" +
         		DataContract.Settings.COLUMN_SETTING + TEXT_TYPE + " PRIMARY KEY" + DELIMITER +
         		DataContract.Settings.COLUMN_VALUE + TEXT_TYPE + ")");
     }
     
+    /* Drops the specified table from the specified database. */
     private void dropTable(String tableName, SQLiteDatabase database) {
     	database.execSQL("DROP TABLE IF EXISTS " + tableName);
     }
-    
-	public LocalDataHelper() {
-		super(MySyllabi.getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
+	
+	public String createCourse(Course course) {
+		return saveCourse(course, DataContract.Course.TABLE_MAIN);
 	}
 	
-	public void addCloudId(String localId, String cloudId) {
+    /* Updates course data (based on the localId of the provided Course object) in the local
+     * database to include the cloudId and timeUpdated stored in the provided Course object. */
+	public void linkToCloud(Course course) {
 		ContentValues values = new ContentValues();
-	    values.put(DataContract.Course.COLUMN_CLOUD_ID, cloudId);
+	    values.put(DataContract.Course.COLUMN_CLOUD_ID, course.getCloudId());
+	    values.put(DataContract.Course.COLUMN_TIME_UPDATED, course.getUpdateTime());
 	    SQLiteDatabase database = this.getWritableDatabase();
-	    database.update(DataContract.Course.TABLE_NAME, values, 
-	    		DataContract.Course.COLUMN_ID + " = " + localId, null);
+	    database.update(DataContract.Course.TABLE_MAIN, values, 
+	    		DataContract.Course.COLUMN_ID + " = " + course.getLocalId(), null);
 	    database.close();
+	    deleteCourse(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
 	}
 	
-	public String getCloudId(String localId) {
-		SQLiteDatabase database = this.getReadableDatabase();
+	/* Saves changes that come from an update to the cloud rather than the local user interface. */
+	public void saveFromCloud(Course course) {
 		
-		String[] column = {DataContract.Course.COLUMN_CLOUD_ID};
-		
-		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, column, 
-				DataContract.Course.COLUMN_ID + " = " + localId, null, null, null, null);
-		
-		if (!tableCursor.moveToFirst()) {
-			return null; // Return null if cursor is empty.
+		/* Store the obsoleted course for the purpose of synchronization, but only if an obsoleted
+		 * version of the course does not already exist. */
+		Course currentCourse = getCourse(course.getLocalId());
+		if (!courseExists(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_CLOUD)) {
+			saveCourse(currentCourse, DataContract.Course.TABLE_OBSOLETED_BY_CLOUD);
 		}
 		
-		int cloudIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_CLOUD_ID);
-		if (tableCursor.isNull(cloudIdIndex)) {
-			return null;
-		}
-		
-		database.close();
-		return tableCursor.getString(cloudIdIndex);
-	}
-	
-	public long getUpdateTime(String localId) {
-		SQLiteDatabase database = this.getReadableDatabase();
-		
-		String[] column = {DataContract.Course.COLUMN_TIME_UPDATED};
-		
-		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, column, 
-				DataContract.Course.COLUMN_ID + " = " + localId, null, null, null, null);
-		
-		if (!tableCursor.moveToFirst()) {
-			return 0L; // Return null if cursor is empty.
-		}
-		
-		int timeIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_TIME_UPDATED);
-		if (tableCursor.isNull(timeIndex)) {
-			return 0L;
-		}
-		
-		database.close();
-		return tableCursor.getLong(timeIndex);
-	}
-	
-	public String getLatestSchool() {
-		SQLiteDatabase database = this.getReadableDatabase();
-		
-		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor;
-		tableCursor = database.query(DataContract.Settings.TABLE_NAME, null, 
-				DataContract.Settings.COLUMN_SETTING + " = ?", new String[]{DataContract.Settings.KEY_SCHOOL}, null, null, null);
-		
-		if (!tableCursor.moveToFirst()) {
-			return null; // Return null if cursor is empty.
-		}
-		
-		int schoolIndex = tableCursor.getColumnIndex(DataContract.Settings.COLUMN_VALUE);
-		if (tableCursor.isNull(schoolIndex)) {
-			return null;
-		}
-		
-		database.close();
-		return tableCursor.getString(schoolIndex);
-	}
-
-	@Override
-	public void onCreate(SQLiteDatabase database) {
-		createCourseTable(DataContract.Course.TABLE_NAME, database);
-		createCourseTable(DataContract.Course.UPDATES_TABLE_NAME, database);
-		createSettingsTable(database);
-	}
-
-	@Override
-	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-		dropTable(DataContract.Course.TABLE_NAME, database);
-		dropTable(DataContract.Course.UPDATES_TABLE_NAME, database);
-		dropTable(DataContract.Settings.TABLE_NAME, database);
-		onCreate(database);
-	}
-	
-	public String saveCourse(Course course, boolean fromCloud) {
-		if (fromCloud) {
-			return saveCourse(course, DataContract.Course.UPDATES_TABLE_NAME);
+		/* If changes have been made by the user since the last synchronization, merge the changes
+		 * rather than overwriting them. */		
+		Course oldCourse = getCourse(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
+		if (oldCourse != null) {
+			Map<String, String> changes = oldCourse.getDifferenceMap(course);
+			currentCourse.addContentFromMap(changes);
+			currentCourse.setUpdateTime(course.getUpdateTime());
 		} else {
-			return saveCourse(course, DataContract.Course.TABLE_NAME);
+			currentCourse = course;
+		}
+		
+		saveCourse(currentCourse, DataContract.Course.TABLE_MAIN);
+	}
+	
+	/* Saves changes that come from the local user interface. */
+	public void saveFromLocal(Course course) {
+		/* If there were any outstanding changes from updates to the cloud, they should have
+		 * been presented to the user before the change. */
+		deleteCourse(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_CLOUD);
+		
+		/* Only take action if the user has actually changed something. */
+		Course oldCourse = getCourse(course.getLocalId());
+		if (oldCourse.sharesContents(course)) {
+			return;
+		} else {
+			saveCourse(course, DataContract.Course.TABLE_MAIN);
+			
+			/* Store the obsoleted course data for the purpose of synchronization, but only if 
+			 * an obsoleted version does not already exist. */
+			if (!courseExists(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_LOCAL)) {
+				saveCourse(oldCourse, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
+			}
 		}
 	}
 	
@@ -166,12 +151,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    	values.put(DataContract.Course.COLUMN_LOCKED, DataContract.Course.LOCKED_FALSE);
 	    }
 	    
-	    long timeUpdated = course.getUpdateTime();
-	    long oldTimeUpdated = getUpdateTime(course.getLocalId());
-	    if (timeUpdated <= oldTimeUpdated) {
-	    	timeUpdated = System.currentTimeMillis();
-	    }
-	    values.put(DataContract.Course.COLUMN_TIME_UPDATED, timeUpdated);
+	    values.put(DataContract.Course.COLUMN_TIME_UPDATED, course.getUpdateTime());
 	    
 		Map<String, String> courseMap = course.getContentMap();
 		List<String> keys = course.getContentKeys();
@@ -190,13 +170,8 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    	long id = database.insert(tableName, null, values);
 	    	courseId = Long.toString(id);
 	    } else {
-	    	int rowsUpdated = database.update(tableName, values, 
-	    			DataContract.Course.COLUMN_ID + " = " + courseId, null);
-	    	if (rowsUpdated < 1) {
-	    		throw new SQLException("Course could not be updated!");
-	    	} else if (rowsUpdated > 1) {
-	    		throw new SQLException("Duplicate courses exist in table!");
-	    	}
+	    	values.put(DataContract.Course.COLUMN_ID, courseId);
+	    	database.replace(tableName, null, values);
 	    }
 	    
 		values = new ContentValues();
@@ -208,19 +183,15 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	    return courseId;
 	}
 	
-	public void deleteCourse(String localId) {
-		SQLiteDatabase database = this.getReadableDatabase();
-		
-		/* Select all data from the entire table and sort by course name. */
-		database.delete(DataContract.Course.TABLE_NAME, DataContract.Course.COLUMN_ID + " = " + localId, null);
-		database.close();
+	public Course getCourse(String localId) {
+		return getCourse(localId, DataContract.Course.TABLE_MAIN);
 	}
 	
-	public Course getCourse(String localId) {
+	public Course getCourse(String localId, String tableName) {
 		SQLiteDatabase database = this.getReadableDatabase();
 		
 		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, null, 
+		Cursor tableCursor = database.query(tableName, null, 
 				DataContract.Course.COLUMN_ID + " = " + localId, null, null, null, null);
 		
 		if (!tableCursor.moveToFirst()) {
@@ -236,7 +207,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		SQLiteDatabase database = this.getReadableDatabase();
 		
 		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, null, null, null, null, null, null);
+		Cursor tableCursor = database.query(DataContract.Course.TABLE_MAIN, null, null, null, null, null, null);
 		
 		LinkedList<Course> courseList = new LinkedList<Course>();
 		if (!tableCursor.moveToFirst()) {
@@ -250,6 +221,38 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		database.close();
 		
 		return courseList;
+	}
+	
+	public boolean courseExists(String localId, String tableName) {
+		Course testCourse = getCourse(localId, tableName);
+		if (testCourse == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public void deleteCourse(String localId) {
+		deleteCourse(localId, DataContract.Course.TABLE_MAIN);
+		deleteCourse(localId, DataContract.Course.TABLE_OBSOLETED_BY_CLOUD);
+		deleteCourse(localId, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
+	}
+	
+	public void deleteCourse(String localId, String tableName) {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		/* Select all data from the entire table and sort by course name. */
+		database.delete(tableName, DataContract.Course.COLUMN_ID + " = " + localId, null);
+		database.close();
+	}
+	
+	/* Checks to see if the any local changes have been made since the last successful synchronization. */
+	public boolean hasLocalChanges(String localId) {
+		if (courseExists(localId, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	private Course courseFromCursor(Cursor tableCursor) {
@@ -291,7 +294,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		
 		String[] column = {DataContract.Course.COLUMN_ID};
 		/* Select all data from the entire table and sort by course name. */
-		Cursor tableCursor = database.query(DataContract.Course.TABLE_NAME, column, null, null, null, null, null);
+		Cursor tableCursor = database.query(DataContract.Course.TABLE_MAIN, column, null, null, null, null, null);
 		
 		ArrayList<String> courseKeys = new ArrayList<String>();
 		
@@ -306,6 +309,27 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		
 		database.close();
 		return courseKeys;
+	}
+	
+	public String getLatestSchool() {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		/* Select all data from the entire table and sort by course name. */
+		Cursor tableCursor;
+		tableCursor = database.query(DataContract.Settings.TABLE_NAME, null, 
+				DataContract.Settings.COLUMN_SETTING + " = ?", new String[]{DataContract.Settings.KEY_SCHOOL}, null, null, null);
+		
+		if (!tableCursor.moveToFirst()) {
+			return null; // Return null if cursor is empty.
+		}
+		
+		int schoolIndex = tableCursor.getColumnIndex(DataContract.Settings.COLUMN_VALUE);
+		if (tableCursor.isNull(schoolIndex)) {
+			return null;
+		}
+		
+		database.close();
+		return tableCursor.getString(schoolIndex);
 	}
 
 }

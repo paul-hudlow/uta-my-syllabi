@@ -3,13 +3,16 @@ package edu.uta.mysyllabi.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uta.mysyllabi.backend.CloudDataHelper;
-import edu.uta.mysyllabi.backend.LocalDataHelper;
+import edu.uta.mysyllabi.backend.*;
 
 public class Controller {
 	
+	private LocalDataHelper localHelper = new LocalDataHelper();
+	private CloudDataHelper cloudHelper = new CloudDataHelper();
+	private SynchronizationHelper SyncHelper = new SynchronizationHelper();
+	
 	public String getLatestSchool() {
-		return new LocalDataHelper().getLatestSchool();
+		return localHelper.getLatestSchool();
 	}
 	
 	//public void addCourse(String cloudId) {
@@ -19,10 +22,14 @@ public class Controller {
 	//	localData.saveCourse(cloudCourse);
 	//}
 	
+	public void synchronize() {
+		SyncHelper.synchronize();
+	}
+	
 	public void updateCourse(Course course) {
-		LocalDataHelper localData = new LocalDataHelper();
-		localData.saveCourse(course, false);
-		if (!course.isLocked()) {
+		localHelper.saveFromLocal(course);
+		synchronize();
+		/*if (!course.isLocked()) {
 			if (course.getCloudId() == null) {
 				course.setCloudId(localData.getCloudId(course.getLocalId()));
 			}
@@ -31,19 +38,12 @@ public class Controller {
 			}
 			CloudDataHelper cloudData = new CloudDataHelper();
 			cloudData.updateCourse(course);
-		}
+		}*/
 	}
 	
 	public String createCourse(Course course) {
-		LocalDataHelper localData = new LocalDataHelper();
-		String localId = localData.saveCourse(course, false);
-		course.setLocalId(localId);
-		
-		if (!course.isLocked()) {
-			CloudDataHelper cloudHelper = new CloudDataHelper();
-			cloudHelper.createCourse(course);
-		}
-		
+		String localId = localHelper.createCourse(course);
+		synchronize();
 		return localId;
 	}
 	
@@ -58,12 +58,11 @@ public class Controller {
 	}
 	
 	public void deleteCourse(String localId) {
-		LocalDataHelper localData = new LocalDataHelper();
-		localData.deleteCourse(localId);
+		localHelper.deleteCourse(localId);
 	}
 	
 	public String[] getSchools(String state) {
-		return CloudDataHelper.getSchoolList(state);
+		return cloudHelper.getSchoolList(state);
 	}
 	
 	public ArrayList<Course> findCourses(String courseName, String courseSection, 
@@ -74,7 +73,6 @@ public class Controller {
 		if (courseSection.length() < 1) {
 			courseSection = null;
 		}
-		CloudDataHelper cloudHelper = new CloudDataHelper();
 		ArrayList<Course> courseList = cloudHelper.getCourseList(school, semester, courseName, courseSection);
 		
 		return courseList;

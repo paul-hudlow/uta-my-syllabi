@@ -29,28 +29,31 @@ public class SynchronizationHelper {
 			CloudDataHelper cloudHelper = new CloudDataHelper();
 			List<Course> courseList = localHelper.getAllCourses();
 			Course cloudCourse;
-			String cloudId;
+			String cloudId, localId;
 			long localTime, cloudTime;
 			for (Course localCourse : courseList) {
-				cloudId = localCourse.getCloudId();
-				localTime = localCourse.getUpdateTime();
-				if (cloudId != null) {
+				if (!localCourse.isLocked()) { // Confirm that course is not locked.
+					cloudId = localCourse.getCloudId();
+					localId = localCourse.getLocalId();
+					localTime = localCourse.getUpdateTime();
 					try {
-						cloudTime = cloudHelper.getUpdateTime(cloudId);
-						if (localTime < cloudTime) {
-							cloudCourse = cloudHelper.getCourse(cloudId);
-							cloudCourse.setLocalId(localCourse.getLocalId());
-							localHelper.saveCourse(cloudCourse, false);
-						} else if (localTime > cloudTime) {
-							if (localCourse.getCloudId() != null) {
+						if (cloudId == null) { // This indicates a course with no cloud counterpart.
+							cloudHelper.createCourse(localCourse);
+							localHelper.linkToCloud(localCourse);	
+						} else {
+							cloudTime = cloudHelper.getUpdateTime(cloudId);
+							if (localTime < cloudTime) { // This indicates new changes on the cloud;
+								cloudCourse = cloudHelper.getCourse(cloudId);
+								cloudCourse.setLocalId(localCourse.getLocalId());
+								localHelper.saveFromCloud(cloudCourse);
+							} else if (!localHelper.hasLocalChanges(localId)) { // This indicates new local changes.
 								cloudHelper.updateCourse(localCourse);
+								localHelper.linkToCloud(localCourse);
 							}
 						}
 					} catch (ParseException exception) {
-						exception.printStackTrace();
+						return null; // Give up on synchronization for now.
 					}
-				} else {
-					cloudHelper.createCourse(localCourse);
 				}
 			}
 			return null;

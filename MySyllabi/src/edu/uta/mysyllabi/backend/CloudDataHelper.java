@@ -27,18 +27,24 @@ public class CloudDataHelper {
 	}
 	
 	/* Creates new course on the cloud or updates an existing course. */
-	public void updateCourse(Course course) {
+	public void updateCourse(Course course) throws ParseException {
 		if (course.getCloudId() == null) { // Check whether a cloud ID is available.
 			throw new IllegalArgumentException("Course object is missing cloud ID!");
 		}
 		/* Update course on cloud with Parse-provided method. */
 		ParseObject cloudCourse = courseToParse(course);
-		cloudCourse.saveInBackground();
+		cloudCourse.save();
+		course.setUpdateTime(cloudCourse.getUpdatedAt().getTime());
 	}
 	
 	// Create new course on cloud with custom save behavior.
-	public void createCourse(Course course) {
-		new CourseCreator().execute(course); 
+	public Course createCourse(Course course) throws ParseException {
+		/* Save the course to the cloud. */
+		ParseObject cloudCourse = courseToParse(course);
+		cloudCourse.save();
+		course.setCloudId(cloudCourse.getObjectId());
+		course.setUpdateTime(cloudCourse.getUpdatedAt().getTime());
+		return course;
 	}
 	
 	/* Saves a new course to the cloud in a background thread. This is necessary in order to
@@ -60,8 +66,8 @@ public class CloudDataHelper {
 				return null;
 			}
 			/* Save the automatically returned ID to the local database for later reference. */
-		    LocalDataHelper localHelper = new LocalDataHelper();
-		    localHelper.addCloudId(course.getLocalId(), cloudCourse.getObjectId()); 
+		    //LocalDataHelper localHelper = new LocalDataHelper();
+		    //localHelper.addCloudId(course.getLocalId(), cloudCourse.getObjectId()); 
 		    
 			return null;
 		}
@@ -106,6 +112,7 @@ public class CloudDataHelper {
 		
 		/* Use hash map to create new Course object. */
 	    Course courseObject = new Course(null, parseObject.getObjectId());
+	    courseObject.setUpdateTime(parseObject.getUpdatedAt().getTime());
 	    courseObject.addContentFromMap(courseMap);
 		
 	    return courseObject;
@@ -131,7 +138,7 @@ public class CloudDataHelper {
 	}
 	
 	/* Dummy method. */
-	public static String[] getSchoolList(String state) {
+	public String[] getSchoolList(String state) {
 		if (state.equals(new String("Texas"))) {
 			String[] schools = {"University of Texas at Arlington", 
 								"University of Texas at Dallas", 

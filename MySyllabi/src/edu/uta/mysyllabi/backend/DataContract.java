@@ -34,8 +34,9 @@ public final class DataContract {
 	
 	
 	public static abstract class Course implements BaseColumns {
-		public static final String TABLE_NAME = "course_table";
-		public static final String UPDATES_TABLE_NAME = "course_updates_table";
+		public static final String TABLE_MAIN = "course_table";
+		public static final String TABLE_OBSOLETED_BY_LOCAL = "course_table_local";
+		public static final String TABLE_OBSOLETED_BY_CLOUD = "course_table_cloud";
 		
 		public static final String COLUMN_ID = "id"; // Internal use only.
 		public static final String COLUMN_CLOUD_ID = "cloud_id";

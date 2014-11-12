@@ -57,12 +57,12 @@ public class Course {
 	}
 	
 	public void addContentFromMap(Map<String, String> map) {
-		this.setName(map.get(COURSE_NAME));
-		this.section = map.get(COURSE_SECTION);
-		this.title = map.get(COURSE_TITLE);
-		this.school = map.get(COURSE_SCHOOL);
-		this.website = map.get(COURSE_WEBSITE);
-		this.semester = new SchoolSemester(map.get(COURSE_SEMESTER));
+		setName(map.get(COURSE_NAME));
+		setSection(map.get(COURSE_SECTION));
+		setTitle(map.get(COURSE_TITLE));
+		setSchool(map.get(COURSE_SCHOOL));
+		setWebsite(map.get(COURSE_WEBSITE));
+		setSemester(map.get(COURSE_SEMESTER));
 		
 		this.instructor.addContentFromMap(map, INSTRUCTOR_PREFIX);
 		this.teachingAssistant.addContentFromMap(map, TEACHING_ASSISTANT_PREFIX);
@@ -86,6 +86,26 @@ public class Course {
 		return map;
 	}
 	
+	public Map<String, String> getDifferenceMap(Course anotherCourse) {
+		Map<String, String> nativeMap = this.getContentMap();
+		Map<String, String> foreignMap = anotherCourse.getContentMap();
+		Map<String, String> differenceMap = new HashMap<String, String>();
+		List<String> keys = getContentKeys();
+		String nativeValue, foreignValue;
+		for (String nextKey : keys) {
+			nativeValue = nativeMap.get(nextKey);
+			foreignValue = foreignMap.get(nextKey);
+			if (foreignValue != null) {
+				if (!foreignValue.equals(nativeValue)) {
+					differenceMap.put(nextKey, foreignValue);
+				}
+			} else if (nativeValue != null) {
+				differenceMap.put(nextKey, "");
+			}
+		}
+		return differenceMap;		
+	}
+	
 	public List<String> getContentKeys() {
 		LinkedList<String> keyList = new LinkedList<String>();
 		for (int i = 0; i < contentKeys.length; i++) {
@@ -94,6 +114,10 @@ public class Course {
 		keyList.addAll(this.meeting.getContentKeys(MEETING_PREFIX));
 		keyList.addAll(this.instructor.getContentKeys(INSTRUCTOR_PREFIX));
 		return keyList;
+	}
+	
+	public boolean sharesContents(Course another) {
+		return this.getContentMap().equals(another.getContentMap());
 	}
 	
 	public HashMap<String,String> getPreviewMap() {
@@ -142,6 +166,9 @@ public class Course {
 	}
 	
 	public void setName(String name) {
+		if (name == null) {
+			return;
+		}
 		this.nameValidity = true;
 		name = name.replace(" ", "");
 		StringBuilder letters = new StringBuilder();
@@ -175,7 +202,9 @@ public class Course {
 	}
 	
 	public void setTitle(String title) {
-		this.title = title;
+		if (title != null) {
+			this.title = title;
+		}
 	}
 	
 	public String getSection() {
@@ -183,7 +212,9 @@ public class Course {
 	}
 	
 	public void setSection(String section) {
-		this.section = section;
+		if (section != null) {
+			this.section = section;
+		}
 	}
 	
 	public String getSchool() {
@@ -191,7 +222,9 @@ public class Course {
 	}
 	
 	public void setSchool(String school) {
-		this.school = school;
+		if (school != null) {
+			this.school = school;
+		}
 	}
 	
 	public SchoolSemester getSemester() {
@@ -203,7 +236,15 @@ public class Course {
 	}
 	
 	public void setSemester(String semester) {
-		this.semester = new SchoolSemester(semester);
+		if (semester != null) {
+			this.semester = new SchoolSemester(semester);
+		}
+	}
+	
+	public void setWebsite(String website) {
+		if (website != null) {
+			this.website = website;
+		}
 	}
 	
 	public Instructor getInstructor() {

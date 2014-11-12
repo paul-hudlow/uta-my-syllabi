@@ -3,7 +3,6 @@ package edu.uta.mysyllabi.frontend;
 import java.util.List;
 
 import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.backend.SynchronizationHelper;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
 import edu.uta.mysyllabi.datatypes.Instructor;
@@ -27,7 +26,6 @@ import android.widget.TextView;
 
 public class ViewCourseController extends ActionBarActivity {
 	private Controller controller;
-	private SynchronizationHelper synchronizer;
 	
 	public static final String KEY_COURSE_ID = "course_id";
 	public static final String KEY_PAGER_INDEX = "pager_index";
@@ -54,9 +52,8 @@ public class ViewCourseController extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_course);
         this.controller = new Controller();
-        this.synchronizer = new SynchronizationHelper();
         
-        synchronizer.synchronize();
+        controller.synchronize();
 
         // Create the adapter that will return a fragment for each of the
         // primary sections of the activity.
@@ -117,7 +114,7 @@ public class ViewCourseController extends ActionBarActivity {
     @Override
     protected void onStart() {
     	super.onStart();
-    	synchronizer.synchronize();
+    	controller.synchronize();
     }
     
     @Override

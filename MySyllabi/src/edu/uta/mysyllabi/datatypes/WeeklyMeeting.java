@@ -59,20 +59,10 @@ public class WeeklyMeeting {
 	}
 	
 	public void addContentFromMap(Map<String, String> map, String keyPrefix) {
-		try {
-			this.startTime = new TimeOfDay(Integer.parseInt(map.get(keyPrefix + START_TIME)));
-		} catch (NumberFormatException exception) {
-			this.startTime = null;
-		}
-		try {
-			this.endTime = new TimeOfDay(Integer.parseInt(map.get(keyPrefix + END_TIME)));
-		} catch (NumberFormatException exception) {
-			this.startTime = null;
-		}
-		if (map.get(keyPrefix + DAYS_OF_WEEK) != null) {
-			this.daysOfWeek = map.get(keyPrefix + DAYS_OF_WEEK).toCharArray();
-		}
-		this.location = map.get(keyPrefix + LOCATION);
+		setStartTime(map.get(keyPrefix + START_TIME));
+		setEndTime(map.get(keyPrefix + END_TIME));
+		setDaysOfWeek(map.get(keyPrefix + DAYS_OF_WEEK));
+		setLocation(map.get(keyPrefix + LOCATION));
 	}
 	
 	public Map<String, String> getContentMap(String keyPrefix) {
@@ -117,7 +107,9 @@ public class WeeklyMeeting {
 	}
 	
 	public void setDaysOfWeek(String days) {
-		this.daysOfWeek = days.toCharArray();
+		if (days != null) {
+			this.daysOfWeek = days.toCharArray();
+		}
 	}
 	
 	public void setDaysOfWeek(List<Integer> days) {
@@ -139,20 +131,40 @@ public class WeeklyMeeting {
 		return days.toString();
 	}
 
+	public void setStartTime(TimeOfDay time) {
+		this.startTime = time;
+	}
+	
 	public TimeOfDay getEndTime() {
 		return endTime;
 	}
 	
 	public void setEndTime(TimeOfDay time) {
-		endTime = time;
+		this.endTime = time;
 	}
 	
 	public TimeOfDay getStartTime() {
 		return startTime;
 	}
 	
-	public void setStartTime(TimeOfDay time) {
-		startTime = time;
+	public void setStartTime(String startTime) {
+		if (startTime != null) {
+			try {
+				this.startTime = new TimeOfDay(Integer.parseInt(startTime));
+			} catch (NumberFormatException exception) {
+				this.startTime = null;
+			}
+		}
+	}
+	
+	public void setEndTime(String endTime) {
+		if (endTime != null) {
+			try {
+				this.endTime = new TimeOfDay(Integer.parseInt(endTime));
+			} catch (NumberFormatException exception) {
+				this.endTime = null;
+			}
+		}
 	}
 	
 	public void setStartTime(int minutes) {
@@ -164,6 +176,8 @@ public class WeeklyMeeting {
 	}
 	
 	public void setLocation(String location) {
-		this.location = location;
+		if (location != null) {
+			this.location = location;
+		}
 	}
 }
