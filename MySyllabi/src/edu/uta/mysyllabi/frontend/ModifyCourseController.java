@@ -1,5 +1,6 @@
 package edu.uta.mysyllabi.frontend;
 
+import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.datatypes.Instructor;
 import edu.uta.mysyllabi.core.Controller;
@@ -14,10 +15,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
 
 public class ModifyCourseController extends Activity {
 	private Course course; // course object to be modified
+	private Course oldCourse; // course obsoleted by cloud update(s)
 	private Controller controller; // system controller for back-end operations
 	
 	/* key corresponding to the Course ID, passed in the Intent data */
@@ -63,30 +64,73 @@ public class ModifyCourseController extends Activity {
 		//		(EditText) findViewById(R.id.modify_instructor_office_hours_duration);
 		
 		/* Instantiate the system controller. */
-		this.controller = new Controller();
+		this.controller = MySyllabi.getAppController();
 		
 		/* Load the course object from back-end. */
 		this.course = controller.getCourse(getIntent().getStringExtra(KEY_COURSE_ID));
+		this.oldCourse = controller.getObsoleteCourse(course.getLocalId());
+		if (oldCourse == null) {
+			oldCourse = course;
+		}
 		
 		/* Load the course data into the input views. */
 		prepareInputViews();
 	}
 	
+	public void prepareText(TextView view, String start, String test) {
+		if (start != null) {
+			view.setText(start);
+			view.setTextColor(getResources().getColor(R.color.black));
+			if (!start.equals(test)) {
+				view.setTextColor(getResources().getColor(R.color.modified));
+				view.setOnLongClickListener(new RevertChangeListener(test));
+			}
+		} else if (test != null) {
+			view.setTextColor(getResources().getColor(R.color.modified));
+			view.setOnLongClickListener(new RevertChangeListener(test));
+		}
+	}
+	
+	protected class RevertChangeListener implements View.OnLongClickListener {
+				
+			private String backup;
+			private boolean reverted = false;
+			
+			public RevertChangeListener(String backup) {
+				this.backup = backup;
+			}
+			
+			@Override
+			public boolean onLongClick(View view) {
+				String current = ((TextView)view).getText().toString();
+				((TextView)view).setText(backup);
+				backup = current;
+				if (reverted) {
+					((TextView)view).setTextColor(getResources().getColor(R.color.modified));
+					reverted = false;
+				} else {
+					((TextView)view).setTextColor(getResources().getColor(R.color.black));
+					reverted = true;
+				}
+				return true;
+			}
+			
+		}
+	
 	public void prepareInputViews() {
 		/* Course Identity */
-		courseNameView.setText(course.getName());
-		courseTitleView.setText(course.getTitle());
-		courseSectionView.setText(course.getSection());
+		prepareText(courseNameView, course.getName(), oldCourse.getName());
+		prepareText(courseSectionView, course.getSection(), oldCourse.getSection());
+		prepareText(courseTitleView, course.getTitle(), oldCourse.getTitle());
 		
 		/* Class Meetings */
-		courseClassroomView.setText(course.getClassroom());
+		prepareText(courseClassroomView, course.getClassroom(), oldCourse.getClassroom());
 		if (course.getMeeting().isValid()) {
-			courseMeetingStartView.setText(course.getMeeting().getStartTime().toString(DateFormat.is24HourFormat(this)));
-			courseMeetingStartView.setTextColor(getResources().getColor(R.color.black));
-			courseMeetingEndView.setText(course.getMeeting().getEndTime().toString(DateFormat.is24HourFormat(this)));
-			courseMeetingEndView.setTextColor(getResources().getColor(R.color.black));
-			courseMeetingDaysView.setText(course.getMeeting().getDaysOfWeek());
-			courseMeetingDaysView.setTextColor(getResources().getColor(R.color.black));
+			prepareText(courseMeetingStartView, course.getMeeting().getStartTime().toString(DateFormat.is24HourFormat(this)),
+					oldCourse.getMeeting().getStartTime().toString(DateFormat.is24HourFormat(this)));
+			prepareText(courseMeetingEndView, course.getMeeting().getEndTime().toString(DateFormat.is24HourFormat(this)),
+					oldCourse.getMeeting().getEndTime().toString(DateFormat.is24HourFormat(this)));
+			prepareText(courseMeetingDaysView, course.getMeeting().getDaysOfWeek(), oldCourse.getMeeting().getDaysOfWeek());
 		} else {
 			course.setMeeting(new WeeklyMeeting());
 		}
@@ -96,12 +140,13 @@ public class ModifyCourseController extends Activity {
 		
 		/* Instructor Information */
 		Instructor instructor = course.getInstructor();
+		Instructor oldInstructor = oldCourse.getInstructor();
 		if (instructor.isValid()) {
-			instructorFirstNameView.setText(instructor.getFirstName());
-			instructorLastNameView.setText(instructor.getLastName());
-			instructorPhoneView.setText(instructor.getPhoneNumber());
-			instructorEmailView.setText(instructor.getEmailAddress());
-			instructorOfficeView.setText(instructor.getOfficeId());
+			prepareText(instructorFirstNameView, instructor.getFirstName(), oldInstructor.getFirstName());
+			prepareText(instructorLastNameView, instructor.getLastName(), oldInstructor.getLastName());
+			prepareText(instructorPhoneView, instructor.getPhoneNumber(), oldInstructor.getPhoneNumber());
+			prepareText(instructorEmailView, instructor.getEmailAddress(), oldInstructor.getEmailAddress());
+			prepareText(instructorOfficeView, instructor.getOfficeId(), oldInstructor.getOfficeId());
 		} else {
 			course.setInstructor(new Instructor());
 		}
@@ -157,11 +202,7 @@ public class ModifyCourseController extends Activity {
 		/* Update back-end course data. */
 		controller.updateCourse(course);
 		
-		/* Start view course activity. */
-		Intent intent = new Intent(this, ViewCourseController.class);
-		intent.putExtra(ViewCourseController.KEY_COURSE_ID, course.getLocalId());
-		this.startActivity(intent);
-		this.setResult(RESULT_OK);
+		/* Finish the activity. */
 		this.finish();
 	}
 

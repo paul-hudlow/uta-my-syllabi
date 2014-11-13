@@ -187,6 +187,10 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		return getCourse(localId, DataContract.Course.TABLE_MAIN);
 	}
 	
+	public Course getObsoleteCourse(String localId) {
+		return getCourse(localId, DataContract.Course.TABLE_OBSOLETED_BY_CLOUD);
+	}
+	
 	public Course getCourse(String localId, String tableName) {
 		SQLiteDatabase database = this.getReadableDatabase();
 		
@@ -195,12 +199,24 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 				DataContract.Course.COLUMN_ID + " = " + localId, null, null, null, null);
 		
 		if (!tableCursor.moveToFirst()) {
+			database.close();
 			return null; // Return null if cursor is empty.
 		}
 		
 		Course course = courseFromCursor(tableCursor);
 		database.close();
 		return course;
+	}
+	
+	public List<Course> getAllUpdatedCourses() {
+		List<Course> courseList = getAllCourses();
+		LinkedList<Course> updateList = new LinkedList<Course>();
+		for (Course nextCourse : courseList) {
+			if (getObsoleteCourse(nextCourse.getLocalId()) != null) {
+				updateList.add(nextCourse);
+			}
+		}
+		return updateList;
 	}
 	
 	public List<Course> getAllCourses() {
@@ -211,6 +227,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		
 		LinkedList<Course> courseList = new LinkedList<Course>();
 		if (!tableCursor.moveToFirst()) {
+			database.close();
 			return courseList;
 		}
 		
@@ -299,6 +316,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		ArrayList<String> courseKeys = new ArrayList<String>();
 		
 		if (!tableCursor.moveToFirst()) {
+			database.close();
 			return courseKeys; // Return empty array if cursor is empty.
 		}
 		
@@ -320,11 +338,13 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 				DataContract.Settings.COLUMN_SETTING + " = ?", new String[]{DataContract.Settings.KEY_SCHOOL}, null, null, null);
 		
 		if (!tableCursor.moveToFirst()) {
+			database.close();
 			return null; // Return null if cursor is empty.
 		}
 		
 		int schoolIndex = tableCursor.getColumnIndex(DataContract.Settings.COLUMN_VALUE);
 		if (tableCursor.isNull(schoolIndex)) {
+			database.close();
 			return null;
 		}
 		

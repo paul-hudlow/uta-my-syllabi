@@ -3,6 +3,7 @@ package edu.uta.mysyllabi.frontend;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
@@ -55,7 +56,7 @@ public class CreateCourseController extends ActionBarActivity
 		this.courseName = (EditText) findViewById(R.id.create_course_name);
 		this.courseSection = (EditText) findViewById(R.id.create_course_section);
 		this.courseList = (ListView) findViewById(R.id.create_course_list);
-		this.controller = new Controller();
+		this.controller = MySyllabi.getAppController();
 		
 		/* Set this activity as listener for view content changes. */
 		this.courseName.addTextChangedListener(this);

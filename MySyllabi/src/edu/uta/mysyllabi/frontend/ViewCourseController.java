@@ -2,6 +2,7 @@ package edu.uta.mysyllabi.frontend;
 
 import java.util.List;
 
+import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
@@ -51,9 +52,7 @@ public class ViewCourseController extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_course);
-        this.controller = new Controller();
-        
-        controller.synchronize();
+        this.controller = MySyllabi.getAppController();
 
         // Create the adapter that will return a fragment for each of the
         // primary sections of the activity.
@@ -91,30 +90,47 @@ public class ViewCourseController extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_create_course) {
-    		Intent intent = new Intent(this, CreateCourseController.class);
-    		startActivityForResult(intent, REQUEST_FINISH);
-        } else if (id == R.id.action_delete_course && pager.getChildCount() > 0) {
-        	int pagerPosition = pager.getCurrentItem();
-        	controller.deleteCourse(pagerAdapter.courseList.get(pagerPosition));
-        	pagerAdapter = new CoursePagerAdapter(getSupportFragmentManager());
-            pager.setAdapter(pagerAdapter);
-            if (pagerPosition > 1) {
-            	pager.setCurrentItem(pagerPosition - 1);
-            }
-        } else if (id == R.id.action_modify_course && pager.getChildCount() > 0) {
-        	String courseId = pagerAdapter.courseList.get(pager.getCurrentItem());
-        	modifyCourse(courseId);
+        Intent newIntent;
+        
+        switch (id) {
+        case R.id.action_settings:
+        	return true;
+        case R.id.action_create_course:
+        	 newIntent = new Intent(this, CreateCourseController.class);
+    		startActivityForResult(newIntent, REQUEST_FINISH);
+    		break;
+        case R.id.action_delete_course:
+        	if (pager.getChildCount() > 0) {
+        		int pagerPosition = pager.getCurrentItem();
+            	controller.deleteCourse(pagerAdapter.courseList.get(pagerPosition));
+            	pagerAdapter = new CoursePagerAdapter(getSupportFragmentManager());
+                pager.setAdapter(pagerAdapter);
+                if (pagerPosition > 1) {
+                	pager.setCurrentItem(pagerPosition - 1);
+                }
+        	}
+        	break;
+        case R.id.action_modify_course:
+        	if (pager.getChildCount() > 0) {
+        		String courseId = pagerAdapter.courseList.get(pager.getCurrentItem());
+            	modifyCourse(courseId);
+        	}
+        	break;
+        case R.id.action_view_updates:
+        	newIntent = new Intent(this, ViewUpdatesController.class);
+    		startActivityForResult(newIntent, REQUEST_FINISH);
+    		break;
+        case R.id.action_refresh:
+        	refreshData();
         }
+        
         return super.onOptionsItemSelected(item);
     }
     
     @Override
-    protected void onStart() {
-    	super.onStart();
-    	controller.synchronize();
+    protected void onResume() {
+    	super.onResume();
+    	refreshView();
     }
     
     @Override
@@ -125,11 +141,28 @@ public class ViewCourseController extends ActionBarActivity {
         }
     }
     
+    public void refreshView() {
+    	int currentIndex = pager.getCurrentItem();
+    	pagerAdapter = new CoursePagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(pagerAdapter);
+        pager.setCurrentItem(currentIndex);
+    }
+    
+    public void refreshData() {
+    	Controller.CallBack callBack = new Controller.CallBack() {
+			@Override
+			public void onPostExecute() {
+				refreshView();
+			}
+    	};
+    	controller.synchronize(callBack);
+    }
+    
     public void modifyCourse(String courseId) {
     	Intent intent = new Intent(this, ModifyCourseController.class);
 		intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
 		startActivityForResult(intent, REQUEST_FINISH);
-    }    
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -193,7 +226,7 @@ public class ViewCourseController extends ActionBarActivity {
             setText(R.id.view_course_title, course.getTitle());
             
             Instructor instructor = course.getInstructor();
-            if (instructor != null && instructor.getName() != null && instructor.getName().length() > 1) {
+            if (instructor.isValid()) {
             	
             	setText(R.id.view_instructor_name, instructor.getName());
             	setText(R.id.view_instructor_email, instructor.getEmailAddress());

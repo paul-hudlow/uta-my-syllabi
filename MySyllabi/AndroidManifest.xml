@@ -9,11 +9,11 @@
         android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
-    
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+
     <application
         android:name=".MySyllabi"
         android:allowBackup="true"
@@ -21,15 +21,16 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="edu.uta.mysyllabi.frontend.ViewCourseController"
+            android:name=".frontend.ViewCourseController"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.uta.mysyllabi.frontend.CreateCourseController"
+            android:name=".frontend.CreateCourseController"
             android:label="@string/title_activity_create_course" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -40,16 +41,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.uta.mysyllabi.frontend.ModifyCourseController"
+            android:name=".frontend.ModifyCourseController"
             android:label="@string/title_activity_modify_course" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uta.mysyllabi.frontend.ViewCourseController" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        
+        <activity
+            android:name="edu.uta.mysyllabi.frontend.ViewUpdatesController"
+            android:label="@string/title_activity_view_updates"
+            android:parentActivityName=".frontend.ViewCourseController" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uta.mysyllabi.frontend.ViewCourseController" />
+        </activity>
     </application>
 
 </manifest>
