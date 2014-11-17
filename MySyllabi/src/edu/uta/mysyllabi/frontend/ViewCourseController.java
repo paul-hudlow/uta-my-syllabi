@@ -6,8 +6,8 @@ import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
-import edu.uta.mysyllabi.datatypes.Instructor;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
+import edu.uta.mysyllabi.core.Instructor;
+import edu.uta.mysyllabi.core.WeeklyMeeting;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
@@ -97,7 +97,7 @@ public class ViewCourseController extends ActionBarActivity {
         	return true;
         case R.id.action_create_course:
         	 newIntent = new Intent(this, CreateCourseController.class);
-    		startActivityForResult(newIntent, REQUEST_FINISH);
+    		startActivity(newIntent);
     		break;
         case R.id.action_delete_course:
         	if (pager.getChildCount() > 0) {
@@ -118,7 +118,7 @@ public class ViewCourseController extends ActionBarActivity {
         	break;
         case R.id.action_view_updates:
         	newIntent = new Intent(this, ViewUpdatesController.class);
-    		startActivityForResult(newIntent, REQUEST_FINISH);
+    		startActivity(newIntent);
     		break;
         case R.id.action_refresh:
         	refreshData();

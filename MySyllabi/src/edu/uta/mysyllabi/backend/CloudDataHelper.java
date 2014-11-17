@@ -140,12 +140,17 @@ public class CloudDataHelper {
 	/* Dummy method. */
 	public String[] getSchoolList(String state) {
 		if (state.equals(new String("Texas"))) {
-			String[] schools = {"University of Texas at Arlington", 
-								"University of Texas at Dallas", 
+			String[] schools = {"University of Texas at Dallas", 
+								"University of Texas at Arlington", 
 								"Tarrant County Community College"};
 			return schools;
+		} else if (state.equals(new String("Alabama"))) {
+			String[] schools = {"Amridge University", 
+								"Alabama State University", 
+								"Alabama Agricultural and Mechanical University"};
+			return schools;			
 		} else {
-			String[] schools = {"Not a Cool One"};
+			String[] schools = {"Other"};
 			return schools;
 		}
 	}

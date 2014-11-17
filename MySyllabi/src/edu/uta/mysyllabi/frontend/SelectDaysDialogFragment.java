@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
+import edu.uta.mysyllabi.core.WeeklyMeeting;
 
 public class SelectDaysDialogFragment extends DialogFragment implements View.OnClickListener {
 	public static final String TAG_STRING = "select_days";

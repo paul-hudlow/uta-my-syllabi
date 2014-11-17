@@ -7,7 +7,7 @@ import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
-import edu.uta.mysyllabi.datatypes.SchoolSemester;
+import edu.uta.mysyllabi.core.SchoolSemester;
 
 import android.support.v7.app.ActionBarActivity;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -153,11 +153,10 @@ public class CreateCourseController extends ActionBarActivity
 		String courseId = controller.createCourse(course);
 		
 		/* Start the view course activity, telling it to forward to the modify course activity. */
-		Intent intent = new Intent(this, ViewCourseController.class);
+		Intent intent = new Intent(this, ModifyCourseController.class);
 		intent.putExtra(ViewCourseController.KEY_COURSE_ID, courseId);
 		intent.putExtra(ViewCourseController.KEY_MODIFY_COURSE, true);
 		this.startActivity(intent);
-		this.setResult(RESULT_OK);
 		this.finish();
 	}
 	

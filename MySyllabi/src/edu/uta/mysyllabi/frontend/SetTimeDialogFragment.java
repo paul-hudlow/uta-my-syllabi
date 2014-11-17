@@ -1,8 +1,8 @@
 package edu.uta.mysyllabi.frontend;
 
 import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.datatypes.TimeOfDay;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
+import edu.uta.mysyllabi.core.TimeOfDay;
+import edu.uta.mysyllabi.core.WeeklyMeeting;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -32,18 +32,19 @@ public class SetTimeDialogFragment extends DialogFragment
 		this.activity = activity;
 		this.meeting = meeting;
 		this.isEnd = isEnd;
-		
-		if (isEnd) {
-			this.time = meeting.getEndTime();
-		} else {
-			this.time = meeting.getStartTime();
-		}
 	}
 	
 	@Override
 	public void onClick(View view) {
 		this.hostView = (TextView) view;
 		this.show(activity.getFragmentManager(), TAG_STRING);
+		
+		if (isEnd) {
+			this.time = meeting.getEndTime();
+		} else {
+			this.time = meeting.getStartTime();
+		}
+		
 	}
 	
 	@Override

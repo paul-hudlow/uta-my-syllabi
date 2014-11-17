@@ -1,4 +1,4 @@
-package edu.uta.mysyllabi.datatypes;
+package edu.uta.mysyllabi.core;
 
 public class TimeOfDay {
 	public static final int MAX_HOUR = 23;

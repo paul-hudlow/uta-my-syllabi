@@ -30,7 +30,7 @@ public class SynchronizationHelper {
 							cloudCourse = cloudHelper.getCourse(cloudId);
 							cloudCourse.setLocalId(localCourse.getLocalId());
 							localHelper.saveFromCloud(cloudCourse);
-						} else if (!localHelper.hasLocalChanges(localId)) { // This indicates new local changes.
+						} else if (localHelper.hasLocalChanges(localId)) { // This indicates new local changes.
 							cloudHelper.updateCourse(localCourse);
 							localHelper.linkToCloud(localCourse);
 						}

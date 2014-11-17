@@ -9,28 +9,22 @@ import edu.uta.mysyllabi.backend.*;
 
 public class Controller {
 	
-	public interface CallBack {
-		
-		public void onPostExecute();
-		
-	}
-	
 	private LocalDataHelper localHelper = new LocalDataHelper();
 	private CloudDataHelper cloudHelper = new CloudDataHelper();
 	private SynchronizationHelper syncHelper = new SynchronizationHelper();
 	private Synchronizer synchronizer;
 	
+	/* The CallBack interface provides the simplest possible callback functionality. */
+	public interface CallBack {
+		public void onPostExecute();
+	}
+	
+	/* Retrieves the latest school selection from the local database. */
 	public String getLatestSchool() {
 		return localHelper.getLatestSchool();
 	}
 	
-	//public void addCourse(String cloudId) {
-	//	CloudDataHelper cloudHelper = new CloudDataHelper();
-	//	Course cloudCourse = cloudHelper.getCourse(cloudId);
-	//	LocalDataHelper localData = new LocalDataHelper();
-	//	localData.saveCourse(cloudCourse);
-	//}
-	
+	/* Starts a synchronization with the cloud only if one it not already in progress. */
 	public void synchronize(CallBack callBack) {
 		if (synchronizer == null || synchronizer.getStatus() == AsyncTask.Status.FINISHED) {
 			synchronizer = new Synchronizer(callBack);
@@ -38,6 +32,8 @@ public class Controller {
 		}
 	}
 	
+	/* The Synchronizer class executes the cloud synchronization code in a background thread
+	 * and then executes the CallBack if one is provided. */
 	protected class Synchronizer extends AsyncTask<Void, Void, Void> {
 
 		private CallBack callBack;
@@ -61,32 +57,26 @@ public class Controller {
 		
 	}
 	
+	/* Saves new course data to the local database and initiates a synchronization. */
 	public void updateCourse(Course course) {
 		localHelper.saveFromLocal(course);
 		synchronize(null);
-		/*if (!course.isLocked()) {
-			if (course.getCloudId() == null) {
-				course.setCloudId(localData.getCloudId(course.getLocalId()));
-			}
-			if (course.getCloudId() == null) {
-				return;
-			}
-			CloudDataHelper cloudData = new CloudDataHelper();
-			cloudData.updateCourse(course);
-		}*/
 	}
 	
+	/* Creates a new course in the local database and initiates a synchronization. */
 	public String createCourse(Course course) {
 		String localId = localHelper.createCourse(course);
 		synchronize(null);
 		return localId;
 	}
 	
+	/* Retrieves a Course object from the local database. */
 	public Course getCourse(String localId) {
 		LocalDataHelper localData = new LocalDataHelper();
 		return localData.getCourse(localId);
 	}
 	
+	/* Retrieves all course IDs from the local database. */
 	public List<String> getCourseList() {
 		LocalDataHelper localData = new LocalDataHelper();
 		return localData.getCourseKeys();

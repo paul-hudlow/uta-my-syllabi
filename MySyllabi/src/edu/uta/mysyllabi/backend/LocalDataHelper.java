@@ -11,6 +11,7 @@ import edu.uta.mysyllabi.core.Course;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocalDataHelper extends SQLiteOpenHelper {
@@ -76,8 +77,35 @@ public class LocalDataHelper extends SQLiteOpenHelper {
     	database.execSQL("DROP TABLE IF EXISTS " + tableName);
     }
 	
-	public String createCourse(Course course) {
-		return saveCourse(course, DataContract.Course.TABLE_MAIN);
+    public String createCourse(Course course) {
+		return createCourse(course, DataContract.Course.TABLE_MAIN);
+	}
+    
+	public String createCourse(Course course, String tableName) {
+		
+		/* If a course with the same cloudId already exists, simple return its localId */
+		String courseId;
+		if (course.getCloudId() != null) {
+			courseId = getLocalId(course.getCloudId(), tableName);
+			if (courseId != null) {
+				return courseId;
+			}
+		}
+		
+		SQLiteDatabase database = this.getWritableDatabase();
+		
+		ContentValues values = courseToValues(course);
+		long id = database.insertWithOnConflict(tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+	   	courseId = Long.toString(id);   
+	   	
+	   	values = new ContentValues();
+		values.put(DataContract.Settings.COLUMN_SETTING, DataContract.Settings.KEY_SCHOOL);
+		values.put(DataContract.Settings.COLUMN_VALUE, course.getSchool());
+		database.replace(DataContract.Settings.TABLE_NAME, null, values);
+		
+	    database.close();
+		
+		return courseId;
 	}
 	
     /* Updates course data (based on the localId of the provided Course object) in the local
@@ -99,9 +127,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		/* Store the obsoleted course for the purpose of synchronization, but only if an obsoleted
 		 * version of the course does not already exist. */
 		Course currentCourse = getCourse(course.getLocalId());
-		if (!courseExists(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_CLOUD)) {
-			saveCourse(currentCourse, DataContract.Course.TABLE_OBSOLETED_BY_CLOUD);
-		}
+		createCourse(currentCourse, DataContract.Course.TABLE_OBSOLETED_BY_CLOUD);
 		
 		/* If changes have been made by the user since the last synchronization, merge the changes
 		 * rather than overwriting them. */		
@@ -114,7 +140,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			currentCourse = course;
 		}
 		
-		saveCourse(currentCourse, DataContract.Course.TABLE_MAIN);
+		updateCourse(currentCourse, DataContract.Course.TABLE_MAIN);
 	}
 	
 	/* Saves changes that come from the local user interface. */
@@ -128,18 +154,20 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		if (oldCourse.sharesContents(course)) {
 			return;
 		} else {
-			saveCourse(course, DataContract.Course.TABLE_MAIN);
+			updateCourse(course, DataContract.Course.TABLE_MAIN);
 			
 			/* Store the obsoleted course data for the purpose of synchronization, but only if 
 			 * an obsoleted version does not already exist. */
-			if (!courseExists(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_LOCAL)) {
-				saveCourse(oldCourse, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
-			}
+			createCourse(oldCourse, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
 		}
 	}
 	
-	public String saveCourse(Course course, String tableName) {
+	public ContentValues courseToValues(Course course) {
 		ContentValues values = new ContentValues();
+		
+		if (course.getLocalId() != null) {
+			values.put(DataContract.Course.COLUMN_ID, course.getLocalId());
+		}
 		
 		if (course.getCloudId() != null) {
 			values.put(DataContract.Course.COLUMN_CLOUD_ID, course.getCloudId());
@@ -162,25 +190,27 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 				values.put(nextKey, nextValue);
 			}
 		}
-	    
+		
+		return values;
+	}
+	
+	public void updateCourse(Course course, String tableName) {
+		
+		ContentValues values = courseToValues(course);
+		
 	    String courseId = course.getLocalId();
 	    
 	    SQLiteDatabase database = this.getWritableDatabase();
-	    if (courseId == null) {
-	    	long id = database.insert(tableName, null, values);
-	    	courseId = Long.toString(id);
-	    } else {
-	    	values.put(DataContract.Course.COLUMN_ID, courseId);
-	    	database.replace(tableName, null, values);
-	    }
-	    
-		values = new ContentValues();
-		values.put(DataContract.Settings.COLUMN_SETTING, DataContract.Settings.KEY_SCHOOL);
-		values.put(DataContract.Settings.COLUMN_VALUE, course.getSchool());
-		database.replace(DataContract.Settings.TABLE_NAME, null, values);
 
-		database.close();
-	    return courseId;
+	    int rowsUpdated = database.update(tableName, values, 
+	    		DataContract.Course.COLUMN_ID + " = " + courseId, null);
+	    
+	    database.close();
+	    
+	    if (rowsUpdated < 1) {
+	    	throw new SQLiteException("Course does not exist!");
+	    }
+
 	}
 	
 	public Course getCourse(String localId) {
@@ -240,13 +270,23 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		return courseList;
 	}
 	
-	public boolean courseExists(String localId, String tableName) {
-		Course testCourse = getCourse(localId, tableName);
-		if (testCourse == null) {
-			return false;
-		} else {
-			return true;
+	public String getLocalId(String cloudId, String tableName) {
+		SQLiteDatabase database = this.getReadableDatabase();
+		
+		String[] column = {DataContract.Course.COLUMN_ID};
+		
+		Cursor tableCursor = database.query(tableName, column, 
+				DataContract.Course.COLUMN_CLOUD_ID + " = ?", new String[]{cloudId}, null, null, null, null);
+		
+		if (!tableCursor.moveToFirst()) {
+			database.close();
+			return null;
 		}
+		
+		int localIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_ID);
+		String localId = tableCursor.getString(localIdIndex);
+		database.close();
+		return localId;
 	}
 	
 	public void deleteCourse(String localId) {
@@ -265,7 +305,8 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 	
 	/* Checks to see if the any local changes have been made since the last successful synchronization. */
 	public boolean hasLocalChanges(String localId) {
-		if (courseExists(localId, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL)) {
+		Course testCourse = getCourse(localId, DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
+		if (testCourse == null) {
 			return false;
 		} else {
 			return true;

@@ -2,10 +2,10 @@ package edu.uta.mysyllabi.frontend;
 
 import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
-import edu.uta.mysyllabi.datatypes.Instructor;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
+import edu.uta.mysyllabi.core.Instructor;
+import edu.uta.mysyllabi.core.WeeklyMeeting;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.format.DateFormat;

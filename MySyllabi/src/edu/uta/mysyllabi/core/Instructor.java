@@ -1,9 +1,10 @@
-package edu.uta.mysyllabi.datatypes;
+package edu.uta.mysyllabi.core;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 
 
 public class Instructor {
@@ -106,6 +107,9 @@ public class Instructor {
 	public void setLastName(String lastName) {
 		if (lastName != null) {
 			this.lastName = lastName.replace(" ", "");
+			if (this.lastName.length() <= 0) {
+				this.lastName = null;
+			}
 		}
 	}
 	

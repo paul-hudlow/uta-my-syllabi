@@ -5,9 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import edu.uta.mysyllabi.datatypes.Instructor;
-import edu.uta.mysyllabi.datatypes.SchoolSemester;
-import edu.uta.mysyllabi.datatypes.WeeklyMeeting;
 
 public class Course {
 	private String localId;
