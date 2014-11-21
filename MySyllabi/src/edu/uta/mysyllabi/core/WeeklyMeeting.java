@@ -5,9 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
-
-public class WeeklyMeeting {
+public class WeeklyMeeting implements Mappable.Child {
 	private TimeOfDay startTime; // in minutes from midnight
 	private TimeOfDay endTime;
 	private char[] daysOfWeek = {'n','n','n','n','n','n','n'}; // Array has length 7 and indicates each meeting day with the character 'y'.
@@ -59,7 +57,7 @@ public class WeeklyMeeting {
 		return keyList;
 	}
 	
-	public void addContentFromMap(Map<String, String> map, String keyPrefix) {
+	public void addContent(Map<String, String> map, String keyPrefix) {
 		setStartTime(map.get(keyPrefix + START_TIME));
 		setEndTime(map.get(keyPrefix + END_TIME));
 		setDaysOfWeek(map.get(keyPrefix + DAYS_OF_WEEK));

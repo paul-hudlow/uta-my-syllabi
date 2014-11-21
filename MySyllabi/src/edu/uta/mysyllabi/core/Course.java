@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Course {
+public class Course implements Mappable, Listable {
 	private String localId;
 	private String cloudId;
 	private String nameLetters;
@@ -53,7 +53,7 @@ public class Course {
 		this.cloudId = cloudId;
 	}
 	
-	public void addContentFromMap(Map<String, String> map) {
+	public void addContent(Map<String, String> map) {
 		setName(map.get(COURSE_NAME));
 		setSection(map.get(COURSE_SECTION));
 		setTitle(map.get(COURSE_TITLE));
@@ -61,9 +61,9 @@ public class Course {
 		setWebsite(map.get(COURSE_WEBSITE));
 		setSemester(map.get(COURSE_SEMESTER));
 		
-		this.instructor.addContentFromMap(map, INSTRUCTOR_PREFIX);
-		this.teachingAssistant.addContentFromMap(map, TEACHING_ASSISTANT_PREFIX);
-		this.meeting.addContentFromMap(map, MEETING_PREFIX);
+		this.instructor.addContent(map, INSTRUCTOR_PREFIX);
+		this.teachingAssistant.addContent(map, TEACHING_ASSISTANT_PREFIX);
+		this.meeting.addContent(map, MEETING_PREFIX);
 	}
 
 	public Map<String, String> getContentMap() {

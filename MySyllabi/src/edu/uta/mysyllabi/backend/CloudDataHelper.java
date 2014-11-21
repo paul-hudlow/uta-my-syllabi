@@ -95,25 +95,28 @@ public class CloudDataHelper {
 	    return parseObject;
 	}
 	
-	/* Convert a ParseObject object to a Course object. */
-	private Course parseToCourse(ParseObject parseObject) {
-		
+	private Map<String, String> getMap(ParseObject parseObject) {
 		Set<String> keys = parseObject.keySet();
 		
 		/* Build a hash map with course contents. */
-		HashMap<String, String> courseMap = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		String nextValue;
 		for (String nextKey : keys) {
 			nextValue = parseObject.getString(nextKey);
 			if (nextValue != null) {
-				courseMap.put(nextKey, nextValue);
+				map.put(nextKey, nextValue);
 			}
 		}
+		return map;
+	}
+	
+	/* Convert a ParseObject object to a Course object. */
+	private Course parseToCourse(ParseObject parseObject) {
 		
-		/* Use hash map to create new Course object. */
+		/* Use map to create new Course object. */
 	    Course courseObject = new Course(null, parseObject.getObjectId());
 	    courseObject.setUpdateTime(parseObject.getUpdatedAt().getTime());
-	    courseObject.addContentFromMap(courseMap);
+	    courseObject.addContent(getMap(parseObject));
 		
 	    return courseObject;
 	}

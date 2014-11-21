@@ -134,7 +134,7 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		Course oldCourse = getCourse(course.getLocalId(), DataContract.Course.TABLE_OBSOLETED_BY_LOCAL);
 		if (oldCourse != null) {
 			Map<String, String> changes = oldCourse.getDifferenceMap(course);
-			currentCourse.addContentFromMap(changes);
+			currentCourse.addContent(changes);
 			currentCourse.setUpdateTime(course.getUpdateTime());
 		} else {
 			currentCourse = course;
@@ -313,6 +313,17 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 		}
 	}
 	
+	private Map<String, String> getMap(Cursor tableCursor) {
+		HashMap<String, String> map = new HashMap<String, String>();
+		String[] keys = tableCursor.getColumnNames();
+		for (int i = 0; i < keys.length; i++) {
+			if (tableCursor.getType(i) == Cursor.FIELD_TYPE_STRING) {
+				map.put(keys[i], tableCursor.getString(i));
+			}
+		}
+		return map;
+	}
+	
 	private Course courseFromCursor(Cursor tableCursor) {
 		int localIdIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_ID);
 		String localId = tableCursor.getString(localIdIndex);
@@ -323,16 +334,8 @@ public class LocalDataHelper extends SQLiteOpenHelper {
 			cloudId = tableCursor.getString(cloudIdIndex);
 		}
 		
-		HashMap<String, String> courseMap = new HashMap<String, String>();
-		String[] keys = tableCursor.getColumnNames();
-		for (int i = 0; i < keys.length; i++) {
-			if (tableCursor.getType(i) == Cursor.FIELD_TYPE_STRING) {
-				courseMap.put(keys[i], tableCursor.getString(i));
-			}
-		}
-		
 		Course localCourse = new Course(localId, cloudId);
-		localCourse.addContentFromMap(courseMap);
+		localCourse.addContent(getMap(tableCursor));
 
 		int cloudCheckIndex = tableCursor.getColumnIndex(DataContract.Course.COLUMN_LOCKED);
 		if (tableCursor.getInt(cloudCheckIndex) == DataContract.Course.LOCKED_TRUE) {

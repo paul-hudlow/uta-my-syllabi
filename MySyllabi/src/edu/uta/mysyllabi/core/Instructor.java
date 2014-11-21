@@ -7,7 +7,7 @@ import java.util.Map;
 
 
 
-public class Instructor {
+public class Instructor implements Mappable.Child {
 	private String firstName;
 	private String lastName;
 	private String office;
@@ -75,14 +75,14 @@ public class Instructor {
 		return keyList;
 	}
 
-	public void addContentFromMap(Map<String, String> map, String keyPrefix) {
+	public void addContent(Map<String, String> map, String keyPrefix) {
 		setFirstName(map.get(keyPrefix + FIRST_NAME));
 		setLastName(map.get(keyPrefix + LAST_NAME));
 		setEmailAddress(map.get(keyPrefix + EMAIL));
 		setPhoneNumber(map.get(keyPrefix + PHONE));
 		setOfficeId(map.get(keyPrefix + OFFICE));
 		
-		this.officeHours.addContentFromMap(map, keyPrefix + OFFICE_HOURS_PREFIX);
+		this.officeHours.addContent(map, keyPrefix + OFFICE_HOURS_PREFIX);
 	}
 	
 	public String getName() {
