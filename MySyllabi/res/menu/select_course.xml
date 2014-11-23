@@ -33,5 +33,11 @@
         android:orderInCategory="50"
         android:title="@string/title_activity_modify_course"
         app:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/action_list_events"
+        android:orderInCategory="50"
+        android:title="@string/title_activity_list_events"
+        app:showAsAction="never"/>
 
 </menu>

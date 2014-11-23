@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context="edu.uta.mysyllabi.frontend.UpdatesFromCloudController" >
+    
+	<View
+    	style="@style/Divider"/>
+    
+    <!-- display courses from the cloud -->
+
+	<ListView
+	    android:id="@+id/update_from_cloud_list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+    
+	<!-- finish creating course -->
+    
+</LinearLayout>

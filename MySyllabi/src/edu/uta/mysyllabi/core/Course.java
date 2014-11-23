@@ -54,6 +54,12 @@ public class Course implements Mappable, Listable {
 		this.cloudId = cloudId;
 	}
 	
+	@Override
+	public String toString(){
+		return getName();
+	}
+	
+	
 	public void addContent(Map<String, String> map) {
 		setName(map.get(COURSE_NAME));
 		setSection(map.get(COURSE_SECTION));

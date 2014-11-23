@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class Event implements Mappable {
+public class Event implements Mappable,Listable.Detailed {
 	String localId;
 	String cloudId;
 	Date date;
@@ -47,18 +47,18 @@ public class Event implements Mappable {
 		setName(contentMap.get(NAME));
 	}
 	
-	private void setName(String name) {
+	public void setName(String name) {
 		if (name != null) {
 			this.name = name;
 		}
 	}
 	
-	private void setLocation(String location) {
+	public void setLocation(String location) {
 		if (location != null) {
 			this.location = location;
 		}
 	}
-	private void setDate(String milliseconds) {
+	public void setDate(String milliseconds) {
 		if (milliseconds != null) {
 			try {
 				this.date = new Date(Long.parseLong(milliseconds));
@@ -66,5 +66,38 @@ public class Event implements Mappable {
 				this.date = null;
 			}
 		}
+	}
+	
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public String getLocation() {
+		return this.location;
+	}
+	
+	public String getDate() {
+		return this.date.toString();
+	}
+	public String getLocalId() {
+		// TODO Auto-generated method stub
+		
+		return "quiz 4";
+	}
+	
+	@Override
+	public Map<String, String> getPreviewMap() {
+		
+		HashMap<String,String> previewMap = new HashMap<String,String>();
+		previewMap.put(Listable.PREVIEW_TITLE, this.getName());
+		previewMap.put(Listable.PREVIEW_SUBTITLE, "CSE 1234");
+		previewMap.put(Listable.PREVIEW_SECOND_LINE, this.getDate());
+		previewMap.put(Listable.Detailed.PREVIEW_THIRD_LINE, this.getLocation());
+		previewMap.put(Listable.Detailed.PREVIEW_FOURTH_LINE, "");
+		return previewMap;
 	}
 }

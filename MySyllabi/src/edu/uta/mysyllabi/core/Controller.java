@@ -1,10 +1,10 @@
 package edu.uta.mysyllabi.core;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import android.os.AsyncTask;
-
 import edu.uta.mysyllabi.backend.*;
 
 public class Controller {
@@ -30,6 +30,11 @@ public class Controller {
 			synchronizer = new Synchronizer(callBack);
 			synchronizer.execute();
 		}
+	}
+	
+	public List<Course> getAllCourses() {
+		
+		return localHelper.getAllCourses();
 	}
 	
 	/* The Synchronizer class executes the cloud synchronization code in a background thread
@@ -109,5 +114,18 @@ public class Controller {
 		ArrayList<Course> courseList = cloudHelper.getCourseList(school, semester, courseName, courseSection);
 		
 		return courseList;
+	}
+
+	public List<Event> getAllEvents() {
+
+		Event event = new Event();
+		event.setName("Exam 1");
+		event.setLocation("ERB 129");
+		event.setDate(Calendar.getInstance().getTime());
+		
+		ArrayList<Event> eventList = new ArrayList<Event>();
+		eventList.add(event);
+		
+		return eventList;
 	}
 }

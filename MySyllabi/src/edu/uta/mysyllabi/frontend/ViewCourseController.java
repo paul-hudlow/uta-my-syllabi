@@ -121,7 +121,13 @@ public class ViewCourseController extends ActionBarActivity {
     		startActivity(newIntent);
     		break;
         case R.id.action_refresh:
-        	refreshData();
+        	 refreshData();
+        	 break;
+        case R.id.action_list_events:
+        	 newIntent = new Intent(this, ListEventsController.class);
+    		 startActivity(newIntent);
+    		 break;
+    		
         }
         
         return super.onOptionsItemSelected(item);
