@@ -9,7 +9,7 @@
     android:orientation="vertical"
     tools:context="edu.uta.mysyllabi.frontend.ViewUpdatesController" >
 
-	<!-- display courses from the cloud -->
+	<!-- display updated items from the cloud -->
 
 	<ListView
 	    android:id="@+id/update_list"

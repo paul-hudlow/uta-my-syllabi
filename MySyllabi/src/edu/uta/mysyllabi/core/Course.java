@@ -22,6 +22,7 @@ public class Course implements Mappable, Listable {
 	private Instructor teachingAssistant = new Instructor();
 	private boolean locked = false;
 	private long timeUpdated = 0L;
+	private List<Event> eventList;
 	
 	public static final String MAP_KEY_NAME = "name";
 	public static final String MAP_KEY_SECTION = "section";
@@ -124,6 +125,14 @@ public class Course implements Mappable, Listable {
 		previewMap.put(MAP_KEY_INSTRUCTOR, this.instructor.getName());
 		previewMap.put(MAP_KEY_MEETING, this.meeting.getOccurrence());
 		return previewMap;
+	}
+	
+	public void setEvents(List<Event> events) {
+		this.eventList = events;		
+	}
+	
+	public List<Event> getEvents() {
+		return this.eventList;
 	}
 	
 	public String getLocalId() {
