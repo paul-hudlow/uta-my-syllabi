@@ -1,7 +1,6 @@
 package edu.uta.mysyllabi.core;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import android.os.AsyncTask;
@@ -33,7 +32,6 @@ public class Controller {
 	}
 	
 	public List<Course> getAllCourses() {
-		
 		return localHelper.getAllCourses();
 	}
 	
@@ -60,6 +58,14 @@ public class Controller {
 			}
 		}
 		
+	}
+	
+	public void saveEvent(Event event, String courseId) {
+		if (event.getLocalId() != null) {
+			localHelper.saveFromLocal(event, courseId);
+		} else {
+			localHelper.createEvent(event, courseId);
+		}
 	}
 	
 	/* Saves new course data to the local database and initiates a synchronization. */
@@ -116,16 +122,30 @@ public class Controller {
 		return courseList;
 	}
 
+	public List<Event> getEvents(String courseId) {
+		Course course = localHelper.getCourse(courseId);
+		return course.getEvents();
+	}
+	
 	public List<Event> getAllEvents() {
+		List<Event> allEvents = new ArrayList<Event>();
+		List<Course> courseList = getAllCourses();
+		List<Event> courseEvents;
+		for (Course nextCourse : courseList) {
+			courseEvents = nextCourse.getEvents();
+			if (courseEvents != null) {
+				allEvents.addAll(courseEvents);
+			}
+		}
+		return allEvents;
+		
+	}
 
-		Event event = new Event();
-		event.setName("Exam 1");
-		event.setLocation("ERB 129");
-		event.setDate(Calendar.getInstance().getTime());
-		
-		ArrayList<Event> eventList = new ArrayList<Event>();
-		eventList.add(event);
-		
-		return eventList;
+	public Event getEvent(String localId) {
+		return localHelper.getEvent(localId);
+	}
+
+	public Event getObsoleteEvent(String localId) {
+		return localHelper.getObsoleteEvent(localId);
 	}
 }

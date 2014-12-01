@@ -53,19 +53,17 @@
         </activity>
         <activity
             android:name=".frontend.ViewUpdatesController"
-            android:label="@string/title_activity_view_updates"
-            android:parentActivityName=".frontend.ViewCourseController" >
+            android:label="@string/title_activity_view_updates">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uta.mysyllabi.frontend.ViewCourseController" />
         </activity>
         <activity
-            android:name="edu.uta.mysyllabi.frontend.ListEventsController"
+            android:name=".frontend.ListEventsController"
             android:label="@string/title_activity_events_list" >
         </activity>
-        
         <activity
-            android:name="edu.uta.mysyllabi.frontend.ModifyEventController"
+            android:name=".frontend.ModifyEventController"
             android:label="@string/title_activity_modify_event_controller" >
         </activity>
     </application>

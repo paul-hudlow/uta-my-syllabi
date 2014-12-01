@@ -1,14 +1,15 @@
 package edu.uta.mysyllabi.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import edu.uta.mysyllabi.backend.DataContainer;
 
-public class Course implements Mappable, Listable {
-	private String localId;
-	private String cloudId;
+
+public class Course extends DataContainer implements Listable {
 	private String nameLetters;
 	private String nameNumber;
 	private boolean nameValidity = false;
@@ -20,9 +21,7 @@ public class Course implements Mappable, Listable {
 	private WeeklyMeeting meeting = new WeeklyMeeting();
 	private Instructor instructor = new Instructor();
 	private Instructor teachingAssistant = new Instructor();
-	private boolean locked = false;
-	private long timeUpdated = 0L;
-	private List<Event> eventList;
+	private List<Event> eventList = new ArrayList<Event>();
 	
 	public static final String MAP_KEY_NAME = "name";
 	public static final String MAP_KEY_SECTION = "section";
@@ -50,15 +49,13 @@ public class Course implements Mappable, Listable {
 	};
 	
 	public Course(String localId, String cloudId) {
-		this.localId = localId;
-		this.cloudId = cloudId;
+		super(localId, cloudId);
 	}
 	
 	@Override
 	public String toString(){
 		return getName();
 	}
-	
 	
 	public void addContent(Map<String, String> map) {
 		setName(map.get(COURSE_NAME));
@@ -90,26 +87,6 @@ public class Course implements Mappable, Listable {
 		return map;
 	}
 	
-	public Map<String, String> getDifferenceMap(Course anotherCourse) {
-		Map<String, String> nativeMap = this.getContentMap();
-		Map<String, String> foreignMap = anotherCourse.getContentMap();
-		Map<String, String> differenceMap = new HashMap<String, String>();
-		List<String> keys = getContentKeys();
-		String nativeValue, foreignValue;
-		for (String nextKey : keys) {
-			nativeValue = nativeMap.get(nextKey);
-			foreignValue = foreignMap.get(nextKey);
-			if (foreignValue != null) {
-				if (!foreignValue.equals(nativeValue)) {
-					differenceMap.put(nextKey, foreignValue);
-				}
-			} else if (nativeValue != null) {
-				differenceMap.put(nextKey, "");
-			}
-		}
-		return differenceMap;		
-	}
-	
 	public List<String> getContentKeys() {
 		LinkedList<String> keyList = new LinkedList<String>();
 		for (int i = 0; i < contentKeys.length; i++) {
@@ -118,10 +95,6 @@ public class Course implements Mappable, Listable {
 		keyList.addAll(this.meeting.getContentKeys(MEETING_PREFIX));
 		keyList.addAll(this.instructor.getContentKeys(INSTRUCTOR_PREFIX));
 		return keyList;
-	}
-	
-	public boolean sharesContents(Course another) {
-		return this.getContentMap().equals(another.getContentMap());
 	}
 	
 	public HashMap<String,String> getPreviewMap() {
@@ -134,47 +107,26 @@ public class Course implements Mappable, Listable {
 	}
 	
 	public void setEvents(List<Event> events) {
-		this.eventList = events;		
+		if (events == null) {
+			return;
+		}
+		this.eventList = events;
+		for (Event nextEvent : eventList) {
+			nextEvent.setCourseName(this.getName());
+		}
 	}
 	
 	public List<Event> getEvents() {
 		return this.eventList;
 	}
 	
-	public String getLocalId() {
-		return this.localId;
-	}
-	
-	public String getCloudId() {
-		return this.cloudId;
-	}
-	
-	public long getUpdateTime() {
-		return timeUpdated;
-	}
-	
-	public void setUpdateTime(long timeUpdated) {
-		this.timeUpdated = timeUpdated;
-	}
-	
-	public void setLocalId(String localId) {
-		if (this.localId == null) {
-			this.localId = localId;
-		} else {
-			throw new IllegalStateException("Course already has a local id!");
-		}
-	}
-	
-	public void setCloudId(String cloudId) throws IllegalStateException {
-		if (this.cloudId == null) {
-			this.cloudId = cloudId;
-		} else {
-			throw new IllegalStateException("Course already has a cloud id!");
-		}
-	}
-	
 	public String getName() {
 		return nameLetters + " " + nameNumber;
+	}
+	
+	public void forceName(String name) {
+		this.nameLetters = name;
+		this.nameNumber = "";
 	}
 	
 	public void setName(String name) {
@@ -293,13 +245,4 @@ public class Course implements Mappable, Listable {
 	public void setMeeting(WeeklyMeeting meeting) {
 		this.meeting = meeting;
 	}
-	
-	public boolean isLocked() {
-		return locked;
-	}
-	
-	public void setLocked(boolean locked) {
-		this.locked = locked;	
-	}
-	
 }

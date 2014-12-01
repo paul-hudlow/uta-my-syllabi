@@ -10,8 +10,8 @@
     <string name="menu_item_refresh">Refresh View</string>
 
     <!-- Create New Course -->
-    <string name="hint_course_name">Course ID</string><string name="title_activity_create_course">Create New Course</string>
-    
+    <string name="hint_course_name">Course ID</string>
+    <string name="title_activity_create_course">Create New Course</string>
     <string name="hint_course_section">Section</string>
     <string name="hint_course_school">College or University</string>
     <string name="create_course_submit">Create Course</string>
@@ -99,13 +99,16 @@
     <string name="day_sat">S</string>
     <string name="day_sun">S</string>
     <string name="title_activity_view_updates">View Updates</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_list_events_controller">ListEventsController</string>
-    <string name="title_activity_modify_event_controller">Manage Events</string>
+    <string name="title_activity_modify_event_controller">Manage Event</string>
     <string name="hint_event_type">Event Title</string>
+    <string name="hint_event_location">Event Location</string>
     <string name="hint_time">Event Time</string>
     <string name="hint_date">Event Date</string>
+    <string name="save_event">Save Event</string>
     <string name="title_activity_list_events">List Events</string>
+    <string name="title_activity_create_event">Create New Event</string>
     <string name="title_activity_events_list">Events List</string>
+    <string name="course_filter">All Courses</string>
+    <string name="title_activity_view_event">View Events</string>
 
 </resources>

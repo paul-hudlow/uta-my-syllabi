@@ -6,7 +6,6 @@ import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
 import edu.uta.mysyllabi.core.Instructor;
 import edu.uta.mysyllabi.core.WeeklyMeeting;
-import android.app.Activity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
@@ -16,7 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ModifyCourseController extends Activity {
+public class ModifyCourseController extends MySyllabiActivity {
 	private Course course; // course object to be modified
 	private Course oldCourse; // course obsoleted by cloud update(s)
 	private Controller controller; // system controller for back-end operations
@@ -76,46 +75,6 @@ public class ModifyCourseController extends Activity {
 		/* Load the course data into the input views. */
 		prepareInputViews();
 	}
-	
-	public void prepareText(TextView view, String start, String test) {
-		if (start != null) {
-			view.setText(start);
-			view.setTextColor(getResources().getColor(R.color.black));
-			if (!start.equals(test)) {
-				view.setTextColor(getResources().getColor(R.color.modified));
-				view.setOnLongClickListener(new RevertChangeListener(test));
-			}
-		} else if (test != null) {
-			view.setTextColor(getResources().getColor(R.color.modified));
-			view.setOnLongClickListener(new RevertChangeListener(test));
-		}
-	}
-	
-	protected class RevertChangeListener implements View.OnLongClickListener {
-				
-			private String backup;
-			private boolean reverted = false;
-			
-			public RevertChangeListener(String backup) {
-				this.backup = backup;
-			}
-			
-			@Override
-			public boolean onLongClick(View view) {
-				String current = ((TextView)view).getText().toString();
-				((TextView)view).setText(backup);
-				backup = current;
-				if (reverted) {
-					((TextView)view).setTextColor(getResources().getColor(R.color.modified));
-					reverted = false;
-				} else {
-					((TextView)view).setTextColor(getResources().getColor(R.color.black));
-					reverted = true;
-				}
-				return true;
-			}
-			
-		}
 	
 	public void prepareInputViews() {
 		/* Course Identity */

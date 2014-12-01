@@ -4,9 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,33 +14,41 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TimePicker;
-import android.widget.Toast;
+import android.widget.TextView;
+import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.Controller;
 import edu.uta.mysyllabi.core.Course;
+import edu.uta.mysyllabi.core.Event;
 
-public class ModifyEventController extends ActionBarActivity implements
+public class ModifyEventController extends MySyllabiActivity implements
 		OnItemSelectedListener {
 
-	private Spinner coursespinner;
+	public static final String KEY_EVENT_ID = "event_id";
+	private Event event;
+	private Event oldEvent;
+	private Course course;
+	private Spinner courseSpinner;
 	private Controller controller;
-	EditText EventDate;
-	EditText EventTime;
-	Calendar myCalendar;
+	private TextView EventDate;
+	private TextView EventTime;
+	private EditText LocationView;
+	private EditText TitleView;
+	private Calendar calendar = Calendar.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_modify_event);
-		this.coursespinner = (Spinner) findViewById(R.id.course_spinner);
-		this.controller = new Controller();
-		this.coursespinner.setOnItemSelectedListener(this);
+		this.courseSpinner = (Spinner) findViewById(R.id.course_spinner);
+		this.controller = MySyllabi.getAppController();
+		this.courseSpinner.setOnItemSelectedListener(this);
 		loadSpinnerData();
 
-		EventDate = (EditText) findViewById(R.id.select_date);
-		EventTime = (EditText) findViewById(R.id.select_time);
-		myCalendar = Calendar.getInstance();
+		EventDate = (TextView) findViewById(R.id.select_date);
+		EventTime = (TextView) findViewById(R.id.select_time);
+		LocationView = (EditText) findViewById(R.id.event_location);
+		TitleView = (EditText) findViewById(R.id.event_type);
 
 		final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
@@ -50,23 +56,14 @@ public class ModifyEventController extends ActionBarActivity implements
 			public void onDateSet(DatePicker view, int year, int monthOfYear,
 					int dayOfMonth) {
 				// TODO Auto-generated method stub
-				myCalendar.set(Calendar.YEAR, year);
-				myCalendar.set(Calendar.MONTH, monthOfYear);
-				myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-				updateDisplay();
+				calendar.set(Calendar.YEAR, year);
+				calendar.set(Calendar.MONTH, monthOfYear);
+				calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+				event.setDate(calendar.getTime());
+				EventDate.setText(event.getDate());
+				EventDate.setTextColor(getResources().getColor(R.color.black));
 			}
-
-			private void updateDisplay() {
-				// TODO Auto-generated method stub
-
-				EventDate.setText(new StringBuilder()
-						// Month is 0 based so add 1
-						.append(myCalendar.get(Calendar.MONTH) + 1).append("-")
-						.append(myCalendar.get(Calendar.DAY_OF_MONTH))
-						.append("-").append(myCalendar.get(Calendar.YEAR))
-						.append(" "));
-
-			}
+			
 		};
 
 		EventDate.setOnClickListener(new View.OnClickListener() {
@@ -76,64 +73,33 @@ public class ModifyEventController extends ActionBarActivity implements
 				// TODO Auto-generated method stub
 				if (v.getId() == R.id.select_date) {
 					new DatePickerDialog(ModifyEventController.this, date,
-							myCalendar.get(Calendar.YEAR), myCalendar
-									.get(Calendar.MONTH), myCalendar
-									.get(Calendar.DAY_OF_MONTH)).show();
-					// val=1;
+							calendar.get(Calendar.YEAR), 
+							calendar.get(Calendar.MONTH), 
+							calendar.get(Calendar.DAY_OF_MONTH)).show();
 				}
 			}
 
 		});
 
-		// TimePicker
-
-		final TimePickerDialog.OnTimeSetListener time = new TimePickerDialog.OnTimeSetListener() {
-
-			@Override
-			public void onTimeSet(TimePicker view, int hourofday, int minute) {
-				// TODO Auto-generated method stub
-				myCalendar.set(Calendar.HOUR_OF_DAY, hourofday);
-				myCalendar.set(Calendar.MINUTE, minute);
-				// updateText();
-				updateTime();
-
-			}
-
-			private void updateTime() {
-				// TODO Auto-generated method stub
-
-				EventTime.setText(new StringBuilder()
-						.append(myCalendar.get(Calendar.HOUR_OF_DAY))
-						.append(":").append(myCalendar.get(Calendar.MINUTE))
-						.append(" "));
-
-			}
-		};
-
-		EventTime.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				if (v.getId() == R.id.select_time) {
-					new TimePickerDialog(ModifyEventController.this, time,
-							myCalendar.get(Calendar.HOUR_OF_DAY), myCalendar
-									.get(Calendar.MINUTE), true).show();
-
-				}
-
-			}
-		});
-}
+		String eventId = getIntent().getStringExtra(KEY_EVENT_ID);
+		if (eventId != null) {
+			this.event = controller.getEvent(eventId);
+		} else {
+			this.event = new Event(null, null);
+		}
+		this.oldEvent = controller.getObsoleteEvent(event.getLocalId());
+		if (oldEvent == null) {
+			oldEvent = event;
+		}
+		
+		prepareViews();
+		
+	}
 
 	/**
-	 *      * Function to load the spinner data from SQLite database      *
+	 * Function to load the spinner data from SQLite database.
 	 */
 	private void loadSpinnerData() {
-		// database handler
-		// DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-
-		// Spinner Drop down elements
 		List<Course> coursenames = controller.getAllCourses();
 
 		// Creating adapter for spinner
@@ -142,16 +108,24 @@ public class ModifyEventController extends ActionBarActivity implements
 		// Drop down layout style - list view with radio button
 		dataAdapter.setDropDownViewResource(R.layout.spinner_item);
 		// attaching data adapter to spinner
-		coursespinner.setAdapter(dataAdapter);
+		courseSpinner.setAdapter(dataAdapter);
+	}
+	
+	private void prepareViews() {
+		EventTime.setOnClickListener(new SetTimeDialogFragment(this, event, false));
+		if (event.getLocalId() != null) {
+			prepareText(EventTime, event.getStartTime().toString(false), oldEvent.getStartTime().toString(false));
+			prepareText(EventDate, event.getDate(), oldEvent.getDate());
+			prepareText(LocationView, event.getLocation(), oldEvent.getLocation());
+			prepareText(TitleView, event.getName(), oldEvent.getName());
+		}		
 	}
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		// On selecting a spinner item
-		String label = parent.getItemAtPosition(position).toString();
-		Toast.makeText(parent.getContext(), "You selected: " + label,
-				Toast.LENGTH_LONG).show();
+		this.course = (Course)parent.getItemAtPosition(position);
 	}
 
 	@Override
@@ -177,6 +151,14 @@ public class ModifyEventController extends ActionBarActivity implements
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void saveEvent(View view) {
+		event.setName(TitleView.getText().toString());
+		event.setLocation(LocationView.getText().toString());
+		controller.saveEvent(event, course.getLocalId());
+		controller.synchronize(null);
+		this.finish();
 	}
 
 }

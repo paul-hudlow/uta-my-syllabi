@@ -1,18 +1,23 @@
 package edu.uta.mysyllabi.core;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class Event implements Mappable,Listable.Detailed {
-	String localId;
-	String cloudId;
-	Date date;
-	String location;
-	String name;
-	String gradeCategory;
+import edu.uta.mysyllabi.backend.DataContainer;
+import edu.uta.mysyllabi.frontend.TimeHolder;
+
+public class Event extends DataContainer implements Listable.Detailed, TimeHolder {
+	Date date = new Date();
+	private String location;
+	private String name;
+	//private String gradeCategory;
+	private String courseName;
 	
 	private static final String DATE = "date";
 	private static final String LOCATION = "location";
@@ -23,6 +28,10 @@ public class Event implements Mappable,Listable.Detailed {
 			LOCATION,
 			NAME
 	};
+	
+	public Event(String localId, String cloudId) {
+		super(localId, cloudId);
+	}
 	
 	@Override
 	public Map<String, String> getContentMap() {
@@ -69,7 +78,12 @@ public class Event implements Mappable,Listable.Detailed {
 	}
 	
 	public void setDate(Date date) {
-		this.date = date;
+		Calendar newCalendar = Calendar.getInstance();
+		newCalendar.setTime(date);
+		Calendar oldCalendar = Calendar.getInstance();
+		oldCalendar.setTime(this.date);
+		oldCalendar.set(newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+		this.date = oldCalendar.getTime();
 	}
 	
 	public String getName() {
@@ -81,12 +95,13 @@ public class Event implements Mappable,Listable.Detailed {
 	}
 	
 	public String getDate() {
-		return this.date.toString();
+		SimpleDateFormat format = new SimpleDateFormat("E, MMM dd", Locale.US);
+		return format.format(date);
 	}
-	public String getLocalId() {
-		// TODO Auto-generated method stub
-		
-		return "quiz 4";
+	
+	@Override
+	public boolean sharesContents(Mappable another) {
+		return this.getContentMap().equals(another.getContentMap());
 	}
 	
 	@Override
@@ -94,10 +109,47 @@ public class Event implements Mappable,Listable.Detailed {
 		
 		HashMap<String,String> previewMap = new HashMap<String,String>();
 		previewMap.put(Listable.PREVIEW_TITLE, this.getName());
-		previewMap.put(Listable.PREVIEW_SUBTITLE, "CSE 1234");
-		previewMap.put(Listable.PREVIEW_SECOND_LINE, this.getDate());
+		previewMap.put(Listable.PREVIEW_SUBTITLE, this.getCourseName());
+		previewMap.put(Listable.PREVIEW_SECOND_LINE, this.getDate() + ", " + new TimeOfDay(date).toString(false));
 		previewMap.put(Listable.Detailed.PREVIEW_THIRD_LINE, this.getLocation());
 		previewMap.put(Listable.Detailed.PREVIEW_FOURTH_LINE, "");
 		return previewMap;
 	}
+
+	@Override
+	public void setStartTime(TimeOfDay time) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(calendar.get(Calendar.YEAR),
+					 calendar.get(Calendar.MONTH),
+					 calendar.get(Calendar.DAY_OF_MONTH),
+					 time.getHour(), time.getMinute());
+		date = calendar.getTime();
+	}
+
+	@Override
+	public void setEndTime(TimeOfDay time) {
+		setStartTime(time);
+	}
+
+	@Override
+	public TimeOfDay getStartTime() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		return new TimeOfDay(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+	}
+
+	@Override
+	public TimeOfDay getEndTime() {
+		return getStartTime();
+	}
+
+	public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+
 }

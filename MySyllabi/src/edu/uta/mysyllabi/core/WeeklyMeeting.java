@@ -5,7 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class WeeklyMeeting implements Mappable.Child {
+import edu.uta.mysyllabi.frontend.TimeHolder;
+
+public class WeeklyMeeting implements Mappable.Child, TimeHolder {
 	private TimeOfDay startTime; // in minutes from midnight
 	private TimeOfDay endTime;
 	private char[] daysOfWeek = {'n','n','n','n','n','n','n'}; // Array has length 7 and indicates each meeting day with the character 'y'.

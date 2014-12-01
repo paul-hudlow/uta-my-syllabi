@@ -1,5 +1,8 @@
 package edu.uta.mysyllabi.core;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class TimeOfDay {
 	public static final int MAX_HOUR = 23;
 	public static final int MAX_MINUTE = 59;
@@ -16,6 +19,13 @@ public class TimeOfDay {
 	public TimeOfDay(int totalMinutes) {
 		hour = totalMinutes/60;
 		minute = totalMinutes%60;
+	}
+	
+	public TimeOfDay(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		hour = calendar.get(Calendar.HOUR_OF_DAY);
+		minute = calendar.get(Calendar.MINUTE);
 	}
 	
 	public String toString(boolean in24HourFormat) {

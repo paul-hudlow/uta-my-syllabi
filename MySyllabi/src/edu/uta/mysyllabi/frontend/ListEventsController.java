@@ -1,9 +1,6 @@
 package edu.uta.mysyllabi.frontend;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,20 +9,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.Controller;
+import edu.uta.mysyllabi.core.Course;
 import edu.uta.mysyllabi.core.Event;
-import edu.uta.mysyllabi.core.Listable;
 
-public class ListEventsController extends Activity implements OnItemClickListener {
+public class ListEventsController extends Activity implements OnItemClickListener, OnItemSelectedListener {
 
-	private List<Event> events;
-	private ListView eventList;
-	private SimpleAdapter listViewAdapter; 
+	private ListView eventListView;
+	private List<Event> eventList;
+	private Spinner courseSpinner;
+	private ArrayAdapter<Course> spinnerAdapter;
+	private SimpleAdapter listViewAdapter;
 	private Controller controller;
+	private MySyllabiActivity dynamicHelper = new MySyllabiActivity();
+	private int currentCoursePosition = -1;
 	
 	
 	@Override
@@ -33,43 +37,34 @@ public class ListEventsController extends Activity implements OnItemClickListene
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list_events_controller);
 		
-		
-		this.eventList = (ListView) findViewById(R.id.list_events);
-		this.eventList.setOnItemClickListener(this); 
+		this.eventListView = (ListView) findViewById(R.id.list_events);
+		this.eventListView.setOnItemClickListener(this); 
+		this.courseSpinner = (Spinner)findViewById(R.id.course_filter_spinner);
 		
 		this.controller = MySyllabi.getAppController();
 		
+		/* Create an new ArrayAdapter for course spinner. */
+		List<Course> courses = controller.getAllCourses();
+		Course dummyCourse = new Course(null, null);
+		dummyCourse.forceName(getString(R.string.course_filter));
+		courses.add(0, dummyCourse);
+		spinnerAdapter = new ArrayAdapter<Course>(getBaseContext(), R.layout.spinner_item, courses);
+		spinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
 		
-		events = controller.getAllEvents();
-		
-    	ArrayList<Map<String, String>> mapList = new ArrayList<Map<String, String>>();
-		for (Event nextEvent : events) {
-			mapList.add(nextEvent.getPreviewMap());
-		}
-		String[] eventElements = { 
-				Listable.PREVIEW_TITLE,
-				Listable.PREVIEW_SUBTITLE, 
-				Listable.PREVIEW_SECOND_LINE,
-				Listable.Detailed.PREVIEW_THIRD_LINE,
-				Listable.Detailed.PREVIEW_FOURTH_LINE };
-		int[] viewElements = { 
-				R.id.preview_title, 
-				R.id.preview_subtitle,
-				R.id.preview_second_line,
-				R.id.preview_third_line,
-				R.id.preview_fourth_line };
-		
-		listViewAdapter = new SimpleAdapter(this, mapList,
-				R.layout.detailed_item, eventElements, viewElements);
-		eventList.setAdapter(listViewAdapter);
-		
-		
+		courseSpinner.setAdapter(spinnerAdapter);
+		courseSpinner.setOnItemSelectedListener(this);
 	}
+	
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    	updateListView();
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.list_events_controller, menu);
+		getMenuInflater().inflate(R.menu.list_events, menu);
 		return true;
 	}
 
@@ -88,15 +83,37 @@ public class ListEventsController extends Activity implements OnItemClickListene
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 		
-		Event selectedEvent = this.events.get(position);
-		//modifyEventController(selectedEvent.getLocalId());
-		
+		String eventId = eventList.get(position).getLocalId();
 		Intent intent = new Intent(this, ModifyEventController.class);
-		//intent.putExtra(ModifyCourseController.KEY_COURSE_ID, courseId);
+		intent.putExtra(ModifyEventController.KEY_EVENT_ID, eventId);
 		startActivity(intent);
-		    
 		
-		
-		
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		this.currentCoursePosition = position;
+		updateListView();		
+	}
+	
+	private void updateListView() {
+		if (this.currentCoursePosition < 0) {
+			return;
+		}
+		String courseId = this.spinnerAdapter.getItem(currentCoursePosition).getLocalId();
+		if (courseId != null) {
+			this.eventList = controller.getEvents(courseId);
+			this.listViewAdapter = dynamicHelper.populateDetailedList(this, eventList);
+			this.eventListView.setAdapter(listViewAdapter);
+		} else {
+			this.eventList = controller.getAllEvents();
+			this.listViewAdapter = dynamicHelper.populateDetailedList(this, eventList);
+			this.eventListView.setAdapter(listViewAdapter);
+		}
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// Do nothing.
 	}
 }

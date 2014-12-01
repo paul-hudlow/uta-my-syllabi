@@ -2,7 +2,6 @@ package edu.uta.mysyllabi.frontend;
 
 import edu.uta.mysyllabi.R;
 import edu.uta.mysyllabi.core.TimeOfDay;
-import edu.uta.mysyllabi.core.WeeklyMeeting;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -20,11 +19,11 @@ public class SetTimeDialogFragment extends DialogFragment
 	private Activity activity;
 	private TimeOfDay time;
 	private TextView hostView;
-	private WeeklyMeeting meeting;
+	private TimeHolder meeting;
 	private boolean isEnd;
 	private boolean is24HourFormat;
 	
-	public SetTimeDialogFragment(Activity activity, WeeklyMeeting meeting, boolean isEnd) {
+	public SetTimeDialogFragment(Activity activity, TimeHolder meeting, boolean isEnd) {
 		super();
 		if (activity == null) {
 			throw new NullPointerException();

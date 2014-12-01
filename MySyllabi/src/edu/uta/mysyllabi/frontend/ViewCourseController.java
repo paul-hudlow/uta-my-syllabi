@@ -80,7 +80,7 @@ public class ViewCourseController extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.select_course, menu);
+        getMenuInflater().inflate(R.menu.view_course, menu);
         return true;
     }
 
@@ -121,13 +121,16 @@ public class ViewCourseController extends ActionBarActivity {
     		startActivity(newIntent);
     		break;
         case R.id.action_refresh:
-        	 refreshData();
-        	 break;
+        	refreshData();
+        	break;
         case R.id.action_list_events:
-        	 newIntent = new Intent(this, ListEventsController.class);
-    		 startActivity(newIntent);
-    		 break;
-    		
+        	newIntent = new Intent(this, ListEventsController.class);
+    		startActivity(newIntent);
+    		break;
+        case R.id.action_create_event:
+	       	newIntent = new Intent(this, ModifyEventController.class);
+	   		startActivity(newIntent);
+	   		break;
         }
         
         return super.onOptionsItemSelected(item);

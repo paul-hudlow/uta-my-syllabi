@@ -11,6 +11,8 @@ public interface Mappable {
 	
 	public void addContent(Map<String, String> contentMap);
 	
+	public boolean sharesContents(Mappable anotherMappable);
+	
 	public interface Child {
 		
 		public Map<String, String> getContentMap(String keyPrefix);

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.os.AsyncTask;
-
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -15,10 +13,13 @@ import com.parse.ParseQuery;
 
 import edu.uta.mysyllabi.MySyllabi;
 import edu.uta.mysyllabi.core.Course;
+import edu.uta.mysyllabi.core.Event;
 
 public class CloudDataHelper {
 	
 	private static final String COURSE_TABLE = "course_table";
+	private static final String EVENT_TABLE = "event_table";
+	private static final String COURSE_ID = "course_id";
 	
 	public CloudDataHelper() {
 		Parse.initialize(MySyllabi.getAppContext(), 
@@ -26,64 +27,57 @@ public class CloudDataHelper {
 				"ZtXxrCSSp90ca4pmWGbLGanXEarRFR6BtPIwSVXM");
 	}
 	
-	/* Creates new course on the cloud or updates an existing course. */
 	public void updateCourse(Course course) throws ParseException {
 		if (course.getCloudId() == null) { // Check whether a cloud ID is available.
 			throw new IllegalArgumentException("Course object is missing cloud ID!");
 		}
 		/* Update course on cloud with Parse-provided method. */
-		ParseObject cloudCourse = courseToParse(course);
+		ParseObject cloudCourse = containerToParse(course, COURSE_TABLE);
 		cloudCourse.save();
 		course.setUpdateTime(cloudCourse.getUpdatedAt().getTime());
+	}
+	
+	public void updateEvent(Event event) throws ParseException {
+		if (event.getCloudId() == null) { // Check whether a cloud ID is available.
+			throw new IllegalArgumentException("Event object is missing cloud ID!");
+		}
+		/* Update course on cloud with Parse-provided method. */
+		ParseObject cloudCourse = containerToParse(event, EVENT_TABLE);
+		cloudCourse.save();
+		event.setUpdateTime(cloudCourse.getUpdatedAt().getTime());
 	}
 	
 	// Create new course on cloud with custom save behavior.
 	public Course createCourse(Course course) throws ParseException {
 		/* Save the course to the cloud. */
-		ParseObject cloudCourse = courseToParse(course);
+		ParseObject cloudCourse = containerToParse(course, COURSE_TABLE);
 		cloudCourse.save();
 		course.setCloudId(cloudCourse.getObjectId());
 		course.setUpdateTime(cloudCourse.getUpdatedAt().getTime());
 		return course;
 	}
-	
-	/* Saves a new course to the cloud in a background thread. This is necessary in order to
-	 * return the cloud ID to the local database afterwards. */
-	protected class CourseCreator extends AsyncTask<Course, Void, Void> {
-		
-		@Override
-		protected Void doInBackground(Course... params) {
-			if (params.length != 1) {
-				throw new IllegalArgumentException("Must have exactly one Course argument!");
-			}
-			Course course = params[0];
-			
-			/* Save the course to the cloud. */
-			ParseObject cloudCourse = courseToParse(course);
-			try {
-				cloudCourse.save();
-			} catch (ParseException e) {
-				return null;
-			}
-			/* Save the automatically returned ID to the local database for later reference. */
-		    //LocalDataHelper localHelper = new LocalDataHelper();
-		    //localHelper.addCloudId(course.getLocalId(), cloudCourse.getObjectId()); 
-		    
-			return null;
-		}
-		
+
+	// Create new course on cloud with custom save behavior.
+	public Event createEvent(Event event, Course course) throws ParseException {
+		/* Save the course to the cloud. */
+		ParseObject cloudCourse = containerToParse(event, EVENT_TABLE);
+		cloudCourse.put(COURSE_ID, course.getCloudId());
+		cloudCourse.save();
+		event.setCloudId(cloudCourse.getObjectId());
+		event.setUpdateTime(cloudCourse.getUpdatedAt().getTime());
+		return event;
 	}
 	
 	/* Convert a Course object to a ParseObject object. */
-	private static ParseObject courseToParse(Course courseObject) {
-		final ParseObject parseObject = new ParseObject(COURSE_TABLE);
+	private static ParseObject containerToParse(DataContainer containerObject, String tableName) {
+		final ParseObject parseObject = new ParseObject(tableName);
 		
-		if (courseObject.getCloudId() != null) {
-			parseObject.setObjectId(courseObject.getCloudId());
+		if (containerObject.getCloudId() != null) {
+			parseObject.setObjectId(containerObject.getCloudId());
 		}
 		
-		Map<String, String> courseMap = courseObject.getContentMap();
-		List<String> keys = courseObject.getContentKeys();
+		Map<String, String> courseMap = containerObject.getContentMap();
+		List<String> keys = containerObject.getContentKeys();
 		String nextValue;
 		for (String nextKey : keys) {
 			nextValue = courseMap.get(nextKey);
@@ -120,12 +114,32 @@ public class CloudDataHelper {
 		
 	    return courseObject;
 	}
+	
+	/* Convert a ParseObject object to an Event object. */
+	private Event parseToEvent(ParseObject parseObject) {
+		
+		/* Use map to create new Event object. */
+	    Event eventObject = new Event(null, parseObject.getObjectId());
+	    eventObject.setUpdateTime(parseObject.getUpdatedAt().getTime());
+	    eventObject.addContent(getMap(parseObject));
+		
+	    return eventObject;
+	}
 
 	public Course getCourse(String cloudId) throws ParseException {
 		ParseObject parseCourse = new ParseObject(COURSE_TABLE);
 		parseCourse.setObjectId(cloudId);
 		parseCourse.fetch();
-		return parseToCourse(parseCourse);
+		Course course = parseToCourse(parseCourse);
+		course.setEvents(getEvents(cloudId));
+		return course;
+	}
+	
+	public Event getEvent(String cloudId) throws ParseException {
+		ParseObject parseCourse = new ParseObject(EVENT_TABLE);
+		parseCourse.setObjectId(cloudId);
+		parseCourse.fetch();
+		return parseToEvent(parseCourse);
 	}
 	
 	public long getUpdateTime(String cloudId) throws ParseException {
@@ -156,6 +170,31 @@ public class CloudDataHelper {
 			String[] schools = {"Other"};
 			return schools;
 		}
+	}
+	
+	public ArrayList<Event> getEvents(String courseId) {
+		
+		/* Set up ParseQuery object. */
+		ParseQuery<ParseObject> courseQuery = ParseQuery.getQuery(EVENT_TABLE);
+
+		/* Set query parameters. */
+		courseQuery.whereEqualTo(COURSE_ID, courseId);
+		
+		/* Send query to Parse. */
+		List<ParseObject> parseList;
+		try {
+			parseList = courseQuery.find();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return new ArrayList<Event>();
+		}
+				
+		/* Populate list by converting ParseObject objects to Course objects. */
+		ArrayList<Event> eventList = new ArrayList<Event>();
+		for (ParseObject parseEvent : parseList) {
+			eventList.add(parseToEvent(parseEvent));
+		}
+		return eventList;
 	}
 	
 	public ArrayList<Course> getCourseList(String schoolName, String semester, 
